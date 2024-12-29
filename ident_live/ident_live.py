@@ -1,30 +1,109 @@
 #!/usr/local/bin/python3
 
-import os
-import sys
-import librosa
-import random
-import json
-from datetime import datetime, timedelta, timezone
-from datetime import datetime as dt
-import pickle
+from rich.console import Console
+console = Console()
+
+
+# from ident_softmax.ident_softmax.harbour_porpoise import *
+from game import IdentGame
+from ident_application import *
+from marlin_data.marlin_data import *
+from custom_decisions import *
+from custom_genes import *
+from custom_bots import *
+import marlin_brahma.fitness.performance as performance
+from marlin_brahma.fitness.performance import RootDecision
+import marlin_brahma.world.population as pop
+import marlin_brahma.bots.bot_root as bots
 from dotenv import load_dotenv, dotenv_values
+import pickle
+from datetime import datetime as dt
+from datetime import datetime, timedelta, timezone
+import json
+import random
+import librosa
+import sys
+import os
+
+SOFTMAX_FOLDER_USR = os.path.join(
+    '/', 'Users', 'vixen', 'rs', 'dev', 'ident_softmax')
+os.environ['SOFTMAX_FOLDER_USR'] = SOFTMAX_FOLDER_USR
+
 
 # Import Brahma
-import marlin_brahma.bots.bot_root as bots
-import marlin_brahma.world.population as pop
-from marlin_brahma.fitness.performance import RootDecision
-import marlin_brahma.fitness.performance as performance
+
 
 # Import custom / gene libraries
-from custom_bots import *
-from custom_genes import *
-from custom_decisions import *
 
 # Import marlin_data
-from marlin_data.marlin_data import *
-from ident_application import *
-from game import IdentGame
+
+import operator
+# input feature distribution
+def shape_input(features, f_bucket_size):
+    """shape_input Generate a seleceted distribution of features/bots for a simulation run.
+
+    :param features: list of features/bots
+    :type features: List[bot]
+    """
+    
+    f_buckets = {}
+    f_buckets_names = {}
+    f_name_list = []
+    
+    for feature, f in features.items():
+        if f not in list(f_buckets.keys()):
+            f_buckets[f] = 0
+            f_buckets_names[f] = []
+            
+    t_ = 0
+    for feature,f in features.items():
+        # print (f'{feature}, {f}')
+        
+
+        for fr,v in f_buckets.items():
+            if abs(f-fr)<f_bucket_size:
+                if fr in list(f_buckets.keys()):
+                    f_buckets[fr]+=1
+                    f_buckets_names[f].append(feature)
+                    f_name_list.append(feature)
+                    t_+=1
+                else:
+                    f_buckets[fr] = 1
+                    f_buckets_names[f].append(feature)
+                    f_name_list.append(feature)
+                    t_ += 1
+   
+                    
+    # build distribution
+    f_buckets_s = dict(sorted(f_buckets.items(), key=operator.itemgetter(0)))
+        
+    min_count = 9999
+    min_f = 0
+    for fr, v in f_buckets.items():
+        if v > 2:
+            min_count = min(min_count,v)
+    
+    # print(f'min count : {min_count}')
+    
+    distributed_name_list = []
+    for fr, v in f_buckets.items():
+        if len(f_buckets_names[fr]) >= min_count:
+            distributed_name_list.extend(
+                random.sample(f_buckets_names[fr], min_count))
+
+
+    # print (f'Number of features : {len(features)}.')
+    # # print (f_buckets_s)
+    # print (f'Number counted : {t_}')
+    
+    dist_data = {}
+    dist_data['ids'] = distributed_name_list
+    
+    with open('feature_names.json','w+') as f:
+        json.dump(dist_data, f)
+    
+    # print (distributed_name_list)
+    return distributed_name_list
 
 if __name__ == "__main__":
 
@@ -82,12 +161,16 @@ if __name__ == "__main__":
         filename_ss_id = f'{filename}_{location}'  # obs
         batch_file_names.append(filename_ss_id)
         batch_run_ids.append(filename)
+        
 
     for filename in batch_run_ids:
         file_root = filename.split('.')[0]
-        print(f'root : {file_root}')
+        # print(f'root : {file_root}')
         filename_ss_id = f'{file_root}{location}'.replace("_", "")
-        print(f'ss_id : {filename_ss_id}')
+        # print(f'ss_id : {filename_ss_id}')
+        
+        rnd_run_tag = random.randint(0,99999999)
+        filename_ss_id_rnd  = f'{filename_ss_id}{rnd_run_tag}'
 
         shell_config = {}
         shell_config['filename'] = sys.argv[1]
@@ -109,14 +192,14 @@ if __name__ == "__main__":
         file_path = f'{data_path}/{filename}'
         sample_rate = librosa.get_samplerate(file_path)
         raw_data, sample_rate = librosa.load(file_path, sr=sample_rate)
-        print(f'sr : {sample_rate}')
+        # print(f'sr : {sample_rate}')
 
         # -- META DATA
         # get sample end time
         # start_time = "140822_155229.000000"
         start_time = f'{file_root.split("_")[0]}_{file_root.split("_")[1]}.{file_root.split("_")[2]}'
 
-        print(f'start time : {start_time}')
+        # print(f'start time : {start_time}')
         start_t_dt = dt.strptime(start_time, '%Y%m%d_%H%M%S.%f')
         duration_s = len(raw_data)/sample_rate
         start_t_ms = int(start_t_dt.timestamp()) * 1000
@@ -124,11 +207,11 @@ if __name__ == "__main__":
         end_t_ms = int(end_t_dt.timestamp()) * 1000
         end_t_f = end_t_dt.strftime('%y%m%d_%H%M%S.%f')
 
-        print(f'Sample Rate : {sample_rate}')
-        print(f'Number of seconds : {duration_s}')
-        print(start_t_dt, end_t_dt)
-        print(start_t_ms, end_t_ms)
-        print(end_t_f)
+        # print(f'Sample Rate : {sample_rate}')
+        # print(f'Number of seconds : {duration_s}')
+        # print(start_t_dt, end_t_dt)
+        # print(start_t_ms, end_t_ms)
+        # print(end_t_f)
 
         meta_data = {
             "snapshot_id": filename_ss_id,
@@ -149,20 +232,20 @@ if __name__ == "__main__":
         with open(f'{working_path}/{tmp_meta}', 'w') as f:
             json.dump(meta_data, f)
 
-        print(meta_data)
+        # print(meta_data)
 
         # split file into x second intervals
         wav_data_idx_start = 0
         wav_data_idx_end = 0
 
-        print(f'sr : {sample_rate}')
-        print(f'{filename}')
+        # print(f'sr : {sample_rate}')
+        # print(f'{filename}')
 
         src_data_id = filename_ss_id
         cnt = 0
-        print(f'{len(raw_data)}')
+        # print(f'{len(raw_data)}')
         delta_f_idx = (sample_rate * app_config['streaming_delta_t'])
-        print(delta_f_idx)
+        # print(delta_f_idx)
         f_start_time = start_time
         f_start_time_dt = start_t_dt
         sim_ids = []
@@ -182,8 +265,8 @@ if __name__ == "__main__":
             tmp_stream = f'streamedfile_{src_data_id}{cnt}.dat'
             tmp_meta = f'metadata_{filename_ss_id}{cnt}.json'
 
-            print(f' {wav_data_idx_start} -> {wav_data_idx_end}')
-            print(f'{f_start_time} -> {f_end_time}')
+            # print(f' {wav_data_idx_start} -> {wav_data_idx_end}')
+            # print(f'{f_start_time} -> {f_end_time}')
 
             meta_data = {
                 "snapshot_id": f'{src_data_id}{cnt}',
@@ -234,7 +317,7 @@ if __name__ == "__main__":
                 #! update
                 # update_run(filename,1)
 
-                print(f'Building derived data feed structure {s_id}')
+                # print(f'Building derived data feed structure {s_id}')
                 data_adapter.derived_data = None
                 data_adapter.build_derived_data(n_fft=8192)
                 snapshot_derived_data = data_adapter.derived_data.build_derived_data(
@@ -247,7 +330,7 @@ if __name__ == "__main__":
                 data_adapter.multiple_derived_data[s_id] = data_adapter.derived_data
                 if derived_data_use == None:
                     derived_data_use = data_adapter.derived_data
-                print(f'saving...{working_path}/{s_id}.da')
+                # print(f'saving...{working_path}/{s_id}.da')
                 with open(f'{working_path}/{s_id}.da', 'wb') as f:  # open a text file
                     # serialize the list
                     pickle.dump(data_adapter.derived_data, f)
@@ -256,7 +339,7 @@ if __name__ == "__main__":
                 # !update
                 # update_run(filename,2)
                 data_avail = True
-                print(f'Derived data for {s_id} already available.')
+                # print(f'Derived data for {s_id} already available.')
             # # with open(f'{s_id}_.der', 'wb') as f:  # open a text file
             # #     pickle.dump(snapshot_derived_data, f) # serialize the list
 
@@ -272,11 +355,11 @@ if __name__ == "__main__":
         tmp_derived_data = None
 
         if data_avail:
-            print('loading saved data')
+            # print('loading saved data')
             for active_ssid in sim_ids:
 
                 with open(f'{working_path}/{active_ssid}.da', 'rb') as f:  # open a text file
-                    print(f'Building derived data : {active_ssid}')
+                    # print(f'Building derived data : {active_ssid}')
                     data_adapter.derived_data = None
                     tmp_derived_data = pickle.load(f)
                     # tmp_derived_data.get_max_f_index()
@@ -291,8 +374,8 @@ if __name__ == "__main__":
                     if derived_data_use == None:
                         derived_data_use = tmp_derived_data
 
-                    print(f'max frequency index : {max_frequency_index}')
-                    print(f'{data_adapter.derived_data.fourier_delta_t}')
+                    # print(f'max frequency index : {max_frequency_index}')
+                    # print(f'{data_adapter.derived_data.fourier_delta_t}')
                     # if max_frequency_index != 59:
                     #     print (f'{active_ssid} has incorrect number of frequency indices')
                     #     exit()
@@ -341,7 +424,7 @@ if __name__ == "__main__":
         # ------------------------------------------------------------------
         #! update
         # update_run(filename,4.5)
-        print('Loading features / bots.')
+        # print('Loading features / bots.')
         shell_config['number_working_features'] = application.load_bots(
             target, version=feature_version, version_time_from=time_version_from,  version_time_to=time_version_to, bot_dir=features_path, number_features=number_features, update=False)
         num_loaded = shell_config['number_working_features']
@@ -359,15 +442,17 @@ if __name__ == "__main__":
 
         marlin_game = IdentGame(
             application, None, activation_level=user_activation_level)
-        marlin_game.game_id = filename_ss_id
+        marlin_game.game_id = filename_ss_id_rnd
 
         from layer_three import *
         from utils import *
 
         if application.mode == 1:
 
+            feature_f = {}
+
             # update_run(filename,5)
-            print("*** STARTING GAME ***")
+            # print("*** STARTING GAME ***")
 
             # show init f dist
             frequency_activity = []
@@ -380,11 +465,36 @@ if __name__ == "__main__":
                             idx = vgg.frequency_index
                             f = application.derived_data.min_freq + \
                                 (idx * (application.derived_data.index_delta_f))
+                            feature_f[feature.name] = f
                             frequency_activity.append(f)
 
+            distributed_list = shape_input(feature_f,500)
+            
             # build initial feature frequency distribution plot
             plot_hist(frequency_activity,
                       f'{out_path}/f_d_{marlin_game.game_id}_init_all.png')
+
+            
+            
+            marlin_game.game.update_bots(
+                bot_dir=features_path, feature_list=distributed_list)
+
+            frequency_activity = []
+            for feature in list(application.loaded_bots.values()):
+                # print (feature.dNA[0].genome)
+                for k, v in feature.dNA.items():
+                    for kg, vg in v.genome.items():
+                        for kgg, vgg in vg.genome.items():
+                            # if 'frequency_index' in vgg:
+                            idx = vgg.frequency_index
+                            f = application.derived_data.min_freq + \
+                                (idx * (application.derived_data.index_delta_f))
+                            feature_f[feature.name] = f
+                            frequency_activity.append(f)
+
+           
+            plot_hist(frequency_activity,
+                      f'{out_path}/f_d_{marlin_game.game_id}_reshaped_all.png')
 
             # get total time:
             s_interval = duration_s
@@ -400,7 +510,7 @@ if __name__ == "__main__":
             combined_bulk_times = {}
             combined_active_features = {}
 
-            print(f'number_runs {number_runs}')
+            # print(f'number_runs {number_runs}')
             # number_runs = 1
             bot_run_time_start = t.time()
 
@@ -473,6 +583,7 @@ if __name__ == "__main__":
 
                 layer_3 = Layer_Three(activation_level=user_activation_level, threshold_above_activation=user_threshold_above_e,
                                       derived_data=application.derived_data, similarity_threshold=user_similarity_threshold, run_id=filename, target=target, out_path=out_path)
+
                 freq = layer_3.run_layer(marlin_game.bulk_energies, marlin_game.bulk_times,
                                          active_features=marlin_game.active_features, all_features=list(marlin_game.game.loaded_bots.values()))
 
@@ -488,7 +599,7 @@ if __name__ == "__main__":
 
                 # update_run(sub_filename,13)
 
-            print("*** ENDING & PROCESSING GAME RESULTS***")
+            # print("*** ENDING & PROCESSING GAME RESULTS***")
 
             #! update
             # update_run(filename,12)
@@ -497,7 +608,7 @@ if __name__ == "__main__":
             # print (combined_bulk_energies)
 
             for k, v in combined_bulk_energies.items():
-                print(len(v))
+                # print(len(v))
                 break
 
             # marlin_game.bulk_times = combined_bulk_times
@@ -525,10 +636,10 @@ if __name__ == "__main__":
             #! update
             # update_run(filename,12.3)
 
-            print(f'len of t = {len(marlin_game.bulk_times)}')
-            print(f'len of e = {len(marlin_game.bulk_energies)}')
+            # print(f'len of t = {len(marlin_game.bulk_times)}')
+            # print(f'len of e = {len(marlin_game.bulk_energies)}')
             if len(marlin_game.bulk_times) > 2:
-                print('build spec')
+                # print('build spec')
                 build_spec_upload(sample_rate, filename, hits=hits, decisions=layer_3.decisions, peak=layer_3.ratio_active,
                                   avg=layer_3.avg_energies, times=marlin_game.bulk_times, pc_above_e=layer_3.pc_above_tracker, f=freq, full_raw_data=raw_data, save_path=out_path)
 
@@ -539,6 +650,6 @@ if __name__ == "__main__":
 
             #! update
             # update_run(filename,13)
-            print(f'time to run : {bots_run_time}')
+            # print(f'time to run : {bots_run_time}')
 
         break

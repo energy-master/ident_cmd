@@ -78,9 +78,9 @@ class Layer_Three(object):
         # print (time_data)
 
         number_frames = len(time_data)
-        print(f'Number frames : {number_frames}')
-        print(f'Number of active_features : {len(active_features)}')
-        print(f'Number of all features : {len(all_features)}')
+        # print(f'Number frames : {number_frames}')
+        # print(f'Number of active_features : {len(active_features)}')
+        # print(f'Number of all features : {len(all_features)}')
         freq = []
 
         for frame_count in range(0, number_frames-1):
@@ -150,7 +150,7 @@ class Layer_Three(object):
             self.structure_likelyhood = similarity
             # similarity = 0.0
             if similarity > float(self.similarity_threshold):
-                print(f'looking at frame {frame_count} ')
+                print(f'Looking at frame {frame_count} ')
                 self.decisions.append({'time': time_data[frame_count], 'decision': 'ident',  'reason': 'structure_similarity', 'frame': frame_count,
                                       'active_freq': f'https://vixen.hopto.org/rs/ident_app/ident/brahma/out/f_d_{self.run_id}_{frame_count}.png', 'all_freq': f'https://vixen.hopto.org/rs/ident_app/ident/brahma/out/f_d_{self.run_id}_{frame_count}_all.png'})
                 frame_decision = True
@@ -163,7 +163,7 @@ class Layer_Three(object):
 
         number_decisions = len(self.decisions)
         print(f' {number_decisions} made from {number_frames} frames.')
-        print(self.decisions)
+        # print(self.decisions)
 
         return freq
 

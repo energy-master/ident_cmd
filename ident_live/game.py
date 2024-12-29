@@ -1,3 +1,6 @@
+from rich.console import Console
+console = Console()
+
 
 # datetime import
 from datetime import datetime, timedelta
@@ -13,6 +16,7 @@ import traceback
 import psutil
 import pytz
 from io_custom import *
+from tqdm.auto import tqdm
 # brahma
 # IMPORT BRAHMA
 # import evolutionary procedures
@@ -75,7 +79,9 @@ class IdentGame(object):
         pass
 
     def bot_step(self, bot=None, generation=0, listen_start_idx=0, step_end_index=0):
+        
         if bot is not None:
+           
             # print(f'{bot.name} Start')
             # reset data feed for new iteration
             # data_feed.reset()
@@ -84,8 +90,8 @@ class IdentGame(object):
             pressure_start = time.time()
             for env_pressure in self.game.data_feed:
                 pressure_id = env_pressure.meta_data['snapshot_id']
-                print(f'Running {pressure_id} for {bot.name}')
-
+                # print(f'Running {pressure_id} for {bot.name}')
+                
                 file_out = False
                 # -- build spec
                 if self.game.mode == 1 and self.game.bulk == 0:
@@ -113,19 +119,19 @@ class IdentGame(object):
                 # print (env_pressure.meta_data['snapshot_id'])
                 listen_delta_idx = math.floor(
                     self.game.algo_setup.args['listen_delta_t'] * env_pressure.meta_data['sample_rate'])
-                print(env_pressure.meta_data['sample_rate'])
+                # print(env_pressure.meta_data['sample_rate'])
                 env_pressure_length = 0
                 if step_end_index == 0:
                     env_pressure_length = env_pressure.frequency_ts_np.shape[0]
-                    print(f's {env_pressure.frequency_ts_np.shape[0]}')
+                    # print(f's {env_pressure.frequency_ts_np.shape[0]}')
                 else:
                     env_pressure_length = step_end_index
 
-                print(f'pressure_l { env_pressure_length}')
+                # print(f'pressure_l { env_pressure_length}')
 
                 t__ = env_pressure_length * \
                     env_pressure.meta_data['sample_rate']
-                print(f'{t__} s')
+                # print(f'{t__} s')
 
                 sample_rate = env_pressure.meta_data['sample_rate']
                 energies = []
@@ -135,207 +141,210 @@ class IdentGame(object):
                 listen_end_idx = 0
 
                 feature_bot_names = {}
+                #v2
+                with tqdm(total=(env_pressure_length - listen_delta_idx),  position=0, leave=True) as pbar:
+                    
+                    while listen_start_idx < (env_pressure_length - listen_delta_idx):
+                        # while listen_start_idx < (env_pressure_length):
+                        self.number_run_idx = max(
+                            self.number_run_idx, idx_iter)
+                        # print (self.number_run_idx)
+                        # --- get start & end slice idx ---
+                        listen_end_idx = listen_start_idx + listen_delta_idx
+                        slice_start = listen_start_idx
+                        slice_end = min(listen_end_idx, env_pressure_length-1)
 
-                while listen_start_idx < (env_pressure_length - listen_delta_idx):
-                    # while listen_start_idx < (env_pressure_length):
-                    self.number_run_idx = max(
-                        self.number_run_idx, idx_iter)
-                    # print (self.number_run_idx)
-                    # --- get start & end slice idx ---
-                    listen_end_idx = listen_start_idx + listen_delta_idx
-                    slice_start = listen_start_idx
-                    slice_end = min(listen_end_idx, env_pressure_length-1)
-
-                    # --- get datetime ---
-                    _s = (slice_start /
-                          env_pressure.meta_data['sample_rate']) * 1000  # ms
-                    iter_start_time = env_pressure.start_time + \
-                        timedelta(milliseconds=_s)
-                    # print (iter_start_time)
-                    _s = (slice_end /
-                          env_pressure.meta_data['sample_rate']) * 1000
-                    iter_end_time = env_pressure.start_time + \
-                        timedelta(milliseconds=_s)
-                    # print(
-                    #     f'time vector bounds : {iter_start_time} : {iter_end_time}')
-
-                    # --- express bot ---
-                    # [nb. data structure is passed to individual genes if dna is initialised.
-                    # extra data can be added under 'init_data' field]
-                    express_start = time.time()
-                    # print (self.game.derived_data)
-                    if self.game.mode == 1 and self.game.multiple_data != 1:
-                        express_value = bot.ExpressDNA(data={'data_index': listen_start_idx, 'sample_rate': env_pressure.meta_data['sample_rate'], 'current_data':  env_pressure.frequency_ts_np.shape[
-                            slice_start:slice_end], 'derived_model_data': self.game.derived_data, 'iter_start_time': iter_start_time, 'iter_end_time': iter_end_time})
-
-                    if self.game.mode == 0:
-                        # sys.stdout = TracePrints()
-
-                        express_value = bot.ExpressDNA(data={'data_index': listen_start_idx, 'sample_rate': env_pressure.meta_data['sample_rate'], 'current_data':  env_pressure.frequency_ts_np.shape[
-                            slice_start:slice_end], 'derived_model_data': self.game.multiple_derived_data[pressure_id], 'iter_start_time': iter_start_time, 'iter_end_time': iter_end_time})
-
-                    if self.game.mode == 1 and self.game.multiple_data == 1:
-
-                        express_value = bot.ExpressDNA(data={'data_index': listen_start_idx, 'sample_rate': env_pressure.meta_data['sample_rate'], 'current_data':  env_pressure.frequency_ts_np.shape[
-                            slice_start:slice_end], 'derived_model_data': self.game.multiple_derived_data[pressure_id], 'iter_start_time': iter_start_time, 'iter_end_time': iter_end_time})
-
-                    express_end = time.time()
-
-                    express_time = express_end - express_start
-                    # print (f'time to express bot {express_time}')
-                    express_level = bot.GetAvgExpressionValue()
-                    # print (f'ex :  {express_level}')
-
-                    energies.append(express_level)
-                    # times.append(iter_end_time)
-                    t_start_s = (
-                        slice_start / env_pressure.meta_data['sample_rate'])
-                    t_end_s = (
-                        slice_end / env_pressure.meta_data['sample_rate'])
-                    t_m = (t_start_s + t_end_s)/2
-                    times.append(t_m)
-                    if express_level == 0:
-                        express_level = random.uniform(0.05, 0.1)
-                    if express_level > 0.95:
-                        express_level = random.uniform(0.95, 1.0)
-
-                    if self.game.mode == 1 and self.game.bulk == 1:
-                        # print (f'running : {idx_iter} | {bot.name}')
-                        self.bulk_energies[bot.name][total_iter_cnt] = express_level
+                        # --- get datetime ---
+                        _s = (slice_start /
+                            env_pressure.meta_data['sample_rate']) * 1000  # ms
+                        iter_start_time = env_pressure.start_time + \
+                            timedelta(milliseconds=_s)
                         # print (iter_start_time)
-                        # print (iter_start_time.strftime("%Y:%M:%d %H:%M:%S.%f +0000"))
-                        date_string = iter_start_time.strftime(
-                            "%Y-%m-%dT%H:%M:%S.%fZ")
-                        # utc_dt = datetime.strptime(date_string, '%Y-%m-%d %H:%M:%S.%f %z')
-                        # print (date_string)
+                        _s = (slice_end /
+                            env_pressure.meta_data['sample_rate']) * 1000
+                        iter_end_time = env_pressure.start_time + \
+                            timedelta(milliseconds=_s)
+                        # print(
+                        #     f'time vector bounds : {iter_start_time} : {iter_end_time}')
 
-                        # self.bulk_times[idx_iter] = iter_start_time.strftime("%H:%M:%S.%f")
-                        # print (iter_start_time.utcnow())
-                        # utc_tz = pytz.timezone('UTC')
-                        self.bulk_times[total_iter_cnt] = date_string
-                        if float(express_level) > float(self.activation_level):
-                            # print (f'adding active feature in time_frame : {idx_iter}')
-                            if total_iter_cnt not in self.active_features:
-                                self.active_features[total_iter_cnt] = []
-                                # feature_bot_names[idx_iter] = []
+                        # --- express bot ---
+                        # [nb. data structure is passed to individual genes if dna is initialised.
+                        # extra data can be added under 'init_data' field]
+                        express_start = time.time()
+                        # print (self.game.derived_data)
+                        if self.game.mode == 1 and self.game.multiple_data != 1:
+                            express_value = bot.ExpressDNA(data={'data_index': listen_start_idx, 'sample_rate': env_pressure.meta_data['sample_rate'], 'current_data':  env_pressure.frequency_ts_np.shape[
+                                slice_start:slice_end], 'derived_model_data': self.game.derived_data, 'iter_start_time': iter_start_time, 'iter_end_time': iter_end_time})
 
-                            # if bot not in feature_bot_names[idx_iter]:
-                                # feature_bot_names[idx_iter].append(bot.name)
-                            self.active_features[total_iter_cnt].append(
-                                bot)
+                        if self.game.mode == 0:
+                            # sys.stdout = TracePrints()
 
-                        # print (self.bulk_times[idx_iter])
-                        idx_iter += 1
-                        total_iter_cnt += 1
-                    # --- transcription ---
-                    # print (bot.transcriptionDNA.transcription_threshold)
-                    transcription_data = {
-                        'expression_data': bot.GetExpressionData(),
-                    }
+                            express_value = bot.ExpressDNA(data={'data_index': listen_start_idx, 'sample_rate': env_pressure.meta_data['sample_rate'], 'current_data':  env_pressure.frequency_ts_np.shape[
+                                slice_start:slice_end], 'derived_model_data': self.game.multiple_derived_data[pressure_id], 'iter_start_time': iter_start_time, 'iter_end_time': iter_end_time})
 
-                    transcribe_result = bot.transcriptionDNA.transcribe(
-                        transcription_data, self.activation_level)
+                        if self.game.mode == 1 and self.game.multiple_data == 1:
 
-                    # print (express_level)
-                    # # Build labeled dataset here in order to view in spectrogrma image
-                    # -----
-                    if self.game.mode == 1:
-                        xr_hits = self.game.derived_data.query_label_time(
-                            iter_start_time, iter_end_time)
-                        if len(xr_hits) > 0:
-                            hits.append(1)
-                        else:
-                            hits.append(0)
+                            express_value = bot.ExpressDNA(data={'data_index': listen_start_idx, 'sample_rate': env_pressure.meta_data['sample_rate'], 'current_data':  env_pressure.frequency_ts_np.shape[
+                                slice_start:slice_end], 'derived_model_data': self.game.multiple_derived_data[pressure_id], 'iter_start_time': iter_start_time, 'iter_end_time': iter_end_time})
 
-                    # transcribe_result = True # force transcription
-                    # ======Decision & Marking=========================
-                    # --- make and add decision ---
-                    if transcribe_result:
-                        # print ("decision made")
-                        decision_args = {
-                            'status': 1,
-                            'env': self.game.algo_setup.args['env'],
-                            'iter_start_time': iter_start_time,
-                            'iter_end_time': iter_end_time,
-                            'action': 1,
-                            'type': "HP Ident",
-                            'xr': -1,
-                            'epoch': pressure_id
+                        express_end = time.time()
+
+                        express_time = express_end - express_start
+                        # print (f'time to express bot {express_time}')
+                        express_level = bot.GetAvgExpressionValue()
+                        # print (f'ex :  {express_level}')
+
+                        energies.append(express_level)
+                        # times.append(iter_end_time)
+                        t_start_s = (
+                            slice_start / env_pressure.meta_data['sample_rate'])
+                        t_end_s = (
+                            slice_end / env_pressure.meta_data['sample_rate'])
+                        t_m = (t_start_s + t_end_s)/2
+                        times.append(t_m)
+                        if express_level == 0:
+                            express_level = random.uniform(0.05, 0.1)
+                        if express_level > 0.95:
+                            express_level = random.uniform(0.95, 1.0)
+
+                        if self.game.mode == 1 and self.game.bulk == 1:
+                            # print (f'running : {idx_iter} | {bot.name}')
+                            self.bulk_energies[bot.name][total_iter_cnt] = express_level
+                            # print (iter_start_time)
+                            # print (iter_start_time.strftime("%Y:%M:%d %H:%M:%S.%f +0000"))
+                            date_string = iter_start_time.strftime(
+                                "%Y-%m-%dT%H:%M:%S.%fZ")
+                            # utc_dt = datetime.strptime(date_string, '%Y-%m-%d %H:%M:%S.%f %z')
+                            # print (date_string)
+
+                            # self.bulk_times[idx_iter] = iter_start_time.strftime("%H:%M:%S.%f")
+                            # print (iter_start_time.utcnow())
+                            # utc_tz = pytz.timezone('UTC')
+                            self.bulk_times[total_iter_cnt] = date_string
+                            if float(express_level) > float(self.activation_level):
+                                # print (f'adding active feature in time_frame : {idx_iter}')
+                                if total_iter_cnt not in self.active_features:
+                                    self.active_features[total_iter_cnt] = []
+                                    # feature_bot_names[idx_iter] = []
+
+                                # if bot not in feature_bot_names[idx_iter]:
+                                    # feature_bot_names[idx_iter].append(bot.name)
+                                self.active_features[total_iter_cnt].append(
+                                    bot)
+
+                            # print (self.bulk_times[idx_iter])
+                            idx_iter += 1
+                            total_iter_cnt += 1
+                        # --- transcription ---
+                        # print (bot.transcriptionDNA.transcription_threshold)
+                        transcription_data = {
+                            'expression_data': bot.GetExpressionData(),
                         }
 
-                        record_decision = {
-                            'env': self.game.algo_setup.args['env'],
-                            'type': "HP Ident",
-                            'epoch': pressure_id
-                        }
+                        transcribe_result = bot.transcriptionDNA.transcribe(
+                            transcription_data, self.activation_level)
 
-                        new_decision = IdentDecision(
-                            decision_data=decision_args)
-                        self.game.performance.add_decision(
-                            decision=new_decision, epoch=env_pressure.meta_data['snapshot_id'], botID=bot.name)
+                        # print (express_level)
+                        # # Build labeled dataset here in order to view in spectrogrma image
+                        # -----
+                        if self.game.mode == 1:
+                            xr_hits = self.game.derived_data.query_label_time(
+                                iter_start_time, iter_end_time)
+                            if len(xr_hits) > 0:
+                                hits.append(1)
+                            else:
+                                hits.append(0)
 
-                        self.all_decisions[iter_start_time.strftime(
-                            "%Y-%m-%dT%H:%M:%S.%fZ")] = record_decision
-                        # ================================================
-                        # query dataset to mark decision
-                        # ================================================
+                        # transcribe_result = True # force transcription
+                        # ======Decision & Marking=========================
+                        # --- make and add decision ---
+                        if transcribe_result:
+                            # print ("decision made")
+                            decision_args = {
+                                'status': 1,
+                                'env': self.game.algo_setup.args['env'],
+                                'iter_start_time': iter_start_time,
+                                'iter_end_time': iter_end_time,
+                                'action': 1,
+                                'type': "HP Ident",
+                                'xr': -1,
+                                'epoch': pressure_id
+                            }
 
-                        xr = False
-                        bulk = 0
-                        if hasattr(self.game, 'bulk'):
-                            bulk = self.game.bulk
+                            record_decision = {
+                                'env': self.game.algo_setup.args['env'],
+                                'type': "HP Ident",
+                                'epoch': pressure_id
+                            }
 
-                        if bulk == 0:
+                            new_decision = IdentDecision(
+                                decision_data=decision_args)
+                            self.game.performance.add_decision(
+                                decision=new_decision, epoch=env_pressure.meta_data['snapshot_id'], botID=bot.name)
 
-                            if self.game.mode == 0 or self.game.mode == 1:
-                                print('check decisions')
-                                # --- traditional
-                                xr_hits = self.game.derived_data.query_label_time(
-                                    iter_start_time, iter_end_time)
-                                if len(xr_hits) > 0:
-                                    print(xr_hits)
-                                    xr_data = xr_hits[0]
-                                    if xr_data['xr'] == True:
-                                        # print ("Success")
-                                        # print (xr_data)
-                                        xr = True
-                                # --- energy
-                                # energy_value = self.game.derived_data.query_energy_frames_at_frequency_bounds(137000,137500, iter_end_time)
-                                # avg_energy = abs(energy_value[1])
-                                # print (avg_energy)
-                                # if avg_energy > 0.08:
-                                #     xr = True
-                                #     print (avg_energy)
-                                #     print ("success")
+                            self.all_decisions[iter_start_time.strftime(
+                                "%Y-%m-%dT%H:%M:%S.%fZ")] = record_decision
+                            # ================================================
+                            # query dataset to mark decision
+                            # ================================================
 
-                                else:
-                                    xr = False
+                            xr = False
+                            bulk = 0
+                            if hasattr(self.game, 'bulk'):
+                                bulk = self.game.bulk
 
-                                # print (xr)
+                            if bulk == 0:
 
-                        # ================================================
+                                if self.game.mode == 0 or self.game.mode == 1:
+                                    # print('check decisions')
+                                    # --- traditional
+                                    xr_hits = self.game.derived_data.query_label_time(
+                                        iter_start_time, iter_end_time)
+                                    if len(xr_hits) > 0:
+                                        # print(xr_hits)
+                                        xr_data = xr_hits[0]
+                                        if xr_data['xr'] == True:
+                                            # print ("Success")
+                                            # print (xr_data)
+                                            xr = True
+                                    # --- energy
+                                    # energy_value = self.game.derived_data.query_energy_frames_at_frequency_bounds(137000,137500, iter_end_time)
+                                    # avg_energy = abs(energy_value[1])
+                                    # print (avg_energy)
+                                    # if avg_energy > 0.08:
+                                    #     xr = True
+                                    #     print (avg_energy)
+                                    #     print ("success")
 
-                        decision_args = {
-                            'status': 0,
-                            'env': self.game.algo_setup.args['env'],
-                            'iter_start_time': iter_start_time,
-                            'iter_end_time': iter_end_time,
-                            'action': 0,
-                            'type': "HP Ident",
-                            'xr': xr,
-                            'epoch': pressure_id
-                        }
+                                    else:
+                                        xr = False
 
-                        close_decision = IdentDecision(
-                            decision_data=decision_args)
-                        self.game.performance.add_decision(
-                            decision=close_decision, epoch=env_pressure.meta_data['snapshot_id'], botID=bot.name)
+                                    # print (xr)
 
-                    # =================================================
+                            # ================================================
 
-                    # update listen start idx
-                    listen_start_idx = listen_end_idx
+                            decision_args = {
+                                'status': 0,
+                                'env': self.game.algo_setup.args['env'],
+                                'iter_start_time': iter_start_time,
+                                'iter_end_time': iter_end_time,
+                                'action': 0,
+                                'type': "HP Ident",
+                                'xr': xr,
+                                'epoch': pressure_id
+                            }
 
+                            close_decision = IdentDecision(
+                                decision_data=decision_args)
+                            self.game.performance.add_decision(
+                                decision=close_decision, epoch=env_pressure.meta_data['snapshot_id'], botID=bot.name)
+
+                        # =================================================
+
+                        # update listen start idx
+                        listen_start_idx = listen_end_idx
+                        pbar.update(listen_delta_idx)
+                pbar.close()
                 # pressure_end = time.time()
                 # run_time = pressure_end - pressure_start
                 # # print (f'number iters : {idx_iter}')
@@ -389,7 +398,7 @@ class IdentGame(object):
                                 f.write(f"{t} {e}\n")
 
                     build_spec(env_pressure, self.game_id,  bot.name, times=times,
-                               energies=energies, hits=hits, activation_level=self.activation_level)
+                            energies=energies, hits=hits, activation_level=self.activation_level)
 
                 if self.game.mode == 1:
                     result_data = {}
@@ -424,7 +433,7 @@ class IdentGame(object):
         self.mt_bulk_energies = {}
         self.mt_bulk_times = {}
         mt_res = []
-        print("Running Live")
+        
 
         self.game.generation_reset()
 
@@ -530,23 +539,23 @@ class IdentGame(object):
         Q.put(res)
 
     def run_bots(self, sub_filename="", start_idx=0, end_idx=0, filename="", out_path=""):
-        print("*** Running Live ***")
+        # print("*** Running Live ***")
         self.game.generation_reset()
 
         number_run = 0
         self.all_decisions = {}
-        with Progress() as progress:
-            process = psutil.Process(os.getpid())
-            task1 = progress.add_task(
-                f"[green] Running features/bots against your data", total=len(list(self.game.loaded_bots.keys())))
+        # with Progress() as progress:
+        #     process = psutil.Process(os.getpid())
+        #     task1 = progress.add_task(
+        #         f"[green] Running features/bots against your data", total=len(list(self.game.loaded_bots.keys())))
 
-            for bot_name, bot in self.game.loaded_bots.items():
-                # try:
-                iter_res = self.bot_step(
-                    bot, listen_start_idx=0, step_end_index=0)
-                # except:
-                #     print ("erro")
-                progress.update(task1, advance=1)
+        for bot_name, bot in self.game.loaded_bots.items():
+            # try:
+            iter_res = self.bot_step(
+                bot, listen_start_idx=0, step_end_index=0)
+            # except:
+            #     print ("erro")
+            # progress.update(task1, advance=1)
 
         # dump bulk energies if exist
         # with open(f'/home/vixen/html/rs/ident_app/ident/brahma/out/group_energies_{self.game.ss_ids[0]}.json', 'w+') as f:

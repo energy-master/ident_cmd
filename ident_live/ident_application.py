@@ -73,6 +73,34 @@ class SpeciesIdent(object):
         # print(bot)
         return bot
 
+    def update_bots(self, bot_dir="",feature_list = []):
+        self.loaded_bots = {}
+        number_loaded = 0
+        
+        with Progress() as progress:
+            process = psutil.Process(os.getpid())
+            task1 = progress.add_task(
+                f"[green] Updating initial distribution of features/bots.", total=int(len(feature_list)))
+
+            for bot_id in feature_list:
+                bot_path = f'{bot_dir}/{bot_id}.vixen'
+                # print(bot_path)
+                error = False
+                # print (f'loading {version}')
+
+                try:
+                    bot = self.load_bot(bot_path)
+                    self.loaded_bots[bot_id] = bot
+                    number_loaded += 1
+                    # print(number_loaded)
+                    progress.update(task1, advance=1)
+                except Exception as e:
+                    error = True
+                    print(f'error loading {bot_id} {type(e).__name__}')
+                    
+                
+        
+
     def load_bots(self, filter_data, version="1_0_0", version_time_from="", version_time_to="", bot_dir="", number_features=1000, update=False):
         # print (filter_data)
         feature_data = None
@@ -94,10 +122,10 @@ class SpeciesIdent(object):
             # print(f'versions: {versions_list}')
 
         else:
-            print('loading features/bots list...')
+            # print('loading features/bots list...')
             with open('feature_list.json', 'r') as f:
                 feature_data = json.load(f)
-            print('loaded.')
+            # print('loaded.')
             bot_ids = feature_data['ids']
             data = {}
             data['data'] = []
@@ -105,7 +133,7 @@ class SpeciesIdent(object):
                 d = {'botID': bid}
                 data['data'].append(d)
 
-        print(f'Loading {number_features} features/bots.')
+        # print(f'Loading {number_features} features/bots.')
         # print(len(data['data']))
         with Progress() as progress:
             process = psutil.Process(os.getpid())
@@ -162,7 +190,7 @@ class SpeciesIdent(object):
                         # print(number_loaded)
                         progress.update(task1, advance=1)
                         if number_loaded > float(number_features):
-                            print('Number required loaded.')
+                            # print('Number required loaded.')
                             break
                 except Exception as e:
                     error = True
@@ -184,8 +212,8 @@ class SpeciesIdent(object):
 
         self.mode = 1
         self.bulk = 1
-        print(f'number loaded : {number_loaded}')
-        print(f'number read : {number_read}')
+        # print(f'number loaded : {number_loaded}')
+        # print(f'number read : {number_read}')
 
         return number_loaded
 
