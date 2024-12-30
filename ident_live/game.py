@@ -142,7 +142,7 @@ class IdentGame(object):
 
                 feature_bot_names = {}
                 #v2
-                with tqdm(total=(env_pressure_length - listen_delta_idx),  position=0, leave=True) as pbar:
+                with tqdm(total=(env_pressure_length - listen_delta_idx),  position=0, leave=True, colour='green') as pbar:
                     
                     while listen_start_idx < (env_pressure_length - listen_delta_idx):
                         # while listen_start_idx < (env_pressure_length):
