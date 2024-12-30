@@ -24,6 +24,7 @@ import random
 import librosa
 import sys
 import os
+import requests
 
 SOFTMAX_FOLDER_USR = os.path.join(
     '/', 'Users', 'vixen', 'rs', 'dev', 'ident_softmax')
@@ -578,6 +579,32 @@ if __name__ == "__main__":
                 # print (marlin_game.active_features)
                 # print (marlin_game.bulk_times)
                 # layer_3 = Layer_Three(activation_level = user_activation_level,threshold_above_activation = user_threshold_above_e, derived_data = application.derived_data, similarity_threshold = user_similarity_threshold, run_id=filename, target=target)
+
+
+                # ------- Softmax API ------------
+                # softmax_data = {
+                    
+                #     "target" : target,
+                #     "activation_threshold" : user_activation_level,
+                #     "threshold_above_activation": user_threshold_above_e,
+                #     "energies": marlin_game.bulk_energies,
+                #     "times": marlin_game.bulk_times
+                    
+                # }
+                
+                
+                
+                # softmax_key = "key1"
+                # headers = {}
+                # softmax_url = 'https://vixen.hopto.org/rs/api/v1/data/softmax'
+                # headers = {'Authorization': softmax_key, 'Accept': 'application/json', 'Content-Type': 'application/json'}
+                # r = requests.post(softmax_url, data=json.dumps(softmax_data), headers=headers)
+                
+               
+                # ------- Softmax API ------------
+
+
+
 
                 # ------- Layer 3 -------
 
