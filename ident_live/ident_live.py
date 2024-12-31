@@ -667,7 +667,7 @@ if __name__ == "__main__":
             # print(f'len of e = {len(marlin_game.bulk_energies)}')
             if len(marlin_game.bulk_times) > 2:
                 # print('build spec')
-                build_spec_upload(sample_rate, filename, hits=hits, decisions=layer_3.decisions, peak=layer_3.ratio_active,
+                build_spec_upload(sample_rate, marlin_game.game_id, hits=hits, decisions=layer_3.decisions, peak=layer_3.ratio_active,
                                   avg=layer_3.avg_energies, times=marlin_game.bulk_times, pc_above_e=layer_3.pc_above_tracker, f=freq, full_raw_data=raw_data, save_path=out_path)
 
             #! update

@@ -50,10 +50,10 @@ def build_spec_upload(sample_rate, game_id,  hits, decisions, peak, avg, times, 
     start_time_dt = datetime.strptime(times[0], "%Y-%m-%dT%H:%M:%S.%fZ")
     delta_t_dt = datetime.strptime(
         times[1], "%Y-%m-%dT%H:%M:%S.%fZ") - start_time_dt
-    # print (delta_t_dt)
+    
 
     t_len = len(times)
-    print(f't dim : {t_len}')
+    
 
     if peak != []:
         peak.append(0.0)
@@ -73,7 +73,9 @@ def build_spec_upload(sample_rate, game_id,  hits, decisions, peak, avg, times, 
     plt.specgram(y, NFFT=n_fft, Fs=sample_rate, scale="dB",
                  mode="magnitude", cmap="ocean")
 
-    filepath = f'{save_path}/{game_id}.png'
+    r_flag = random.randint(0,99999)
+
+    filepath = f'{save_path}/{game_id}{r_flag}.png'
     plot_time = []
 
     for idx in decisions:
