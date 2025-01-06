@@ -606,7 +606,7 @@ if __name__ == "__main__":
 
 
 
-                # ------- Layer 3 -------
+                # ------- Layer 3 Local -------
 
                 layer_3 = Layer_Three(activation_level=user_activation_level, threshold_above_activation=user_threshold_above_e,
                                       derived_data=application.derived_data, similarity_threshold=user_similarity_threshold, run_id=filename, target=target, out_path=out_path)
@@ -615,6 +615,8 @@ if __name__ == "__main__":
                                          active_features=marlin_game.active_features, all_features=list(marlin_game.game.loaded_bots.values()))
 
                 # ------------------------
+                
+                
 
                 hits = []
                 decisions = layer_3.decisions
