@@ -8,6 +8,8 @@ import psutil
 import os
 from rich.progress import Progress
 import marlin_brahma.fitness.performance as performance
+import marlin_brahma.world.population as pop
+import logging
 # --------------------------------------------------------------
 # --- Setup Class ---                                          |
 # --------------------------------------------------------------

@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
 
-    name="marlin_data",  # Replace with your own username
+    name="ident_live",  # Replace with your own username
     version="0.1.0",
     author="Rahul Tandon",
     author_email="r.tandon@rsaqua.co.uk",
