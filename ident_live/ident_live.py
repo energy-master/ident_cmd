@@ -31,12 +31,6 @@ SOFTMAX_FOLDER_USR = os.path.join(
 os.environ['SOFTMAX_FOLDER_USR'] = SOFTMAX_FOLDER_USR
 
 
-# Import Brahma
-
-
-# Import custom / gene libraries
-
-# Import marlin_data
 
 import operator
 # input feature distribution
