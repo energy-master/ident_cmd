@@ -9,6 +9,7 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python 3.9
@@ -22,18 +23,12 @@ jobs:
     - name: Build Source and Wheel Distributions
       run: |
         python -m build
-    - name: Publish Distribution to Test PyPI
-      uses: pypa/gh-action-pypi-publish@release/v1
-      with:
-        username: __token__
-        password: ${{ secrets.ENERGY_MASTER_TEST }}
-        repository_url: https://test.pypi.org/legacy/
-        skip_existing: true
+   
     - name: Publish Distribution to PyPI
       
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
         username: __token__
-        password: ${{ secrets.ENERGY_MASTER }}
+        password: ${{ secrets.__BRAHMA_MARLIN_TOKEN__ }}
         repository_url: https://upload.pypi.org/legacy/
         skip_existing: true
