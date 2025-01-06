@@ -32,6 +32,6 @@ jobs:
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
         username: __token__
-        password: ${{ secrets.__BRAHMA_MARLIN_TOKEN__ }}
+        password: ${{ secrets.IDENT_LIVE }}
         repository_url: https://upload.pypi.org/legacy/
         skip_existing: true
