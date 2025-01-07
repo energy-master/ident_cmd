@@ -1,5 +1,5 @@
 #!/usr/local/bin/python3
-
+# // autocorrelation funcion against itself
 from rich.console import Console
 console = Console()
 
@@ -26,79 +26,13 @@ import sys
 import os
 import requests
 
+
+
 SOFTMAX_FOLDER_USR = os.path.join(
     '/', 'Users', 'vixen', 'rs', 'dev', 'ident_softmax')
 os.environ['SOFTMAX_FOLDER_USR'] = SOFTMAX_FOLDER_USR
 
 
-
-import operator
-# input feature distribution
-def shape_input(features, f_bucket_size):
-    """shape_input Generate a seleceted distribution of features/bots for a simulation run.
-
-    :param features: list of features/bots
-    :type features: List[bot]
-    """
-    
-    f_buckets = {}
-    f_buckets_names = {}
-    f_name_list = []
-    
-    for feature, f in features.items():
-        if f not in list(f_buckets.keys()):
-            f_buckets[f] = 0
-            f_buckets_names[f] = []
-            
-    t_ = 0
-    for feature,f in features.items():
-        # print (f'{feature}, {f}')
-        
-
-        for fr,v in f_buckets.items():
-            if abs(f-fr)<f_bucket_size:
-                if fr in list(f_buckets.keys()):
-                    f_buckets[fr]+=1
-                    f_buckets_names[f].append(feature)
-                    f_name_list.append(feature)
-                    t_+=1
-                else:
-                    f_buckets[fr] = 1
-                    f_buckets_names[f].append(feature)
-                    f_name_list.append(feature)
-                    t_ += 1
-   
-                    
-    # build distribution
-    f_buckets_s = dict(sorted(f_buckets.items(), key=operator.itemgetter(0)))
-        
-    min_count = 9999
-    min_f = 0
-    for fr, v in f_buckets.items():
-        if v > 2:
-            min_count = min(min_count,v)
-    
-    # print(f'min count : {min_count}')
-    
-    distributed_name_list = []
-    for fr, v in f_buckets.items():
-        if len(f_buckets_names[fr]) >= min_count:
-            distributed_name_list.extend(
-                random.sample(f_buckets_names[fr], min_count))
-
-
-    # print (f'Number of features : {len(features)}.')
-    # # print (f_buckets_s)
-    # print (f'Number counted : {t_}')
-    
-    dist_data = {}
-    dist_data['ids'] = distributed_name_list
-    
-    with open('feature_names.json','w+') as f:
-        json.dump(dist_data, f)
-    
-    # print (distributed_name_list)
-    return distributed_name_list
 
 if __name__ == "__main__":
 
@@ -576,23 +510,29 @@ if __name__ == "__main__":
 
 
                 # ------- Softmax API ------------
-                # softmax_data = {
+                softmax_data = {
                     
-                #     "target" : target,
-                #     "activation_threshold" : user_activation_level,
-                #     "threshold_above_activation": user_threshold_above_e,
-                #     "energies": marlin_game.bulk_energies,
-                #     "times": marlin_game.bulk_times
-                    
-                # }
+                    "target" : target,
+                    "activation_threshold" : user_activation_level,
+                    "threshold_above_activation": user_threshold_above_e,
+                    "energies": marlin_game.bulk_energies,
+                    "times": marlin_game.bulk_times,
+                    "similarity_factor": user_similarity_threshold
+                }
                 
+                print (len(marlin_game.bulk_times))
                 
+                # print(json.dumps(softmax_data))
+                print("Sending to API")
+                softmax_key = "key1"
+                headers = {}
+                softmax_url = 'https://vixen.hopto.org/rs/api/v1/data/softmax'
+                headers = {'Authorization': softmax_key, 'Accept': 'application/json', 'Content-Type': 'application/json'}
+                r = requests.post(softmax_url, data=json.dumps(softmax_data), headers=headers)
                 
-                # softmax_key = "key1"
-                # headers = {}
-                # softmax_url = 'https://vixen.hopto.org/rs/api/v1/data/softmax'
-                # headers = {'Authorization': softmax_key, 'Accept': 'application/json', 'Content-Type': 'application/json'}
-                # r = requests.post(softmax_url, data=json.dumps(softmax_data), headers=headers)
+                softmax_results = r.json()
+                # print (softmax_results)
+                # print ("---")
                 
                
                 # ------- Softmax API ------------
@@ -602,26 +542,29 @@ if __name__ == "__main__":
 
                 # ------- Layer 3 Local -------
 
-                layer_3 = Layer_Three(activation_level=user_activation_level, threshold_above_activation=user_threshold_above_e,
-                                      derived_data=application.derived_data, similarity_threshold=user_similarity_threshold, run_id=filename, target=target, out_path=out_path)
+                # layer_3 = Layer_Three(activation_level=user_activation_level, threshold_above_activation=user_threshold_above_e,
+                #                       derived_data=application.derived_data, similarity_threshold=user_similarity_threshold, run_id=filename, target=target, out_path=out_path)
 
-                freq = layer_3.run_layer(marlin_game.bulk_energies, marlin_game.bulk_times,
-                                         active_features=marlin_game.active_features, all_features=list(marlin_game.game.loaded_bots.values()))
+                # freq = layer_3.run_layer(marlin_game.bulk_energies, marlin_game.bulk_times,
+                #                          active_features=marlin_game.active_features, all_features=list(marlin_game.game.loaded_bots.values()))
 
                 # ------------------------
                 
                 
 
                 hits = []
-                decisions = layer_3.decisions
-                a_ratio = layer_3.ratio_active
-                # print(f't: {len(marlin_game.bulk_times)}')
-                # print(f'd: {len(layer_3.ratio_active)}')
-                # print(f'c_t :{len(combined_bulk_times)}')
-                # print(f'avg: {len(layer_3.avg_energies)}')
-
-                # update_run(sub_filename,13)
-
+                # decisions = softmax_results['result']
+                # a_ratio = softmax_results['result']
+            # softmax_results = json.loads(softmax_results)
+            
+            softmax_return_data = json.loads(softmax_results['result'][0])
+            decisions = softmax_return_data['decisions']
+            ratio_active = softmax_return_data['r_active']
+            avg_energies = softmax_return_data['avg_energies']
+            pc_above_tracker = softmax_return_data['pc_above_tracker']
+            
+            # print (a_ratio)
+           
             # print("*** ENDING & PROCESSING GAME RESULTS***")
 
             #! update
@@ -630,9 +573,9 @@ if __name__ == "__main__":
 
             # print (combined_bulk_energies)
 
-            for k, v in combined_bulk_energies.items():
-                # print(len(v))
-                break
+            # for k, v in combined_bulk_energies.items():
+            #     # print(len(v))
+            #     break
 
             # marlin_game.bulk_times = combined_bulk_times
             # marlin_game.bulk_energies = combined_bulk_energies
@@ -663,13 +606,13 @@ if __name__ == "__main__":
             # print(f'len of e = {len(marlin_game.bulk_energies)}')
             if len(marlin_game.bulk_times) > 2:
                 # print('build spec')
-                build_spec_upload(sample_rate, marlin_game.game_id, hits=hits, decisions=layer_3.decisions, peak=layer_3.ratio_active,
-                                  avg=layer_3.avg_energies, times=marlin_game.bulk_times, pc_above_e=layer_3.pc_above_tracker, f=freq, full_raw_data=raw_data, save_path=out_path)
+                build_spec_upload(sample_rate, marlin_game.game_id, hits=hits, decisions=decisions, peak=ratio_active,
+                                  avg=avg_energies, times=marlin_game.bulk_times, pc_above_e=pc_above_tracker, f=[], full_raw_data=raw_data, save_path=out_path)
 
             #! update
             # update_run(filename,12.4)
             with open(f'{out_path}/decisions_{marlin_game.game_id}.json', 'w') as fp:
-                json.dump(layer_3.decisions, fp)
+                json.dump(decisions, fp)
 
             #! update
             # update_run(filename,13)

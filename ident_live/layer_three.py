@@ -9,6 +9,8 @@ from utils import *
 
 
 # production version
+#intermediate mode function / signals -> reconstruc
+# autocorrelate between features...
 
 
 class Layer_Three(object):
@@ -146,7 +148,7 @@ class Layer_Three(object):
                     # print (active_features)
                     # if frame_count in active_features:
                     # similarity = self.structure_match.match(features = active_features[frame_count])
-
+            
             self.structure_likelyhood = similarity
             # similarity = 0.0
             if similarity > float(self.similarity_threshold):
@@ -162,7 +164,9 @@ class Layer_Three(object):
         # print (self.ratio_active)
 
         number_decisions = len(self.decisions)
-        print(f' {number_decisions} made from {number_frames} frames.')
+        print(f' Result: {number_decisions} decision(s) made from {number_frames} frames.')
+        # for decision in self.decisions:
+        #     print (decision)
         # print(self.decisions)
 
         return freq
