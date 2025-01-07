@@ -116,8 +116,7 @@ class SpeciesIdent(object):
             url = 'https://vixen.hopto.org/rs/api/v1/data/features'
             post_data = {'market': filter_data, 'version_time_from': version_time_from,
                          'version_time_to': version_time_to}
-            print(url)
-            print(post_data)
+            
             x = requests.post(url, json=post_data)
             data = x.json()
 

@@ -11,8 +11,9 @@ from scipy import signal
 from scipy.fft import fftshift
 from datetime import datetime
 import json
+
 """
-    Game level utils
+    Game level utils library.
 """
 
 
@@ -357,10 +358,10 @@ def build_f_profile(data, id, bot_id):
     # plt.clf()
 
 
-# input feature distribution
-
+# --- input feature distribution ---
 import operator
 def shape_input(features, f_bucket_size):
+    
     """shape_input Generate a seleceted distribution of features/bots for a simulation run.
 
     :param features: list of features/bots
