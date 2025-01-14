@@ -49,6 +49,7 @@ from marlin_brahma.fitness.performance import RootDecision
 import marlin_brahma.world.population as pop
 import marlin_brahma.bots.bot_root as bots
 
+import time
 
 # Import some required pyhton modules.
 from    dotenv import load_dotenv, dotenv_values
@@ -303,12 +304,12 @@ if __name__ == "__main__":
             snapshot_derived_data = None
             
             s_id = snapshot.meta_data['snapshot_id']
-            
+            print (f'Searching for derived data : {s_id} ...')
             if not os.path.isfile(f'{working_path}/{s_id}.da'):
                 #! update
                 # update_run(filename,1)
 
-                
+                print (f'...not found so building for {s_id}.')
                 data_adapter.derived_data = None
                 data_adapter.build_derived_data(n_fft=8192)
                 snapshot_derived_data = data_adapter.derived_data.build_derived_data(
@@ -324,39 +325,68 @@ if __name__ == "__main__":
                 with open(f'{working_path}/{s_id}.da', 'wb') as f:  # open a text file
                     # serialize the list
                     pickle.dump(data_adapter.derived_data, f)
+                    
+                print (f'{s_id} derived data structure built.')
 
             else:
                 # !update
                 # update_run(filename,2)
                 data_avail = True
+                print (f'...{s_id} found.')
                
         # Load saved derived data objects
 
         max_frequency_index = 0
         tmp_derived_data = None
 
-        if data_avail:
+
+        if not os.path.isfile(f'{working_path}/{filename}_all.da'):
             
-            for active_ssid in sim_ids:
+            if data_avail:
+                number_dd_loaded = 0
+                number_to_load = len(sim_ids)
+                for active_ssid in sim_ids:
+                    print (f'Loading MARLIN data {active_ssid} [{number_dd_loaded} of {number_to_load}]')
+                    with open(f'{working_path}/{active_ssid}.da', 'rb') as f:  # open a text file
+                        load_start = time.time()
+                        data_adapter.derived_data = None
+                        tmp_derived_data = pickle.load(f)
+                        
+                        data_adapter.derived_data = tmp_derived_data
+                        
 
-                with open(f'{working_path}/{active_ssid}.da', 'rb') as f:  # open a text file
+                        max_frequency_index = 0
+                        # for f_index, value in tmp_derived_data.fast_index_energy_stats.items():
+                        #     max_frequency_index = max(f_index, max_frequency_index)
+                        
+                        
+                        data_adapter.multiple_derived_data[active_ssid] = tmp_derived_data
+
+                        if derived_data_use == None:
+                            derived_data_use = tmp_derived_data
+
+                        number_dd_loaded+=1
+                        dur = time.time()-load_start
+                        print(f'Time to load MARLIN data [active_ssid] -> {dur}')
+
+                with open(f'{working_path}/{filename}_all.da', 'wb') as f: 
+                    # serialize the list
+                    pickle.dump(data_adapter.multiple_derived_data, f)
                     
-                    data_adapter.derived_data = None
-                    tmp_derived_data = pickle.load(f)
-                    
-                    data_adapter.derived_data = tmp_derived_data
+                with open(f'{working_path}/{filename}_all_dd.da', 'wb') as f: 
+                    # serialize the list
+                    pickle.dump(data_adapter.derived_data, f)
                     
 
-                    max_frequency_index = 0
-                    for f_index, value in tmp_derived_data.fast_index_energy_stats.items():
-                        max_frequency_index = max(f_index, max_frequency_index)
-                    data_adapter.multiple_derived_data[active_ssid] = tmp_derived_data
+        else:
+            print (f'{filename} has a single project MARLIN data structure available.')
+            with open(f'{working_path}/{filename}_all.da', 'rb') as f:  # open a text file
+                multiple_dd = pickle.load(f)
+                data_adapter.multiple_derived_data = multiple_dd
 
-                    if derived_data_use == None:
-                        derived_data_use = tmp_derived_data
-
-                    
-       
+            with open(f'{working_path}/{filename}_all_dd.da', 'rb') as f:  # open a text file
+                dd = pickle.load(f)
+                data_adapter.derived_data = dd
 
         algo_setup = AlgorithmSetup(config_file_path=f'{app_path}/config.json')
 
@@ -375,7 +405,8 @@ if __name__ == "__main__":
         # ------------------------------------------------------------------
         #! update
         # update_run(filename,4.5)
-        # print('Loading features / bots.')
+        print('Loading features / bots.')
+        
         shell_config['number_working_features'] = application.load_bots(
             target, version=feature_version, version_time_from=time_version_from,  version_time_to=time_version_to, bot_dir=features_path, number_features=number_features, update=update_features)
         num_loaded = shell_config['number_working_features']
@@ -507,14 +538,15 @@ if __name__ == "__main__":
 
                 hits = []
                
-            
+           
             softmax_return_data = json.loads(softmax_results['result'][0])
             decisions = softmax_return_data['decisions']
             ratio_active = softmax_return_data['r_active']
             avg_energies = softmax_return_data['avg_energies']
             pc_above_tracker = softmax_return_data['pc_above_tracker']
-            
-          
+            number_decisions = len(decisions)
+            print (f'{number_decisions} made.')
+
             #! update
             # update_run(filename,12)
             # update_run(filename,12.1)

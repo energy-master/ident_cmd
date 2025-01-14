@@ -170,7 +170,7 @@ class SpeciesIdent(object):
                     #                 continue
 
                     if hasattr(bot, 'version'):
-
+                        
                         # print (bot.version)
                         if bot.version not in versions_list:
                             add = False
@@ -193,6 +193,7 @@ class SpeciesIdent(object):
                         if number_loaded > float(number_features):
                             # print('Number required loaded.')
                             break
+                        
                 except Exception as e:
                     error = True
                     # print(f'error loading {bot_id} {type(e).__name__}')
