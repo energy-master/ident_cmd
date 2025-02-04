@@ -388,6 +388,8 @@ if __name__ == "__main__":
                 dd = pickle.load(f)
                 data_adapter.derived_data = dd
 
+
+
         algo_setup = AlgorithmSetup(config_file_path=f'{app_path}/config.json')
 
         application = SpeciesIdent(algo_setup)
@@ -410,6 +412,8 @@ if __name__ == "__main__":
         shell_config['number_working_features'] = application.load_bots(
             target, version=feature_version, version_time_from=time_version_from,  version_time_to=time_version_to, bot_dir=features_path, number_features=number_features, update=update_features)
         num_loaded = shell_config['number_working_features']
+
+        
 
         application.mode = 1
         application.multiple_data = 1
