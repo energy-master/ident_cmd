@@ -37,7 +37,7 @@ number_features = int(sys.argv[7])
 #'240225_135800.000504'
 
 my_name = "Rahul Tandon"
-my_position = "Engineer"
+my_position = "ML Engineer"
 
 # ============== GET SNAPSHOT IDS FROM MARLIN DATA ===================
 # print (start_time)

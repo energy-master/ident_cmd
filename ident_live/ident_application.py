@@ -103,14 +103,19 @@ class SpeciesIdent(object):
                 
         
 
-    def load_bots(self, filter_data, version="1_0_0", version_time_from="", version_time_to="", bot_dir="", number_features=1000, update=False):
+    def load_bots(self, filter_data, version="1_0_0", version_time_from="", version_time_to="", bot_dir="", number_features=1000, update=False, direct=False):
         # print (filter_data)
+        print ("======")
         feature_data = None
         features_name_list = []
         number_read = 0
         number_loaded = 0
         versions_list = version.split('/')
         data = None
+        print (f'Update  : {update}')
+        
+        
+        
         if update:
             print('Updating features/bots list.')
             url = 'https://vixen.hopto.org/rs/api/v1/data/features'
@@ -123,17 +128,24 @@ class SpeciesIdent(object):
             # print(f'versions: {versions_list}')
 
         else:
-            # print('loading features/bots list...')
-            with open('feature_list.json', 'r') as f:
-                feature_data = json.load(f)
-            # print('loaded.')
-            bot_ids = feature_data['ids']
-            data = {}
-            data['data'] = []
-            for bid in bot_ids:
-                d = {'botID': bid}
-                data['data'].append(d)
+            if not direct:
+                # print('loading features/bots list...')
+                with open('feature_list.json', 'r') as f:
+                    feature_data = json.load(f)
+                # print('loaded.')
+                bot_ids = feature_data['ids']
+                data = {}
+                data['data'] = []
+                for bid in bot_ids:
+                    d = {'botID': bid}
+                    data['data'].append(d)
 
+            else:
+                # get bot ids from files in folder
+                l=os.listdir(bot_dir)
+                li=[x.split('.')[0] for x in l]
+                data = {}
+                data['data'] = li
         # print(f'Loading {number_features} features/bots.')
         # print(len(data['data']))
         with Progress() as progress:
@@ -143,7 +155,11 @@ class SpeciesIdent(object):
 
             for key in data["data"]:
                 number_read += 1
-                bot_id = key['botID']
+                bot_id = ""
+                if not direct:
+                    bot_id = key['botID']
+                else:
+                    bot_id = key
 
                 features_name_list.append(bot_id)
 
@@ -172,16 +188,20 @@ class SpeciesIdent(object):
                     if hasattr(bot, 'version'):
                         
                         # print (bot.version)
-                        if bot.version not in versions_list:
+                        if (bot.version) not in versions_list:
+                            # print (f' hit : v: {bot.version} | {versions_list}')
+                            # print ("wrong v")
                             add = False
                             continue
                         else:
+                            
                             # print (f' hit : v: {bot.version} | {versions_list}')
                             pass
 
                     else:
                         if "1_0_0" != version:
                             add = False
+                            # print ("wrong v1")
                             continue
 
                     if add:
@@ -191,12 +211,12 @@ class SpeciesIdent(object):
                         # print(number_loaded)
                         progress.update(task1, advance=1)
                         if number_loaded > float(number_features):
-                            # print('Number required loaded.')
+                            print('Number required loaded.')
                             break
                         
                 except Exception as e:
                     error = True
-                    # print(f'error loading {bot_id} {type(e).__name__}')
+                    print(f'error loading {bot_id} {type(e).__name__}')
 
                 if error == False:
                     pass
@@ -206,7 +226,7 @@ class SpeciesIdent(object):
                 feature_data = {
                     "ids": features_name_list
                 }
-
+                print ("Writing feature list.")
                 with open('feature_list.json', 'w+') as f:
                     json.dump(feature_data, f)
 
@@ -214,8 +234,10 @@ class SpeciesIdent(object):
 
         self.mode = 1
         self.bulk = 1
-        # print(f'number loaded : {number_loaded}')
-        # print(f'number read : {number_read}')
+        print(f'number loaded : {number_loaded}')
+        print(f'number read : {number_read}')
+        l = len(self.loaded_bots)
+        print (l)
 
         return number_loaded
 

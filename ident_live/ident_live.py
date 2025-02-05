@@ -13,7 +13,16 @@ and execution can be found at https://vixen.hopto.org/rs/marlin/docs/ident/site.
 Import modules. Python modules required for application.
 
 """
+import  sys
+import  os
+import  requests
+# --- LOGGER ---
+from loguru import logger as logger_
+logger_.add('learn.log', format="{level} : {time} : {message}: {process}")
+logger_.add(sys.stdout, level="TRACE")  
+logger_.add("app.log", level="TRACE") 
 
+logger_.trace("Building application logger.")
 
 # --- LIBROSA ---
 import  librosa
@@ -59,9 +68,7 @@ from    datetime import datetime, timedelta, timezone
 import  json
 import  random
 
-import  sys
-import  os
-import  requests
+
 
 
 # --- MAIN Entry ---
@@ -138,6 +145,7 @@ if __name__ == "__main__":
         update_features = True
 
     print (f'Update feature / bot list: {update_features}.')
+    logger_.info("Update feature / bot list: ")
     
     filename_ss_id = ""
     batch_id = ""
@@ -304,16 +312,18 @@ if __name__ == "__main__":
             snapshot_derived_data = None
             
             s_id = snapshot.meta_data['snapshot_id']
-            print (f'Searching for derived data : {s_id} ...')
+            # print (f'Searching for derived data : {s_id} ...')
+            logger_.info(f'Searching for derived data : {s_id}.')
             if not os.path.isfile(f'{working_path}/{s_id}.da'):
                 #! update
                 # update_run(filename,1)
 
-                print (f'...not found so building for {s_id}.')
+                # print (f'...not found so building for {s_id}.')
+                logger_.info(f'...not found so building for {s_id}.')
                 data_adapter.derived_data = None
                 data_adapter.build_derived_data(n_fft=8192)
                 snapshot_derived_data = data_adapter.derived_data.build_derived_data(
-                    simulation_data=snapshot,  f_min=115000, f_max=145000)
+                    simulation_data=snapshot,  f_min=100000, f_max=140000)
                 
                 data_adapter.derived_data.ft_build_band_energy_profile(
                     sample_delta_t=0.01, simulation_data=snapshot, discrete_size=500)
@@ -325,14 +335,15 @@ if __name__ == "__main__":
                 with open(f'{working_path}/{s_id}.da', 'wb') as f:  # open a text file
                     # serialize the list
                     pickle.dump(data_adapter.derived_data, f)
-                    
-                print (f'{s_id} derived data structure built.')
-
+                
+                # print (f'{s_id} derived data structure built.')
+                logger_.info(f'{s_id} derived data structure built.')
             else:
                 # !update
                 # update_run(filename,2)
                 data_avail = True
-                print (f'...{s_id} found.')
+                # print (f'...{s_id} found.')
+                logger_.info(f'...{s_id} found.')
                
         # Load saved derived data objects
 
@@ -346,7 +357,8 @@ if __name__ == "__main__":
                 number_dd_loaded = 0
                 number_to_load = len(sim_ids)
                 for active_ssid in sim_ids:
-                    print (f'Loading MARLIN data {active_ssid} [{number_dd_loaded} of {number_to_load}]')
+                    # print (f'Loading MARLIN data {active_ssid} [{number_dd_loaded} of {number_to_load}]')
+                    logger_.info(f'Loading MARLIN data {active_ssid} [{number_dd_loaded} of {number_to_load}]')
                     with open(f'{working_path}/{active_ssid}.da', 'rb') as f:  # open a text file
                         load_start = time.time()
                         data_adapter.derived_data = None
@@ -367,8 +379,8 @@ if __name__ == "__main__":
 
                         number_dd_loaded+=1
                         dur = time.time()-load_start
-                        print(f'Time to load MARLIN data [active_ssid] -> {dur}')
-
+                        # print(f'Time to load MARLIN data [active_ssid] -> {dur}')
+                        logger_.info(f'Time to load MARLIN data [active_ssid] -> {dur}')
                 with open(f'{working_path}/{filename}_all.da', 'wb') as f: 
                     # serialize the list
                     pickle.dump(data_adapter.multiple_derived_data, f)
@@ -379,7 +391,8 @@ if __name__ == "__main__":
                     
 
         else:
-            print (f'{filename} has a single project MARLIN data structure available.')
+            # print (f'{filename} has a single project MARLIN data structure available.')
+            logger_.info(f'{filename} has a single project MARLIN data structure available.')
             with open(f'{working_path}/{filename}_all.da', 'rb') as f:  # open a text file
                 multiple_dd = pickle.load(f)
                 data_adapter.multiple_derived_data = multiple_dd
@@ -407,12 +420,14 @@ if __name__ == "__main__":
         # ------------------------------------------------------------------
         #! update
         # update_run(filename,4.5)
-        print('Loading features / bots.')
-        
+        # print(f'Loading features / bots. {update_features}')
+        logger_.info(f'Loading features / bots. {update_features}')
         shell_config['number_working_features'] = application.load_bots(
-            target, version=feature_version, version_time_from=time_version_from,  version_time_to=time_version_to, bot_dir=features_path, number_features=number_features, update=update_features)
+            target, version=feature_version, version_time_from=time_version_from,  version_time_to=time_version_to, bot_dir=features_path, number_features=number_features, update=update_features, direct=True)
         num_loaded = shell_config['number_working_features']
-
+        
+        # print (f'Number loaded : {num_loaded}')
+        logger_.info(f'Number loaded : {num_loaded}')
         
 
         application.mode = 1
@@ -446,9 +461,10 @@ if __name__ == "__main__":
                     for kg, vg in v.genome.items():
                         for kgg, vgg in vg.genome.items():
                             # if 'frequency_index' in vgg:
-                            idx = vgg.frequency_index
-                            f = application.derived_data.min_freq + \
-                                (idx * (application.derived_data.index_delta_f))
+                            # idx = vgg.frequency_index
+                            # f = application.derived_data.min_freq + \
+                            #     (idx * (application.derived_data.index_delta_f))
+                            f = vgg.frequency
                             feature_f[feature.name] = f
                             frequency_activity.append(f)
 
@@ -470,9 +486,11 @@ if __name__ == "__main__":
                     for kg, vg in v.genome.items():
                         for kgg, vgg in vg.genome.items():
                             # if 'frequency_index' in vgg:
-                            idx = vgg.frequency_index
-                            f = application.derived_data.min_freq + \
-                                (idx * (application.derived_data.index_delta_f))
+                            # idx = vgg.frequency_index
+                            # f = application.derived_data.min_freq + \
+                            #     (idx * (application.derived_data.index_delta_f))
+                            # feature_f[feature.name] = f
+                            f = vgg.frequency
                             feature_f[feature.name] = f
                             frequency_activity.append(f)
 
@@ -529,7 +547,8 @@ if __name__ == "__main__":
                     "similarity_factor": user_similarity_threshold
                 }
                 
-                print("Sending to Softmax API")
+                # print("Sending to Softmax API")
+                logger_.info("Sending to Softmax API")
                 softmax_key = "key1"
                 headers = {}
                 softmax_url = 'https://vixen.hopto.org/rs/api/v1/data/softmax'
@@ -548,8 +567,10 @@ if __name__ == "__main__":
             ratio_active = softmax_return_data['r_active']
             avg_energies = softmax_return_data['avg_energies']
             pc_above_tracker = softmax_return_data['pc_above_tracker']
+            # max_energy_tracker = softmax_return_data['max_energies']
             number_decisions = len(decisions)
-            print (f'{number_decisions} made.')
+            # print (f'{number_decisions} made.')
+            logger_.info(f'{number_decisions} made.')
 
             #! update
             # update_run(filename,12)
