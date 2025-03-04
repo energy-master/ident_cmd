@@ -1,7 +1,7 @@
 #!/usr/local/bin/python3
 
 """ 
-
+1.0
 Sample script to run a local data file against MARLIN IDent Live features. Documentation for installation
 and execution can be found at https://vixen.hopto.org/rs/marlin/docs/ident/site. 
 
