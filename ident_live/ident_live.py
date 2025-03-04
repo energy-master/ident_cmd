@@ -275,7 +275,7 @@ if __name__ == "__main__":
                 "listener_location": {"latitude": 0, "longitude": 0}, "location_name": "67149847", "frame_delta_t": app_config['streaming_delta_t'], "sample_rate": sample_rate, "marlin_start_time":  int((f_start_time_dt.timestamp()) * 1000),
                 "marlin_end_time": int((f_end_time_dt.timestamp()) * 1000)
             }
-
+            
             raw_data[wav_data_idx_start: wav_data_idx_end].tofile(
                 f'{working_path}/{tmp_stream}')
             with open(f'{working_path}/{tmp_meta}', 'w') as f:
