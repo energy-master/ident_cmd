@@ -13,6 +13,8 @@ and execution can be found at https://vixen.hopto.org/rs/marlin/docs/ident/site.
 Import modules. Python modules required for application.
 
 """
+
+duration = {}
 import  sys
 import  os
 import  requests
@@ -144,12 +146,21 @@ if __name__ == "__main__":
     if int(update_features) == 1:
         update_features = True
 
+    # get feature ids from folder to load or use features.json
+    # direct = int(sys.argv[15])
+    # if direct == 1:
+    #     direct = True
+    # if direct == 0:
+    #     direct = False
+
+    # print (f'Direct load of features from folder : {direct}')
+
     print (f'Update feature / bot list: {update_features}.')
     logger_.info("Update feature / bot list: ")
     
     filename_ss_id = ""
     batch_id = ""
-
+    # exit()
     # Batch operations
     if len(sys.argv) >= 16:
         batch_run_number = sys.argv[15]
@@ -321,13 +332,15 @@ if __name__ == "__main__":
                 # print (f'...not found so building for {s_id}.')
                 logger_.info(f'...not found so building for {s_id}.')
                 data_adapter.derived_data = None
-                data_adapter.build_derived_data(n_fft=8192)
+                data_adapter.build_derived_data(n_fft=1024)
+                startt(name="build_derived_data")
                 snapshot_derived_data = data_adapter.derived_data.build_derived_data(
-                    simulation_data=snapshot,  f_min=100000, f_max=140000)
-                
+                    simulation_data=snapshot,  f_min=70, f_max=145000)
+                stopt(desc="build_derived_data")
+                startt(name="build index")
                 data_adapter.derived_data.ft_build_band_energy_profile(
-                    sample_delta_t=0.01, simulation_data=snapshot, discrete_size=500)
-                
+                    sample_delta_t=0.001, simulation_data=snapshot, discrete_size=1000)
+                stopt(desc="build index")
                 data_adapter.multiple_derived_data[s_id] = data_adapter.derived_data
                 if derived_data_use == None:
                     derived_data_use = data_adapter.derived_data
@@ -362,8 +375,9 @@ if __name__ == "__main__":
                     with open(f'{working_path}/{active_ssid}.da', 'rb') as f:  # open a text file
                         load_start = time.time()
                         data_adapter.derived_data = None
+                        startt(name="loading_da")
                         tmp_derived_data = pickle.load(f)
-                        
+                        stopt(desc="loading_da")
                         data_adapter.derived_data = tmp_derived_data
                         
 
@@ -381,13 +395,13 @@ if __name__ == "__main__":
                         dur = time.time()-load_start
                         # print(f'Time to load MARLIN data [active_ssid] -> {dur}')
                         logger_.info(f'Time to load MARLIN data [active_ssid] -> {dur}')
-                with open(f'{working_path}/{filename}_all.da', 'wb') as f: 
-                    # serialize the list
-                    pickle.dump(data_adapter.multiple_derived_data, f)
+                # with open(f'{working_path}/{filename}_all.da', 'wb') as f: 
+                #     # serialize the list
+                #     pickle.dump(data_adapter.multiple_derived_data, f)
                     
-                with open(f'{working_path}/{filename}_all_dd.da', 'wb') as f: 
-                    # serialize the list
-                    pickle.dump(data_adapter.derived_data, f)
+                # with open(f'{working_path}/{filename}_all_dd.da', 'wb') as f: 
+                #     # serialize the list
+                #     pickle.dump(data_adapter.derived_data, f)
                     
 
         else:
@@ -403,6 +417,8 @@ if __name__ == "__main__":
 
 
 
+        print (duration)
+        # exit()
         algo_setup = AlgorithmSetup(config_file_path=f'{app_path}/config.json')
 
         application = SpeciesIdent(algo_setup)
