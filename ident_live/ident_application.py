@@ -169,10 +169,10 @@ class SpeciesIdent(object):
                 # print(bot_path)
                 error = False
                 # print (f'loading {version}')
-                
+
                 try:
                     bot = self.load_bot(bot_path)
-                    print (bot)
+                    
                     
 
                     add = True

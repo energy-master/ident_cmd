@@ -225,7 +225,8 @@ if __name__ == "__main__":
         file_path = f'{data_path}/{filename}'
         sample_rate = librosa.get_samplerate(file_path)
         raw_data, sample_rate = librosa.load(file_path, sr=sample_rate)
-       
+        print (sample_rate)
+        
         # data chunk considerations
         if start_time_chunk != -1:
             start_time_idx = int(sample_rate * int(start_time_chunk))
@@ -316,6 +317,7 @@ if __name__ == "__main__":
                 "listener_location": {"latitude": 0, "longitude": 0}, "location_name": "67149847", "frame_delta_t": app_config['streaming_delta_t'], "sample_rate": sample_rate, "marlin_start_time":  int((f_start_time_dt.timestamp()) * 1000),
                 "marlin_end_time": int((f_end_time_dt.timestamp()) * 1000)
             }
+            
             
 
             
@@ -452,7 +454,7 @@ if __name__ == "__main__":
                 dd = pickle.load(f)
                 data_adapter.derived_data = dd
 
-        
+
         
         algo_setup = AlgorithmSetup(config_file_path=f'{app_path}/config.json')
 
