@@ -64,7 +64,7 @@ import time
 
 # Import some required pyhton modules.
 from    dotenv import load_dotenv, dotenv_values
-import  pickle
+import  cPickle  as pickle
 from    datetime import datetime as dt
 from    datetime import datetime, timedelta, timezone
 import  json
@@ -332,7 +332,9 @@ if __name__ == "__main__":
                 # print (f'...not found so building for {s_id}.')
                 logger_.info(f'...not found so building for {s_id}.')
                 data_adapter.derived_data = None
+                
                 data_adapter.build_derived_data(n_fft=1024)
+                
                 startt(name="build_derived_data")
                 snapshot_derived_data = data_adapter.derived_data.build_derived_data(
                     simulation_data=snapshot,  f_min=70, f_max=145000)
@@ -403,7 +405,8 @@ if __name__ == "__main__":
                 #     # serialize the list
                 #     pickle.dump(data_adapter.derived_data, f)
                     
-
+        
+        
         else:
             # print (f'{filename} has a single project MARLIN data structure available.')
             logger_.info(f'{filename} has a single project MARLIN data structure available.')
@@ -418,7 +421,7 @@ if __name__ == "__main__":
 
 
         print (duration)
-        # exit()
+        exit()
         algo_setup = AlgorithmSetup(config_file_path=f'{app_path}/config.json')
 
         application = SpeciesIdent(algo_setup)
