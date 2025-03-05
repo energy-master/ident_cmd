@@ -64,7 +64,7 @@ import time
 
 # Import some required pyhton modules.
 from    dotenv import load_dotenv, dotenv_values
-import  cPickle  as pickle
+import  pickle
 from    datetime import datetime as dt
 from    datetime import datetime, timedelta, timezone
 import  json
@@ -146,13 +146,26 @@ if __name__ == "__main__":
     if int(update_features) == 1:
         update_features = True
 
-    # get feature ids from folder to load or use features.json
-    # direct = int(sys.argv[15])
-    # if direct == 1:
-    #     direct = True
-    # if direct == 0:
-    #     direct = False
 
+    
+    # get feature ids from folder to load or use features.json
+    direct = int(sys.argv[15])
+    if direct == 1:
+        direct = True
+    if direct == 0:
+        direct = False
+    
+    
+    # time range
+    start_time_chunk = -1
+    end_time_chunk = -1
+    if len(sys.argv) > 16:
+        start_time_chunk = sys.argv[16]
+        end_time_chunk = sys.argv[17]
+    
+    
+    
+    
     # print (f'Direct load of features from folder : {direct}')
 
     print (f'Update feature / bot list: {update_features}.')
@@ -160,26 +173,26 @@ if __name__ == "__main__":
     
     filename_ss_id = ""
     batch_id = ""
-    # exit()
+    
     # Batch operations
-    if len(sys.argv) >= 16:
-        batch_run_number = sys.argv[15]
+    # if len(sys.argv) >= 16:
+    #     batch_run_number = sys.argv[15]
 
-        for i in range(0, batch_run_number):
-            filename_ss_id = f'{sys.argv[15+i]}_{location}'  # obs
-            batch_file_names.append(filename_ss_id)
-            batch_run_ids.append(sys.argv[15+i])
+    #     for i in range(0, batch_run_number):
+    #         filename_ss_id = f'{sys.argv[15+i]}_{location}'  # obs
+    #         batch_file_names.append(filename_ss_id)
+    #         batch_run_ids.append(sys.argv[15+i])
 
-    else:
-        filename_ss_id = f'{filename}_{location}'  # obs
-        batch_file_names.append(filename_ss_id)
-        batch_run_ids.append(filename)
+    # else:
+    #     filename_ss_id = f'{filename}_{location}'  # obs
+    #     batch_file_names.append(filename_ss_id)
+    #     batch_run_ids.append(filename)
         
 
     # ----------------- INPUT PARAMETERS ---------------------------------
 
-
-
+    # batch operations turned off. Execute in script to achieve batch operations
+    batch_run_ids.append(filename)
     for filename in batch_run_ids:
         
         # --- INITIALISE RUN ---
@@ -212,14 +225,27 @@ if __name__ == "__main__":
         file_path = f'{data_path}/{filename}'
         sample_rate = librosa.get_samplerate(file_path)
         raw_data, sample_rate = librosa.load(file_path, sr=sample_rate)
-        # print(f'sr : {sample_rate}')
+       
+        # data chunk considerations
+        if start_time_chunk != -1:
+            start_time_idx = int(sample_rate * int(start_time_chunk))
+            
+            end_time_idx = int(sample_rate * int(end_time_chunk))
+            
+            raw_data = raw_data[start_time_idx:end_time_idx]
 
         # --- META DATA creation ---
-    
+
+        # get start time string from filename
         start_time = f'{file_root.split("_")[0]}_{file_root.split("_")[1]}.{file_root.split("_")[2]}'
 
+        # data chunk considerations
+        
+        
         # print(f'start time : {start_time}')
         start_t_dt = dt.strptime(start_time, '%Y%m%d_%H%M%S.%f')
+        if start_time_chunk != -1:
+            start_t_dt = start_t_dt + timedelta(seconds=int(start_time_chunk))
         duration_s = len(raw_data)/sample_rate
         start_t_ms = int(start_t_dt.timestamp()) * 1000
         end_t_dt = start_t_dt + timedelta(seconds=duration_s)
@@ -234,6 +260,10 @@ if __name__ == "__main__":
             "marlin_end_time": end_t_ms
         }
 
+        app_config['streaming_delta_t'] = min(duration_s,app_config['streaming_delta_t'])
+
+        
+        
         # --- INITIALISE RUN END ---
 
         # --- NO EDIT START ---
@@ -260,7 +290,7 @@ if __name__ == "__main__":
        
         delta_f_idx = (sample_rate * app_config['streaming_delta_t'])
         
-        f_start_time = start_time
+        f_start_time = start_t_dt.strftime("%y%m%d_%H%M%S.%f")
         f_start_time_dt = start_t_dt
         sim_ids = []
 
@@ -275,7 +305,7 @@ if __name__ == "__main__":
             f_start_time = f_start_time_dt.strftime('%y%m%d_%H%M%S.%f')
 
             wav_data_idx_end = wav_data_idx_start + \
-                (sample_rate * app_config['streaming_delta_t'])
+                (sample_rate * int(app_config['streaming_delta_t']))
             tmp_stream = f'streamedfile_{src_data_id}{cnt}.dat'
             tmp_meta = f'metadata_{filename_ss_id}{cnt}.json'
 
@@ -287,8 +317,11 @@ if __name__ == "__main__":
                 "marlin_end_time": int((f_end_time_dt.timestamp()) * 1000)
             }
             
+
+            
             raw_data[wav_data_idx_start: wav_data_idx_end].tofile(
                 f'{working_path}/{tmp_stream}')
+            
             with open(f'{working_path}/{tmp_meta}', 'w') as f:
                 json.dump(meta_data, f)
 
@@ -298,6 +331,7 @@ if __name__ == "__main__":
 
             cnt += 1
 
+        
         # Create the data adapter
         limit = 200
         simulation_data_path = f'{working_path}'
@@ -337,7 +371,7 @@ if __name__ == "__main__":
                 
                 startt(name="build_derived_data")
                 snapshot_derived_data = data_adapter.derived_data.build_derived_data(
-                    simulation_data=snapshot,  f_min=70, f_max=145000)
+                    simulation_data=snapshot,  f_min=70000, f_max=145000)
                 stopt(desc="build_derived_data")
                 startt(name="build index")
                 data_adapter.derived_data.ft_build_band_energy_profile(
@@ -347,9 +381,9 @@ if __name__ == "__main__":
                 if derived_data_use == None:
                     derived_data_use = data_adapter.derived_data
                 
-                with open(f'{working_path}/{s_id}.da', 'wb') as f:  # open a text file
-                    # serialize the list
-                    pickle.dump(data_adapter.derived_data, f)
+                # with open(f'{working_path}/{s_id}.da', 'wb') as f:  # open a text file
+                #     # serialize the list
+                #     pickle.dump(data_adapter.derived_data, f)
                 
                 # print (f'{s_id} derived data structure built.')
                 logger_.info(f'{s_id} derived data structure built.')
@@ -418,10 +452,8 @@ if __name__ == "__main__":
                 dd = pickle.load(f)
                 data_adapter.derived_data = dd
 
-
-
-        print (duration)
-        exit()
+        
+        
         algo_setup = AlgorithmSetup(config_file_path=f'{app_path}/config.json')
 
         application = SpeciesIdent(algo_setup)

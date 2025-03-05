@@ -189,6 +189,9 @@ class IdentGame(object):
 
                         express_end = time.time()
 
+                        if self.game.algo_setup.args['timings']:
+                            print (duration)
+                        
                         express_time = express_end - express_start
                         # print (f'time to express bot {express_time}')
                         express_level = bot.GetAvgExpressionValue()
