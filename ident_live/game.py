@@ -551,9 +551,11 @@ class IdentGame(object):
         #     process = psutil.Process(os.getpid())
         #     task1 = progress.add_task(
         #         f"[green] Running features/bots against your data", total=len(list(self.game.loaded_bots.keys())))
-
+        
+        
         for bot_name, bot in self.game.loaded_bots.items():
             # try:
+            # print (f'running {bot_name}')
             iter_res = self.bot_step(
                 bot, listen_start_idx=0, step_end_index=0)
             # except:

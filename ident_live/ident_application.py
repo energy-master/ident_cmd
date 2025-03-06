@@ -112,9 +112,7 @@ class SpeciesIdent(object):
         number_loaded = 0
         versions_list = version.split('/')
         data = None
-        print (f'Update  : {update}')
-        
-        
+        print (f'Updating bots  : {update}')
         
         if update:
             print('Updating features/bots list.')
@@ -124,9 +122,7 @@ class SpeciesIdent(object):
             
             x = requests.post(url, json=post_data)
             data = x.json()
-
-            # print(f'versions: {versions_list}')
-
+            
         else:
             if not direct:
                 # print('loading features/bots list...')
@@ -146,8 +142,7 @@ class SpeciesIdent(object):
                 li=[x.split('.')[0] for x in l]
                 data = {}
                 data['data'] = li
-        # print(f'Loading {number_features} features/bots.')
-        # print(len(data['data']))
+        
         with Progress() as progress:
             process = psutil.Process(os.getpid())
             task1 = progress.add_task(
@@ -163,18 +158,12 @@ class SpeciesIdent(object):
 
                 features_name_list.append(bot_id)
 
-                # print (bot_id)
-
                 bot_path = f'{bot_dir}/{bot_id}.vixen'
-                # print(bot_path)
                 error = False
-                # print (f'loading {version}')
-
+                
                 try:
                     bot = self.load_bot(bot_path)
                     
-                    
-
                     add = True
 
                     # for k,v in bot.dNA.items():
@@ -188,6 +177,7 @@ class SpeciesIdent(object):
                     if hasattr(bot, 'version'):
                         
                         # print (bot.version)
+                        # print (bot)
                         if (bot.version) not in versions_list:
                             # print (f' hit : v: {bot.version} | {versions_list}')
                             # print ("wrong v")
@@ -237,8 +227,9 @@ class SpeciesIdent(object):
         print(f'number loaded : {number_loaded}')
         print(f'number read : {number_read}')
         l = len(self.loaded_bots)
+        # print (self.loaded_bots)
         print (l)
-
+        
         return number_loaded
 
     def run(self):

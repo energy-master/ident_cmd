@@ -1,6 +1,6 @@
 {	
 	
-	"streaming_delta_t"     : 5,
+	"streaming_delta_t"     : 10,
 	"population_size"		: 100, 
 	"max_number_dna"		: 1, 
 	"min_number_dna" 		: 1,
@@ -10,7 +10,7 @@
 	"env" 					: "harbour_porpoise",
 	"data_location" 		: ["67149847"],
 	"number_generations" 	: 200,
-	"listen_delta_t" 		: 0.01,
+	"listen_delta_t" 		: 0.001,
 	"evaluation_class_name" : "IdentEvaluation",
 	"mutation_rate" 		: 0.7,
 	"creep_rate" 			: 0.1,
@@ -21,8 +21,9 @@
 	"user_uid" 				: "rdtandon",
 	"scope" 				: "global",
 	"save_dir" 				: "bots/",
-	"n_fft" 				: 8192,
-	"factor" 				: 1
+	"n_fft" 				: 1024,
+	"factor" 				: 1,
+	"timings"				: false
 	
 }
 

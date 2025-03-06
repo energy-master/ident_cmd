@@ -376,8 +376,8 @@ if __name__ == "__main__":
                     simulation_data=snapshot,  f_min=70000, f_max=145000)
                 stopt(desc="build_derived_data")
                 startt(name="build index")
-                data_adapter.derived_data.ft_build_band_energy_profile(
-                    sample_delta_t=0.001, simulation_data=snapshot, discrete_size=1000)
+                # data_adapter.derived_data.ft_build_band_energy_profile(
+                #     sample_delta_t=0.001, simulation_data=snapshot, discrete_size=1000)
                 stopt(desc="build index")
                 data_adapter.multiple_derived_data[s_id] = data_adapter.derived_data
                 if derived_data_use == None:
@@ -523,15 +523,18 @@ if __name__ == "__main__":
 
             distributed_list = shape_input(feature_f,500)
             
+            
             # Build initial feature frequency distribution plot
             plot_hist(frequency_activity,
                       f'{out_path}/f_d_{marlin_game.game_id}_init_all.png')
 
+           
             
             # Update the loaded bots
-            marlin_game.game.update_bots(
-                bot_dir=features_path, feature_list=distributed_list)
+            # marlin_game.game.update_bots(
+            #     bot_dir=features_path, feature_list=distributed_list)
 
+            
             frequency_activity = []
             for feature in list(application.loaded_bots.values()):
                 

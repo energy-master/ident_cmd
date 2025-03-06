@@ -15,8 +15,8 @@ import sys
 
 # === Downlod Features ===
 #! Update for model
-features_path = 'https://marlin-network.hopto.org/ident/bots_repo/hp_cmplx'
-download_path = '/Users/vixen/rs/dev/ident_live/ident_live/bots/dl_bots'
+features_path = 'https://marlin-network.hopto.org/ident/bots_repo/bots_s_f'
+download_path = '/Users/vixen/rs/dev/ident_live/ident_live/bots/bots_s_f'
 
 r_ = requests.get(features_path, allow_redirects=True, stream=True)      
 
@@ -50,7 +50,7 @@ for fid in feature_ids[5:]:
 
 
 
-
+exit()
 # === Downlod Feature Frameworks ===
 #! Update for model
 features_path = 'https://marlin-network.hopto.org/ident/features'
