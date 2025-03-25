@@ -43,7 +43,7 @@ def get_bin_f(librosa_f_bins, freq_lower, freq_end):
 
 def plot_hist(frequency_activity, filename):
 
-    plt.hist(frequency_activity, range=(100000, 200000), bins=100)
+    plt.hist(frequency_activity, range=(0, 200000), bins=10)
     plt.savefig(filename)
     plt.clf()
 
@@ -97,6 +97,8 @@ def build_spec_upload(sample_rate, game_id,  hits, decisions, peak, avg, times, 
 
         plot_time.append(float(_d_t.total_seconds()))
 
+    
+
     # for i, val in enumerate(peak):
     #     if val<0.7:
     #         peak[i] = 0
@@ -136,7 +138,9 @@ def build_spec_upload(sample_rate, game_id,  hits, decisions, peak, avg, times, 
     plt.xlabel('Time (s)')
     plt.savefig(filepath)
     plt.clf()
-
+    
+    #return time in delta t from start to file
+    return plot_time
 
 def build_spec(data,  id, bot_id, n_fft=None, f_min=0, f_max=0, custom=0, sr=96000, identifier=0, times=[], energies=[], hits=[], activation_level=0.2):
     print("building spec")

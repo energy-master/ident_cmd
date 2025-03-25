@@ -347,6 +347,7 @@ class IdentGame(object):
                         # update listen start idx
                         listen_start_idx = listen_end_idx
                         pbar.update(listen_delta_idx)
+                        # time.sleep(0.0001)
                 pbar.close()
                 # pressure_end = time.time()
                 # run_time = pressure_end - pressure_start

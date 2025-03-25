@@ -217,6 +217,10 @@ if __name__ == "__main__":
         shell_config['feature_version'] = sys.argv[9]
         shell_config['time_version_from'] = time_version_from
         shell_config['time_version_to'] = time_version_to
+        
+        shell_config['time_chunk_from'] = start_time_chunk
+        shell_config['time_chunk_to'] = end_time_chunk
+        
 
         # !Run DB updates
         # send_new_run(filename, target, user_uid, location, json.dumps(shell_config))
@@ -225,7 +229,10 @@ if __name__ == "__main__":
         file_path = f'{data_path}/{filename}'
         sample_rate = librosa.get_samplerate(file_path)
         raw_data, sample_rate = librosa.load(file_path, sr=sample_rate)
-        print (sample_rate)
+        print (f'Sample rate of input data : {sample_rate}')
+        
+        
+        
         
         # data chunk considerations
         if start_time_chunk != -1:
@@ -335,7 +342,7 @@ if __name__ == "__main__":
 
         
         # Create the data adapter
-        limit = 200
+        limit = 2000
         simulation_data_path = f'{working_path}'
         data_adapter = MarlinData(load_args={'limit': limit})
 
@@ -369,11 +376,11 @@ if __name__ == "__main__":
                 logger_.info(f'...not found so building for {s_id}.')
                 data_adapter.derived_data = None
                 
-                data_adapter.build_derived_data(n_fft=1024)
+                data_adapter.build_derived_data(n_fft=app_config['n_fft'])
                 
                 startt(name="build_derived_data")
                 snapshot_derived_data = data_adapter.derived_data.build_derived_data(
-                    simulation_data=snapshot,  f_min=70000, f_max=145000)
+                    simulation_data=snapshot,  f_min=app_config['adapter_f_min'], f_max=app_config['adapter_f_max'])
                 stopt(desc="build_derived_data")
                 startt(name="build index")
                 # data_adapter.derived_data.ft_build_band_energy_profile(
@@ -466,6 +473,9 @@ if __name__ == "__main__":
         application.data_feed = data_feed
         application.multiple_derived_data = data_adapter.multiple_derived_data
 
+        # debug - post snapshot build
+        # exit()
+
         # ------------------------------------------------------------------
         #
         #   Bot(s) download for forward testing
@@ -482,7 +492,7 @@ if __name__ == "__main__":
         # print (f'Number loaded : {num_loaded}')
         logger_.info(f'Number loaded : {num_loaded}')
         
-
+        # exit()
         application.mode = 1
         application.multiple_data = 1
         # create new run in db
@@ -523,13 +533,13 @@ if __name__ == "__main__":
 
             distributed_list = shape_input(feature_f,500)
             
-            
+            # print(feature_f)
             # Build initial feature frequency distribution plot
             plot_hist(frequency_activity,
                       f'{out_path}/f_d_{marlin_game.game_id}_init_all.png')
 
            
-            
+            # exit()
             # Update the loaded bots
             # marlin_game.game.update_bots(
             #     bot_dir=features_path, feature_list=distributed_list)
@@ -556,6 +566,7 @@ if __name__ == "__main__":
 
             # Determine total time
             s_interval = duration_s
+            # s_interval = 20
             number_runs = math.floor(duration_s / s_interval)
             delta_idx = s_interval * sample_rate
 
@@ -617,10 +628,13 @@ if __name__ == "__main__":
 
                 hits = []
                
-           
+
             softmax_return_data = json.loads(softmax_results['result'][0])
+            
             decisions = softmax_return_data['decisions']
             ratio_active = softmax_return_data['r_active']
+            # print (ratio_active)
+            # exit()
             avg_energies = softmax_return_data['avg_energies']
             pc_above_tracker = softmax_return_data['pc_above_tracker']
             # max_energy_tracker = softmax_return_data['max_energies']
@@ -635,10 +649,10 @@ if __name__ == "__main__":
 
             #! update
             # update_run(filename,12.2)
-          
+
             if len(marlin_game.bulk_times) > 2:
                 # print('build spec')
-                build_spec_upload(sample_rate, marlin_game.game_id, hits=hits, decisions=decisions, peak=ratio_active,
+                time_seconds = build_spec_upload(sample_rate, marlin_game.game_id, hits=hits, decisions=decisions, peak=ratio_active,
                                   avg=avg_energies, times=marlin_game.bulk_times, pc_above_e=pc_above_tracker, f=[], full_raw_data=raw_data, save_path=out_path)
 
             #! update
@@ -650,5 +664,36 @@ if __name__ == "__main__":
             # update_run(filename,13)
            
             # --- NO EDIT END ---
+            
+            print (len(ratio_active))
+            print (len(time_seconds))
+            with open(f'{out_path}/ratio_active.txt', 'w') as f:
+                for line in ratio_active:
+                    f.write(f"{line}\n")
+                    
+            with open(f'{out_path}/time_s.txt', 'w') as f:
+                for line in time_seconds:
+                    f.write(f"{line}\n")
+                    
+            with open(f'{out_path}/r_plot.txt', 'w') as f:
+                idx = 0
+                for line in time_seconds:
+                    f.write(f"{line},{ratio_active[idx]}\n")
+                    idx+=1
+
+            with open(f'{out_path}/avg_e_plot.txt', 'w') as f:
+                idx = 0
+                for line in time_seconds:
+                    f.write(f"{line},{avg_energies[idx]}\n")
+                    idx+=1
+            
+            with open(f'{out_path}/pc_e_plot.txt', 'w') as f:
+                idx = 0
+                for line in time_seconds:
+                    f.write(f"{line},{pc_above_tracker[idx]}\n")
+                    idx+=1
+
+            
+            
 
         break
