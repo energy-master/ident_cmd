@@ -48,7 +48,7 @@ def plot_hist(frequency_activity, filename):
     plt.clf()
 
 
-def build_spec_upload(sample_rate, game_id,  hits, decisions, peak, avg, times, pc_above_e, f=[], full_raw_data=[], save_path=""):
+def build_spec_upload(sample_rate, game_id,  hits, decisions, peak, avg, times, pc_above_e, f=[], full_raw_data=[], save_path="", max_energies = []):
 
     start_time_dt = datetime.strptime(times[0], "%Y-%m-%dT%H:%M:%S.%fZ")
     delta_t_dt = datetime.strptime(
@@ -138,6 +138,31 @@ def build_spec_upload(sample_rate, game_id,  hits, decisions, peak, avg, times, 
     plt.xlabel('Time (s)')
     plt.savefig(filepath)
     plt.clf()
+    
+    plt.plot(plot_time[0:t_len-2], avg[0:t_len-2], color=pk_color)
+    plt.ylabel('<E>')
+    plt.xlabel('Time (s)')
+    filepath = f'{save_path}/{game_id}{r_flag}_avg_e.png'
+    plt.savefig(filepath)
+    plt.clf()
+    
+    plt.plot(plot_time[0:t_len-2], max_energies[0:t_len-2], color=pk_color)
+    plt.ylabel('Max(E)')
+    plt.xlabel('Time (s)')
+    filepath = f'{save_path}/{game_id}{r_flag}_max_e.png'
+    plt.savefig(filepath)
+    plt.clf()
+    
+    plt.plot(plot_time[0:t_len-2], peak[0:t_len-2], color=pk_color)
+    plt.ylabel('Active/All')
+    plt.xlabel('Time (s)')
+    filepath = f'{save_path}/{game_id}{r_flag}_ratio_e.png'
+    plt.savefig(filepath)
+    plt.clf()
+    
+    
+    
+    
     
     #return time in delta t from start to file
     return plot_time

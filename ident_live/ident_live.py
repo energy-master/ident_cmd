@@ -632,14 +632,13 @@ if __name__ == "__main__":
             softmax_return_data = json.loads(softmax_results['result'][0])
             
             decisions = softmax_return_data['decisions']
+            decisions_csv = softmax_return_data['decisions_csv']
             ratio_active = softmax_return_data['r_active']
-            # print (ratio_active)
-            # exit()
             avg_energies = softmax_return_data['avg_energies']
             pc_above_tracker = softmax_return_data['pc_above_tracker']
-            # max_energy_tracker = softmax_return_data['max_energies']
+            max_energy = softmax_return_data['max_energies']
             number_decisions = len(decisions)
-            # print (f'{number_decisions} made.')
+            
             logger_.info(f'{number_decisions} made.')
 
             #! update
@@ -651,22 +650,29 @@ if __name__ == "__main__":
             # update_run(filename,12.2)
 
             if len(marlin_game.bulk_times) > 2:
-                # print('build spec')
+                # build spec with overlaying decisions & energy plots
                 time_seconds = build_spec_upload(sample_rate, marlin_game.game_id, hits=hits, decisions=decisions, peak=ratio_active,
-                                  avg=avg_energies, times=marlin_game.bulk_times, pc_above_e=pc_above_tracker, f=[], full_raw_data=raw_data, save_path=out_path)
+                                  avg=avg_energies, times=marlin_game.bulk_times, pc_above_e=pc_above_tracker, f=[], full_raw_data=raw_data, save_path=out_path, max_energies = max_energy)
 
+
+                
             #! update
             # update_run(filename,12.4)
             with open(f'{out_path}/decisions_{marlin_game.game_id}.json', 'w') as fp:
                 json.dump(decisions, fp)
 
+            with open(f'{out_path}/decisions_{marlin_game.game_id}.csv', 'w') as fp:
+                for d in decisions_csv:
+                    fp.write(f'{d} \n')
+
+            
             #! update
             # update_run(filename,13)
            
             # --- NO EDIT END ---
             
-            print (len(ratio_active))
-            print (len(time_seconds))
+            # print (len(ratio_active))
+            # print (len(time_seconds))
             with open(f'{out_path}/ratio_active.txt', 'w') as f:
                 for line in ratio_active:
                     f.write(f"{line}\n")
