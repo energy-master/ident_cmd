@@ -14,6 +14,9 @@ Import modules. Python modules required for application.
 
 """
 
+
+multiple_models = True
+
 duration = {}
 import  sys
 import  os
@@ -485,10 +488,30 @@ if __name__ == "__main__":
         # update_run(filename,4.5)
         # print(f'Loading features / bots. {update_features}')
         logger_.info(f'Loading features / bots. {update_features}')
-        shell_config['number_working_features'] = application.load_bots(
-            target, version=feature_version, version_time_from=time_version_from,  version_time_to=time_version_to, bot_dir=features_path, number_features=number_features, update=update_features, direct=True)
-        num_loaded = shell_config['number_working_features']
         
+        features_paths = []
+        
+        if multiple_models == True:
+            #get all paths in define feature path and add to features_paths
+            # f_directories = os.walk)
+            features_paths  = [ f.path for f in os.scandir(features_path) if f.is_dir() ]
+            print (features_paths)
+            
+            
+        
+        else:
+            features_paths.append(features_path)
+        
+        num_loaded = 0
+        for f_path in features_paths:
+            print (f_path)
+            shell_config['number_working_features'] = application.load_bots(
+                target, version=feature_version, version_time_from=time_version_from,  version_time_to=time_version_to, bot_dir=f_path, number_features=number_features, update=update_features, direct=True)
+            num_loaded =+ shell_config['number_working_features']
+            
+        
+        print (f'Number loaded : {num_loaded}')
+        exit()
         # print (f'Number loaded : {num_loaded}')
         logger_.info(f'Number loaded : {num_loaded}')
         
@@ -614,7 +637,9 @@ if __name__ == "__main__":
                     "similarity_factor": user_similarity_threshold
                 }
                 
-                # print("Sending to Softmax API")
+                # print (marlin_game.bulk_energies.keys())
+                
+                print("Sending to IDent Softmax API")
                 logger_.info("Sending to Softmax API")
                 softmax_key = "key1"
                 headers = {}
@@ -637,14 +662,15 @@ if __name__ == "__main__":
             avg_energies = softmax_return_data['avg_energies']
             pc_above_tracker = softmax_return_data['pc_above_tracker']
             max_energy = softmax_return_data['max_energies']
+            active_features = softmax_return_data['active_features']
             number_decisions = len(decisions)
+            
             
             logger_.info(f'{number_decisions} made.')
 
             #! update
             # update_run(filename,12)
             # update_run(filename,12.1)
-
 
             #! update
             # update_run(filename,12.2)
@@ -655,7 +681,6 @@ if __name__ == "__main__":
                                   avg=avg_energies, times=marlin_game.bulk_times, pc_above_e=pc_above_tracker, f=[], full_raw_data=raw_data, save_path=out_path, max_energies = max_energy)
 
 
-                
             #! update
             # update_run(filename,12.4)
             with open(f'{out_path}/decisions_{marlin_game.game_id}.json', 'w') as fp:
@@ -700,6 +725,6 @@ if __name__ == "__main__":
                     idx+=1
 
             
-            
+            # print (active_features)
 
         break
