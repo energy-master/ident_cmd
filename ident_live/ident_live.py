@@ -497,8 +497,6 @@ if __name__ == "__main__":
             features_paths  = [ f.path for f in os.scandir(features_path) if f.is_dir() ]
             # print (features_paths)
             
-            
-        
         else:
             features_paths.append(features_path)
         
@@ -633,7 +631,8 @@ if __name__ == "__main__":
                     "threshold_above_activation": user_threshold_above_e,
                     "energies": marlin_game.bulk_energies,
                     "times": marlin_game.bulk_times,
-                    "similarity_factor": user_similarity_threshold
+                    "similarity_factor": user_similarity_threshold,
+                    "bot_targets" : marlin_game.game.feature_targets
                 }
                 
                 # print (marlin_game.bulk_energies.keys())
@@ -662,11 +661,14 @@ if __name__ == "__main__":
             pc_above_tracker = softmax_return_data['pc_above_tracker']
             max_energy = softmax_return_data['max_energies']
             active_features = softmax_return_data['active_features']
+            soft_max_targets = softmax_return_data['targets']
+            interesting = softmax_return_data['interesting']
+            interesting_csv = softmax_return_data['interesting_csv']
             number_decisions = len(decisions)
             
             
             logger_.info(f'{number_decisions} made.')
-
+            print (soft_max_targets)
             #! update
             # update_run(filename,12)
             # update_run(filename,12.1)
@@ -677,16 +679,23 @@ if __name__ == "__main__":
             if len(marlin_game.bulk_times) > 2:
                 # build spec with overlaying decisions & energy plots
                 time_seconds = build_spec_upload(sample_rate, marlin_game.game_id, hits=hits, decisions=decisions, peak=ratio_active,
-                                  avg=avg_energies, times=marlin_game.bulk_times, pc_above_e=pc_above_tracker, f=[], full_raw_data=raw_data, save_path=out_path, max_energies = max_energy)
+                                  avg=avg_energies, times=marlin_game.bulk_times, pc_above_e=pc_above_tracker, f=[], full_raw_data=raw_data, save_path=out_path, max_energies = max_energy, targets=soft_max_targets, interesting=interesting)
 
 
             #! update
             # update_run(filename,12.4)
             with open(f'{out_path}/decisions_{marlin_game.game_id}.json', 'w') as fp:
                 json.dump(decisions, fp)
+            
+            with open(f'{out_path}/interesting_{marlin_game.game_id}.json', 'w') as fp:
+                json.dump(interesting, fp)
 
             with open(f'{out_path}/decisions_{marlin_game.game_id}.csv', 'w') as fp:
                 for d in decisions_csv:
+                    fp.write(f'{d} \n')
+                    
+            with open(f'{out_path}/interesting_{marlin_game.game_id}.csv', 'w') as fp:
+                for d in interesting_csv:
                     fp.write(f'{d} \n')
 
             
@@ -695,35 +704,40 @@ if __name__ == "__main__":
            
             # --- NO EDIT END ---
             
-            with open(f'{out_path}/ratio_active.txt', 'w') as f:
-                for line in ratio_active:
-                    f.write(f"{line}\n")
+            # with open(f'{out_path}/ratio_active.txt', 'w') as f:
+            #     for line in ratio_active:
+            #         f.write(f"{line}\n")
                     
-            with open(f'{out_path}/time_s.txt', 'w') as f:
-                for line in time_seconds:
-                    f.write(f"{line}\n")
+            # with open(f'{out_path}/time_s.txt', 'w') as f:
+            #     for line in time_seconds:
+            #         f.write(f"{line}\n")
                     
-            with open(f'{out_path}/r_plot.txt', 'w') as f:
-                idx = 0
-                for line in time_seconds:
-                    f.write(f"{line},{ratio_active[idx]}\n")
-                    idx+=1
+            # with open(f'{out_path}/r_plot.txt', 'w') as f:
+            #     idx = 0
+            #     for line in time_seconds:
+            #         f.write(f"{line},{ratio_active[idx]}\n")
+            #         idx+=1
 
-            with open(f'{out_path}/avg_e_plot.txt', 'w') as f:
-                idx = 0
-                for line in time_seconds:
-                    f.write(f"{line},{avg_energies[idx]}\n")
-                    idx+=1
+            # with open(f'{out_path}/avg_e_plot.txt', 'w') as f:
+            #     idx = 0
+            #     for line in time_seconds:
+            #         f.write(f"{line},{avg_energies[idx]}\n")
+            #         idx+=1
             
-            with open(f'{out_path}/pc_e_plot.txt', 'w') as f:
-                idx = 0
-                for line in time_seconds:
-                    f.write(f"{line},{pc_above_tracker[idx]}\n")
-                    idx+=1
+            # with open(f'{out_path}/pc_e_plot.txt', 'w') as f:
+            #     idx = 0
+            #     for line in time_seconds:
+            #         f.write(f"{line},{pc_above_tracker[idx]}\n")
+            #         idx+=1
 
             with open(f'{out_path}/active_features_{marlin_game.game_id}.json', 'w') as fp:
                 json.dump(active_features, fp)
+                
+            with open(f'{out_path}/avg_energies_{marlin_game.game_id}.json', 'w') as fp:
+                json.dump(avg_energies, fp)
             
-           
+        
+            # print (marlin_game.game.feature_targets)
+            print (marlin_game.game.loaded_targets)
 
         break

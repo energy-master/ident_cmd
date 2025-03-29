@@ -63,6 +63,8 @@ class SpeciesIdent(object):
         self.ss_ids = []
         self.multiple_derived_data = None
         self.multiple_data = -1
+        self.feature_targets = {}
+        self.loaded_targets = []
 
     def generation_reset(self):
         self.performance = performance.Performance()
@@ -200,6 +202,11 @@ class SpeciesIdent(object):
                         number_loaded += 1
                         # print(number_loaded)
                         progress.update(task1, advance=1)
+                        
+                        self.feature_targets[bot_id] = bot.env
+                        if bot.env not in self.loaded_targets:
+                            self.loaded_targets.append(bot.env)
+                            
                         if number_loaded > float(number_features):
                             print('Number required loaded.')
                             break

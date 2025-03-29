@@ -11,6 +11,10 @@ from scipy import signal
 from scipy.fft import fftshift
 from datetime import datetime
 import json
+import matplotlib
+import matplotlib.patches as mpatches
+from matplotlib import colormaps
+cmap = matplotlib.cm.get_cmap('Spectral')
 
 """
     Game level utils library.
@@ -48,7 +52,7 @@ def plot_hist(frequency_activity, filename):
     plt.clf()
 
 
-def build_spec_upload(sample_rate, game_id,  hits, decisions, peak, avg, times, pc_above_e, f=[], full_raw_data=[], save_path="", max_energies = []):
+def build_spec_upload(sample_rate, game_id,  hits, decisions, peak, avg, times, pc_above_e, f=[], full_raw_data=[], save_path="", max_energies = [], targets=[], interesting=[]):
 
     start_time_dt = datetime.strptime(times[0], "%Y-%m-%dT%H:%M:%S.%fZ")
     delta_t_dt = datetime.strptime(
@@ -58,13 +62,15 @@ def build_spec_upload(sample_rate, game_id,  hits, decisions, peak, avg, times, 
     t_len = len(times)
     
 
-    if peak != []:
-        peak.append(0.0)
-        avg.append(0.0)
-        pc_above_e.append(0.0)
+    # if peak != []:
+    #     peak.append(0.0)
+    #     avg.append(0.0)
+    #     pc_above_e.append(0.0)
 
     # sample_rate = data.meta_data['sample_rate']
 
+
+    # decisions
     n_fft = 8192
     y = None
     # if len(full_raw_data) == 0:
@@ -78,87 +84,165 @@ def build_spec_upload(sample_rate, game_id,  hits, decisions, peak, avg, times, 
 
     r_flag = random.randint(0,99999)
 
-    filepath = f'{save_path}/{game_id}{r_flag}.png'
+    filepath = f'{save_path}/{game_id}{r_flag}_decisions.png'
     plot_time = []
 
     for idx in decisions:
 
         _t = datetime.strptime(idx['time'], "%Y-%m-%dT%H:%M:%S.%fZ")
-
         _s = _t.strftime('%-S.%f')
         # print (_s)
         _d_t = _t - start_time_dt
-        plt.plot(float(_d_t.total_seconds()), 100000, 'go')
+        # print (idx)
+        search_v = float(int(targets.index(idx['target']))/len(targets))
+        
+        rgba = cmap(search_v)
+        y_val = (int(targets.index(idx['target'])) * 2000) + 1000
+        plt.plot(float(_d_t.total_seconds()), y_val, 'go', color=rgba)
+
 
     for time in times:
         _t = datetime.strptime(times[time], "%Y-%m-%dT%H:%M:%S.%fZ")
-
         _d_t = _t - start_time_dt
-
         plot_time.append(float(_d_t.total_seconds()))
 
+    labels = []
+    lcnt = 0
     
+    for target in targets:
+        search_v = float(int(targets.index(target))/len(targets))
+        lclr = cmap(search_v)
+        # print (search_v, lclr)
+        labels.append(mpatches.Patch(color=lclr, label=target))
+        lcnt = lcnt + 1
+    
+  
 
     # for i, val in enumerate(peak):
     #     if val<0.7:
     #         peak[i] = 0
 
-    avg_plot_50 = [((0.5 * 50000) + 200000) for i in avg]
-    pc_above_e_plot_50 = [(((50/100) * 50000) + 250000) for i in pc_above_e]
-    energy_50_plot = [(((50/100) * 20000)) for i in pc_above_e]
+    # avg_plot_50 = [((0.5 * 50000) + 200000) for i in avg]
+    # pc_above_e_plot_50 = [(((50/100) * 50000) + 250000) for i in pc_above_e]
+    # energy_50_plot = [(((50/100) * 20000)) for i in pc_above_e]
 
-    peak_plot = [i * 20000 for i in peak]
-    avg_plot = [((i * 50000) + 200000) for i in avg]
-    pc_above_e_plot = [(((i/100) * 50000) + 250000) for i in pc_above_e]
+    # peak_plot = [i * 20000 for i in peak]
+    # avg_plot = [((i * 50000) + 200000) for i in avg]
+    # pc_above_e_plot = [(((i/100) * 50000) + 250000) for i in pc_above_e]
 
-    color = (0.2,  # redness
-             0.4,  # greenness
-             0.2,  # blueness
-             1.0  # transparency
-             )
-    pk_color = (1.0,  # redness
-                0.2,  # greenness
-                0.4,  # blueness
-                1.0  # transparency
-                )
+    # color = (0.2,  # redness
+    #          0.4,  # greenness
+    #          0.2,  # blueness
+    #          1.0  # transparency
+    #          )
+    # pk_color = (1.0,  # redness
+    #             0.2,  # greenness
+    #             0.4,  # blueness
+    #             1.0  # transparency
+    #             )
     # print (avg)
     # print (avg_plot)
     # print (len(plot_time), len(avg_plot))
-    plt.plot(plot_time, avg_plot[0:t_len], color=pk_color)
-    # print (len(plot_time), len(peak_plot))
-    plt.plot(plot_time, peak_plot[0:t_len], color=pk_color)
-    plt.plot(plot_time, pc_above_e_plot[0:t_len], color=pk_color)
-    plt.plot(plot_time, avg_plot_50[0:t_len], color='w')
-    plt.plot(plot_time, pc_above_e_plot_50[0:t_len], color='w')
-    plt.plot(plot_time, energy_50_plot[0:t_len], color='w')
+    # plt.plot(plot_time, avg_plot[0:t_len], color=pk_color)
+    # # print (len(plot_time), len(peak_plot))
+    # plt.plot(plot_time, peak_plot[0:t_len], color=pk_color)
+    # plt.plot(plot_time, pc_above_e_plot[0:t_len], color=pk_color)
+    # plt.plot(plot_time, avg_plot_50[0:t_len], color='w')
+    # plt.plot(plot_time, pc_above_e_plot_50[0:t_len], color='w')
+    # plt.plot(plot_time, energy_50_plot[0:t_len], color='w')
 
     plt.colorbar()
+    plt.legend(handles=labels)
 
+    # plt.legend(loc="upper left")
     plt.ylabel('Frequency (Hz)')
     plt.xlabel('Time (s)')
     plt.savefig(filepath)
     plt.clf()
     
-    plt.plot(plot_time[0:t_len-2], avg[0:t_len-2], color=pk_color)
-    plt.ylabel('<E>')
+    
+    # interesting
+    n_fft = 8192
+    y = None
+    # if len(full_raw_data) == 0:
+    #     y = data.frequency_ts_np * 40
+    # else:
+    y = full_raw_data
+
+    fig, ax1 = plt.subplots(figsize=(8, 8))
+    plt.specgram(y, NFFT=n_fft, Fs=sample_rate, scale="dB",
+                 mode="magnitude", cmap="ocean")
+
+    r_flag = random.randint(0,99999)
+
+    filepath = f'{save_path}/{game_id}{r_flag}_activity.png'
+    plot_time = []
+
+    for idx in interesting:
+
+        _t = datetime.strptime(idx['time'], "%Y-%m-%dT%H:%M:%S.%fZ")
+        _s = _t.strftime('%-S.%f')
+        # print (_s)
+        _d_t = _t - start_time_dt
+        # print (idx)
+        search_v = float(int(targets.index(idx['target']))/len(targets))
+        
+        rgba = cmap(search_v)
+        y_val = (int(targets.index(idx['target'])) * 2000) + 1000
+        plt.plot(float(_d_t.total_seconds()), y_val, 'go', color=rgba)
+
+
+    for time in times:
+        _t = datetime.strptime(times[time], "%Y-%m-%dT%H:%M:%S.%fZ")
+        _d_t = _t - start_time_dt
+        plot_time.append(float(_d_t.total_seconds()))
+
+    labels = []
+    lcnt = 0
+    
+    for target in targets:
+        search_v = float(int(targets.index(target))/len(targets))
+        lclr = cmap(search_v)
+        # print (search_v, lclr)
+        labels.append(mpatches.Patch(color=lclr, label=target))
+        lcnt = lcnt + 1
+    
+  
+    plt.colorbar()
+    plt.legend(handles=labels)
+
+    # plt.legend(loc="upper left")
+    plt.ylabel('Frequency (Hz)')
     plt.xlabel('Time (s)')
-    filepath = f'{save_path}/{game_id}{r_flag}_avg_e.png'
     plt.savefig(filepath)
     plt.clf()
     
-    plt.plot(plot_time[0:t_len-2], max_energies[0:t_len-2], color=pk_color)
-    plt.ylabel('Max(E)')
-    plt.xlabel('Time (s)')
-    filepath = f'{save_path}/{game_id}{r_flag}_max_e.png'
-    plt.savefig(filepath)
-    plt.clf()
     
-    plt.plot(plot_time[0:t_len-2], peak[0:t_len-2], color=pk_color)
-    plt.ylabel('Active/All')
-    plt.xlabel('Time (s)')
-    filepath = f'{save_path}/{game_id}{r_flag}_ratio_e.png'
-    plt.savefig(filepath)
-    plt.clf()
+    for target in targets:
+        search_v = float(int(targets.index(idx['target']))/len(targets))
+        rgba = cmap(search_v)
+        plt.plot(plot_time[0:t_len-2], avg[target][0:t_len-2], color=rgba)
+        plt.ylabel('<E>')
+        plt.xlabel('Time (s)')
+        filepath = f'{save_path}/{game_id}{r_flag}_avg_e_{target}.png'
+        plt.savefig(filepath)
+        plt.clf()
+        
+        
+        
+    # plt.plot(plot_time[0:t_len-2], max_energies[0:t_len-2], color=pk_color)
+    # plt.ylabel('Max(E)')
+    # plt.xlabel('Time (s)')
+    # filepath = f'{save_path}/{game_id}{r_flag}_max_e.png'
+    # plt.savefig(filepath)
+    # plt.clf()
+    
+    # plt.plot(plot_time[0:t_len-2], peak[0:t_len-2], color=pk_color)
+    # plt.ylabel('Active/All')
+    # plt.xlabel('Time (s)')
+    # filepath = f'{save_path}/{game_id}{r_flag}_ratio_e.png'
+    # plt.savefig(filepath)
+    # plt.clf()
     
     
     
