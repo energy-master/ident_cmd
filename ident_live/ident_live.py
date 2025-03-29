@@ -495,7 +495,7 @@ if __name__ == "__main__":
             #get all paths in define feature path and add to features_paths
             # f_directories = os.walk)
             features_paths  = [ f.path for f in os.scandir(features_path) if f.is_dir() ]
-            print (features_paths)
+            # print (features_paths)
             
             
         
@@ -504,15 +504,14 @@ if __name__ == "__main__":
         
         num_loaded = 0
         for f_path in features_paths:
-            print (f_path)
+            # print (f_path)
             shell_config['number_working_features'] = application.load_bots(
                 target, version=feature_version, version_time_from=time_version_from,  version_time_to=time_version_to, bot_dir=f_path, number_features=number_features, update=update_features, direct=True)
-            num_loaded =+ shell_config['number_working_features']
-            
+            num_loaded += shell_config['number_working_features']
+            print (f'Number loaded live: {num_loaded}')
         
-        print (f'Number loaded : {num_loaded}')
-        exit()
-        # print (f'Number loaded : {num_loaded}')
+        
+        # exit()
         logger_.info(f'Number loaded : {num_loaded}')
         
         # exit()
@@ -540,52 +539,52 @@ if __name__ == "__main__":
 
            
             # Initial conditions
-            frequency_activity = []
-            for feature in list(application.loaded_bots.values()):
-                # print (feature.dNA[0].genome)
-                for k, v in feature.dNA.items():
-                    for kg, vg in v.genome.items():
-                        for kgg, vgg in vg.genome.items():
-                            # if 'frequency_index' in vgg:
-                            # idx = vgg.frequency_index
-                            # f = application.derived_data.min_freq + \
-                            #     (idx * (application.derived_data.index_delta_f))
-                            f = vgg.frequency
-                            feature_f[feature.name] = f
-                            frequency_activity.append(f)
+            # frequency_activity = []
+            # for feature in list(application.loaded_bots.values()):
+            #     # print (feature.dNA[0].genome)
+            #     for k, v in feature.dNA.items():
+            #         for kg, vg in v.genome.items():
+            #             for kgg, vgg in vg.genome.items():
+            #                 # if 'frequency_index' in vgg:
+            #                 # idx = vgg.frequency_index
+            #                 # f = application.derived_data.min_freq + \
+            #                 #     (idx * (application.derived_data.index_delta_f))
+            #                 f = vgg.frequency
+            #                 feature_f[feature.name] = f
+            #                 frequency_activity.append(f)
 
-            distributed_list = shape_input(feature_f,500)
+            # distributed_list = shape_input(feature_f,500)
             
-            # print(feature_f)
-            # Build initial feature frequency distribution plot
-            plot_hist(frequency_activity,
-                      f'{out_path}/f_d_{marlin_game.game_id}_init_all.png')
+            # # print(feature_f)
+            # # Build initial feature frequency distribution plot
+            # plot_hist(frequency_activity,
+            #           f'{out_path}/f_d_{marlin_game.game_id}_init_all.png')
 
            
-            # exit()
-            # Update the loaded bots
-            # marlin_game.game.update_bots(
-            #     bot_dir=features_path, feature_list=distributed_list)
+            # # exit()
+            # # Update the loaded bots
+            # # marlin_game.game.update_bots(
+            # #     bot_dir=features_path, feature_list=distributed_list)
 
             
-            frequency_activity = []
-            for feature in list(application.loaded_bots.values()):
+            # frequency_activity = []
+            # for feature in list(application.loaded_bots.values()):
                 
-                for k, v in feature.dNA.items():
-                    for kg, vg in v.genome.items():
-                        for kgg, vgg in vg.genome.items():
-                            # if 'frequency_index' in vgg:
-                            # idx = vgg.frequency_index
-                            # f = application.derived_data.min_freq + \
-                            #     (idx * (application.derived_data.index_delta_f))
-                            # feature_f[feature.name] = f
-                            f = vgg.frequency
-                            feature_f[feature.name] = f
-                            frequency_activity.append(f)
+            #     for k, v in feature.dNA.items():
+            #         for kg, vg in v.genome.items():
+            #             for kgg, vgg in vg.genome.items():
+            #                 # if 'frequency_index' in vgg:
+            #                 # idx = vgg.frequency_index
+            #                 # f = application.derived_data.min_freq + \
+            #                 #     (idx * (application.derived_data.index_delta_f))
+            #                 # feature_f[feature.name] = f
+            #                 f = vgg.frequency
+            #                 feature_f[feature.name] = f
+            #                 frequency_activity.append(f)
 
-            # Plot prescribed f distribution
-            plot_hist(frequency_activity,
-                      f'{out_path}/f_d_{marlin_game.game_id}_reshaped_all.png')
+            # # Plot prescribed f distribution
+            # plot_hist(frequency_activity,
+            #           f'{out_path}/f_d_{marlin_game.game_id}_reshaped_all.png')
 
             # Determine total time
             s_interval = duration_s
@@ -696,8 +695,6 @@ if __name__ == "__main__":
            
             # --- NO EDIT END ---
             
-            # print (len(ratio_active))
-            # print (len(time_seconds))
             with open(f'{out_path}/ratio_active.txt', 'w') as f:
                 for line in ratio_active:
                     f.write(f"{line}\n")
@@ -724,7 +721,9 @@ if __name__ == "__main__":
                     f.write(f"{line},{pc_above_tracker[idx]}\n")
                     idx+=1
 
+            with open(f'{out_path}/active_features_{marlin_game.game_id}.json', 'w') as fp:
+                json.dump(active_features, fp)
             
-            # print (active_features)
+           
 
         break
