@@ -721,13 +721,23 @@ if __name__ == "__main__":
                     idx = 0
                     for line in avg_energies[target]:
                         f.write(f"{time_seconds[idx]},{line}\n")
-                        
                         idx+=1 
-                # with open(f'{out_path}/r_plot.txt', 'w') as f:
-                #     idx = 0
-                #     for line in time_seconds:
-                #         f.write(f"{line},{ratio_active[idx]}\n")
-                #         idx+=1
+                        
+                with open(f'{out_path}/layers/decisions_{target}.txt', 'w') as f:
+                    idx = 0
+                    for decision in decisions:
+                        
+                        if decision['target'] == target:
+                            f.write(f"{time_seconds[decision['frame']]},1\n")
+                            idx+=1
+                            
+                with open(f'{out_path}/layers/activity_{target}.txt', 'w') as f:
+                    idx = 0
+                    for activity in interesting:
+                        
+                        if activity['target'] == target:
+                            f.write(f"{time_seconds[activity['frame']]},1\n")
+                            idx+=1
 
                 # with open(f'{out_path}/avg_e_plot.txt', 'w') as f:
                 #     idx = 0
