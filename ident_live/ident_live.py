@@ -15,7 +15,7 @@ Import modules. Python modules required for application.
 """
 
 
-multiple_models = True
+multiple_models = False
 
 duration = {}
 import  sys
@@ -668,7 +668,7 @@ if __name__ == "__main__":
             
             
             logger_.info(f'{number_decisions} made.')
-            print (soft_max_targets)
+            # print (soft_max_targets)
             #! update
             # update_run(filename,12)
             # update_run(filename,12.1)
@@ -704,31 +704,42 @@ if __name__ == "__main__":
            
             # --- NO EDIT END ---
             
-            # with open(f'{out_path}/ratio_active.txt', 'w') as f:
-            #     for line in ratio_active:
-            #         f.write(f"{line}\n")
-                    
-            # with open(f'{out_path}/time_s.txt', 'w') as f:
-            #     for line in time_seconds:
-            #         f.write(f"{line}\n")
-                    
-            # with open(f'{out_path}/r_plot.txt', 'w') as f:
-            #     idx = 0
-            #     for line in time_seconds:
-            #         f.write(f"{line},{ratio_active[idx]}\n")
-            #         idx+=1
-
-            # with open(f'{out_path}/avg_e_plot.txt', 'w') as f:
-            #     idx = 0
-            #     for line in time_seconds:
-            #         f.write(f"{line},{avg_energies[idx]}\n")
-            #         idx+=1
             
-            # with open(f'{out_path}/pc_e_plot.txt', 'w') as f:
-            #     idx = 0
-            #     for line in time_seconds:
-            #         f.write(f"{line},{pc_above_tracker[idx]}\n")
-            #         idx+=1
+            for target in soft_max_targets:
+            
+                with open(f'{out_path}/layers/ratio_active_{target}_{marlin_game.game_id}_{sample_rate}.txt', 'w') as f:
+                    idx = 0
+                    for line in ratio_active[target]:
+                        f.write(f"{time_seconds[idx]},{line}\n")
+                        idx += 1
+                        
+                with open(f'{out_path}/layers/time_s.txt', 'w') as f:
+                    for line in time_seconds:
+                        f.write(f"{line}\n")
+                        
+                with open(f'{out_path}/layers/avg_e_{target}_{marlin_game.game_id}_{sample_rate}.txt', 'w') as f:
+                    idx = 0
+                    for line in avg_energies[target]:
+                        f.write(f"{time_seconds[idx]},{line}\n")
+                        
+                        idx+=1 
+                # with open(f'{out_path}/r_plot.txt', 'w') as f:
+                #     idx = 0
+                #     for line in time_seconds:
+                #         f.write(f"{line},{ratio_active[idx]}\n")
+                #         idx+=1
+
+                # with open(f'{out_path}/avg_e_plot.txt', 'w') as f:
+                #     idx = 0
+                #     for line in time_seconds:
+                #         f.write(f"{line},{avg_energies[idx]}\n")
+                #         idx+=1
+                
+                # with open(f'{out_path}/pc_e_plot.txt', 'w') as f:
+                #     idx = 0
+                #     for line in time_seconds:
+                #         f.write(f"{line},{pc_above_tracker[idx]}\n")
+                #         idx+=1
 
             with open(f'{out_path}/active_features_{marlin_game.game_id}.json', 'w') as fp:
                 json.dump(active_features, fp)
@@ -738,6 +749,12 @@ if __name__ == "__main__":
             
         
             # print (marlin_game.game.feature_targets)
-            print (marlin_game.game.loaded_targets)
+            # print (marlin_game.game.loaded_targets)
+
+            # *** output decision / activity overlays ***
+            
+            
+            
+            # *** output decision overlays ***
 
         break
