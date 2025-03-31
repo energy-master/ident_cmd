@@ -74,7 +74,7 @@ import  json
 import  random
 
 
-
+from pathlib import Path
 
 # --- MAIN Entry ---
 
@@ -96,6 +96,8 @@ if __name__ == "__main__":
     working_path = config['WORKING_DIR']
     features_path = config['FEATURE_DIR']
     out_path = config['OUT_DIR']
+    
+    
 
     # required for librosa
     NUMBA_CACHE_DIR = os.path.join(
@@ -528,6 +530,9 @@ if __name__ == "__main__":
             application, None, activation_level=user_activation_level)
         marlin_game.game_id = filename_ss_id_rnd
 
+        Path(f'{out_path}/{marlin_game.game_id}').mkdir(parents=True, exist_ok=True)
+        Path(f'{out_path}/{marlin_game.game_id}/layers').mkdir(parents=True, exist_ok=True)
+        out_path = f'{out_path}/{marlin_game.game_id}'
         from layer_three import *
         from utils import *
 
@@ -652,6 +657,7 @@ if __name__ == "__main__":
                 hits = []
                
 
+            # get softmax reply
             softmax_return_data = json.loads(softmax_results['result'][0])
             
             decisions = softmax_return_data['decisions']

@@ -219,6 +219,7 @@ def build_spec_upload(sample_rate, game_id,  hits, decisions, peak, avg, times, 
     
     
     for target in targets:
+        
         search_v = float(int(targets.index(idx['target']))/len(targets))
         rgba = cmap(search_v)
         plt.plot(plot_time[0:t_len-2], avg[target][0:t_len-2], color=rgba)
@@ -227,6 +228,32 @@ def build_spec_upload(sample_rate, game_id,  hits, decisions, peak, avg, times, 
         filepath = f'{save_path}/{game_id}{r_flag}_avg_e_{target}.png'
         plt.savefig(filepath)
         plt.clf()
+        
+    for target in targets:
+        
+        search_v = float(int(targets.index(idx['target']))/len(targets))
+        rgba = cmap(search_v)
+        plt.plot(plot_time[0:t_len-2], pc_above_e[target][0:t_len-2], color=rgba)
+        plt.ylabel('R [A/Sum]')
+        plt.xlabel('Time (s)')
+        filepath = f'{save_path}/{game_id}{r_flag}_ratio_active_{target}.png'
+        plt.savefig(filepath)
+        plt.clf()
+        
+    for target in targets:
+        
+        search_v = float(int(targets.index(idx['target']))/len(targets))
+        rgba = cmap(search_v)
+        plt.plot(plot_time[0:t_len-2], max_energies[target][0:t_len-2], color=rgba)
+        plt.ylabel('R [A/Sum]')
+        plt.xlabel('Time (s)')
+        filepath = f'{save_path}/{game_id}{r_flag}_max_{target}.png'
+        plt.savefig(filepath)
+        plt.clf()
+    
+    
+        
+        
         
         
         

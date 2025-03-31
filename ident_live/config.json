@@ -7,10 +7,10 @@
 	"max_number_genes"		: 5,
 	"min_number_genes" 		: 4,
 	"max_dna_data_delay" 	: 10,
-	"env" 					: "harbour_porpoise",
+	"env" 					: "harmonics_alpha",
 	"data_location" 		: ["67149847"],
 	"number_generations" 	: 200,
-	"listen_delta_t" 		: 0.001,
+	"listen_delta_t" 		: 0.01,
 	"evaluation_class_name" : "IdentEvaluation",
 	"mutation_rate" 		: 0.7,
 	"creep_rate" 			: 0.1,
@@ -23,7 +23,9 @@
 	"save_dir" 				: "bots/",
 	"n_fft" 				: 1024,
 	"factor" 				: 1,
-	"timings"				: false
+	"timings"				: false,
+	"adapter_f_min"			: 1,
+	"adapter_f_max"			: 40000
 	
 }
 

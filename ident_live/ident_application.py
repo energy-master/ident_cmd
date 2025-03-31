@@ -65,6 +65,7 @@ class SpeciesIdent(object):
         self.multiple_data = -1
         self.feature_targets = {}
         self.loaded_targets = []
+        self.selected_bots = []
 
     def generation_reset(self):
         self.performance = performance.Performance()
@@ -158,7 +159,7 @@ class SpeciesIdent(object):
                 else:
                     bot_id = key
 
-                features_name_list.append(bot_id)
+                
 
                 bot_path = f'{bot_dir}/{bot_id}.vixen'
                 error = False
@@ -168,14 +169,7 @@ class SpeciesIdent(object):
                     
                     add = True
 
-                    # for k,v in bot.dNA.items():
-                    #     for kg,vg in v.genome.items():
-                    #         for kgg, vgg in vg.genome.items():
-                    #             if vgg.condition == 'EnergyProfileFluxIndexPersistent':
-                    #                 # print (vgg.condition)
-                    #                 # add = False
-                    #                 continue
-
+                 
                     if hasattr(bot, 'version'):
                         
                         # print (bot.version)
@@ -197,7 +191,10 @@ class SpeciesIdent(object):
                             continue
 
                     if add:
-
+                        
+                        
+                        self.selected_bots.append(bot_id)
+                        features_name_list.append(bot_id)
                         self.loaded_bots[bot_id] = bot
                         number_loaded += 1
                         # print(number_loaded)
@@ -207,9 +204,9 @@ class SpeciesIdent(object):
                         if bot.env not in self.loaded_targets:
                             self.loaded_targets.append(bot.env)
                             
-                        if number_loaded > float(number_features):
-                            print('Number required loaded.')
-                            break
+                        # if number_loaded > float(number_features):
+                        #     print('Number required loaded.')
+                        #     break
                         
                 except Exception as e:
                     error = True
@@ -228,16 +225,32 @@ class SpeciesIdent(object):
                     json.dump(feature_data, f)
 
             # print(feature_data)
+       
+        self.selected_bots = random.choices(self.selected_bots,k=int(number_features))
+        print (self.selected_bots)
+        
+        self.selected_loaded_bots = {}
+        
+        for k, v in self.loaded_bots.items():
+            # if k not in self.selected_bots:
+            #     self.loaded_bots.pop(k)
+            if k in self.selected_bots:
+                self.selected_loaded_bots[k] = v
+
+        self.loaded_bots = {}
+        self.loaded_bots = self.selected_loaded_bots
 
         self.mode = 1
         self.bulk = 1
+        
         print(f'number loaded : {number_loaded}')
         print(f'number read : {number_read}')
         l = len(self.loaded_bots)
         # print (self.loaded_bots)
-        print (l)
-        
-        return number_loaded
+        # print (f'refined bots loaded : {l}')
+        # print (self.loaded_bots)
+        # exit()
+        return l
 
     def run(self):
         pass
