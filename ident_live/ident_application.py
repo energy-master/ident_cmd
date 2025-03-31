@@ -66,6 +66,8 @@ class SpeciesIdent(object):
         self.feature_targets = {}
         self.loaded_targets = []
         self.selected_bots = []
+        
+        self.selected_loaded_bots = {}
 
     def generation_reset(self):
         self.performance = performance.Performance()
@@ -108,7 +110,10 @@ class SpeciesIdent(object):
 
     def load_bots(self, filter_data, version="1_0_0", version_time_from="", version_time_to="", bot_dir="", number_features=1000, update=False, direct=False):
         # print (filter_data)
+       
         print ("======")
+        self.selected_bots = []
+        
         feature_data = None
         features_name_list = []
         number_read = 0
@@ -164,53 +169,54 @@ class SpeciesIdent(object):
                 bot_path = f'{bot_dir}/{bot_id}.vixen'
                 error = False
                 
-                try:
-                    bot = self.load_bot(bot_path)
+                # try:
+                bot = self.load_bot(bot_path)
+                
+                add = True
+
+                
+                if hasattr(bot, 'version'):
                     
-                    add = True
-
-                 
-                    if hasattr(bot, 'version'):
-                        
-                        # print (bot.version)
-                        # print (bot)
-                        if (bot.version) not in versions_list:
-                            # print (f' hit : v: {bot.version} | {versions_list}')
-                            # print ("wrong v")
-                            add = False
-                            continue
-                        else:
-                            
-                            # print (f' hit : v: {bot.version} | {versions_list}')
-                            pass
-
+                    # print (bot.version)
+                    # print (bot)
+                    if (bot.version) not in versions_list:
+                        # print (f' hit : v: {bot.version} | {versions_list}')
+                        # print ("wrong v")
+                        add = False
+                        continue
                     else:
-                        if "1_0_0" != version:
-                            add = False
-                            # print ("wrong v1")
-                            continue
+                        
+                        # print (f' hit : v: {bot.version} | {versions_list}')
+                        pass
 
-                    if add:
+                else:
+                    if "1_0_0" != version:
+                        add = False
+                        # print ("wrong v1")
+                        continue
+
+                if add:
+                    
+                    
+                    self.selected_bots.append(bot_id)
+                    features_name_list.append(bot_id)
+                    self.loaded_bots[bot_id] = bot
+                    number_loaded += 1
+                    # print(number_loaded)
+                    progress.update(task1, advance=1)
+                    
+                    self.feature_targets[bot_id] = bot.env
+                    if bot.env not in self.loaded_targets:
+                        self.loaded_targets.append(bot.env)
                         
+                    # if number_loaded > float(number_features):
+                    #     print('Number required loaded.')
+                    #     break
                         
-                        self.selected_bots.append(bot_id)
-                        features_name_list.append(bot_id)
-                        self.loaded_bots[bot_id] = bot
-                        number_loaded += 1
-                        # print(number_loaded)
-                        progress.update(task1, advance=1)
-                        
-                        self.feature_targets[bot_id] = bot.env
-                        if bot.env not in self.loaded_targets:
-                            self.loaded_targets.append(bot.env)
-                            
-                        # if number_loaded > float(number_features):
-                        #     print('Number required loaded.')
-                        #     break
-                        
-                except Exception as e:
-                    error = True
-                    print(f'error loading {bot_id} {type(e).__name__}')
+                # except Exception as e:
+                #     error = True
+                #     print ("ERROR")
+                #     print(f'error loading {bot_id} {type(e).__name__}')
 
                 if error == False:
                     pass
@@ -220,16 +226,15 @@ class SpeciesIdent(object):
                 feature_data = {
                     "ids": features_name_list
                 }
-                print ("Writing feature list.")
+                # print ("Writing feature list.")
                 with open('feature_list.json', 'w+') as f:
                     json.dump(feature_data, f)
 
             # print(feature_data)
-       
-        self.selected_bots = random.choices(self.selected_bots,k=int(number_features))
-        print (self.selected_bots)
         
-        self.selected_loaded_bots = {}
+        self.selected_bots = random.choices(self.selected_bots,k=int(number_features))
+        
+        
         
         for k, v in self.loaded_bots.items():
             # if k not in self.selected_bots:
@@ -237,18 +242,21 @@ class SpeciesIdent(object):
             if k in self.selected_bots:
                 self.selected_loaded_bots[k] = v
 
-        self.loaded_bots = {}
-        self.loaded_bots = self.selected_loaded_bots
+        # self.loaded_bots = {}
+        # self.loaded_bots = self.selected_loaded_bots
 
         self.mode = 1
         self.bulk = 1
         
-        print(f'number loaded : {number_loaded}')
-        print(f'number read : {number_read}')
+        # print(f'number loaded : {number_loaded}')
+        # print(f'number read : {number_read}')
         l = len(self.loaded_bots)
+        
         # print (self.loaded_bots)
         # print (f'refined bots loaded : {l}')
         # print (self.loaded_bots)
+        
+        
         # exit()
         return l
 

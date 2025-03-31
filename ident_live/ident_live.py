@@ -15,7 +15,8 @@ Import modules. Python modules required for application.
 """
 
 
-multiple_models = False
+# flag for loading multiple models / feature types (env)
+multiple_models = True
 
 duration = {}
 import  sys
@@ -492,26 +493,49 @@ if __name__ == "__main__":
         logger_.info(f'Loading features / bots. {update_features}')
         
         features_paths = []
-        
         if multiple_models == True:
             #get all paths in define feature path and add to features_paths
             # f_directories = os.walk)
+            # print ("features_path")
             features_paths  = [ f.path for f in os.scandir(features_path) if f.is_dir() ]
+            # print (config)
             # print (features_paths)
+            
+            selected_models = config['SELECT_MODEL_DIR']
+            if selected_models != "*":
+                edited_feature_paths = []
+                for model in features_paths:
+                    model_name = model.split('/')[-1]
+                    if model_name in selected_models:
+                        edited_feature_paths.append(model)
+                    # print (model_name)
+                    
+                features_paths = edited_feature_paths
+                    
+                
+            
+            
             
         else:
             features_paths.append(features_path)
         
+        
         num_loaded = 0
+        print (features_paths)
         for f_path in features_paths:
             # print (f_path)
             shell_config['number_working_features'] = application.load_bots(
                 target, version=feature_version, version_time_from=time_version_from,  version_time_to=time_version_to, bot_dir=f_path, number_features=number_features, update=update_features, direct=True)
             num_loaded += shell_config['number_working_features']
-            print (f'Number loaded live: {num_loaded}')
+            # print (f'Number loaded live: {num_loaded}')
+        
+        application.loaded_bots = application.selected_loaded_bots
+        
+        num_live_bots = len(application.loaded_bots.keys())
+        print (f'Number of live bots : {num_live_bots}')
+        print (f'Signatures : {application.loaded_targets}')
         
         
-        # exit()
         logger_.info(f'Number loaded : {num_loaded}')
         
         # exit()

@@ -5,15 +5,14 @@ Gene : Frequency bounnds gene. Return 1 if True. True if f domain is in range of
 
 
 """
-from rich import print as rprint
 
 version = 1.0
-print(f"Loading feature structure. [EnergyIndexTemporalBoundPC [v.{version}]]")
+print (f"EnergyIndexTemporalBoundPC [{version}]")
 
 from marlin_brahma.genes.gene_root import *
 import random, json, math
 from datetime import timedelta
-import time as t
+
 
 #{'min_f' : 130000, 'max_f': 150000}
 
@@ -32,10 +31,10 @@ class EnergyIndexTemporalBoundPC(ConditionalRoot):
     max_memory = gene_args['max_memory']
     min_index = gene_args['f_index_min']
     max_index = gene_args['f_index_max']
-    # min_threshold = gene_args['delta_energy_min']
-    # max_threshold = gene_args['delta_energy_max']
-    min_threshold = 10
-    max_threshold = 100
+    min_threshold = gene_args['flux_multiple_min_pc']
+    max_threshold = gene_args['flux_multiple_max_pc']
+    # min_threshold = 10
+    # max_threshold = 100
     self.max_index = max_index
     self.memory = random.uniform(0 , max_memory) # ms
     self.frequency_index = math.floor(random.uniform(min_index , max_index))   
@@ -63,7 +62,6 @@ class EnergyIndexTemporalBoundPC(ConditionalRoot):
   def run(self, data = {}):
     
     import math
-    query_time_start = t.time()
     avg_energy = 0
     
     # get f at timestamps
@@ -114,10 +112,10 @@ class EnergyIndexTemporalBoundPC(ConditionalRoot):
        
         
         delta_f = 0
-        delta_f = stats_pivot['max_energy'] - stats_ref['max_energy'] 
+        delta_f = ( stats_pivot['max_energy'] - stats_ref['max_energy'])
         delta_f_pc = (delta_f / max(stats_ref['max_energy'],stats_pivot['max_energy']))  * 100
-        
-        # print (delta_f_pc, self.energy_threshold)
+       
+        # print (delta_f_pc)
         # print (f'avg e : {avg_energy} {self.lower_frequency} - {self.upper_frequency}')
         # print (f'avg e : {avg_energy} {self.lower_frequency} - {self.upper_frequency}')
         if stats_pivot == None or stats_ref == None:
@@ -138,14 +136,8 @@ class EnergyIndexTemporalBoundPC(ConditionalRoot):
 
             if delta_f_pc > self.energy_threshold:
                 # print (f'trigger {delta_f_pc} > {self.energy_threshold} [{self.memory}]')
-                query_time_end = t.time()
-                query_time = query_time_end - query_time_start
-                # print (f'temporal pc 1 : {query_time}')
                 return 1
 
-            query_time_end = t.time()
-            query_time = query_time_end - query_time_start
-            # print (f'temporal pc 0  : {query_time}')
             return 0
     # print ("not init")
     return 0
@@ -171,7 +163,7 @@ class EnergyIndexTemporalBoundPC(ConditionalRoot):
     # print (f' [1 ] {self.energy_threshold} @ {creep_rate} & {factor}')
     
     # print (f' [2 ] {self.frequency_index}')
-    self.frequency_index = math.floor(random.uniform(max(0,self.frequency_index -5), min(self.max_index,self.frequency_index + 5  , self.frequency_index )) )
+    # self.frequency_index = math.floor(random.uniform(max(0,self.frequency_index -5), min(self.max_index,self.frequency_index + 5  , self.frequency_index )) )
     # print (f' [2 ] {self.frequency_index}')
     
     #self.frequency_index_two = math.floor(random.uniform(max(0,self.frequency_index_two -5), min(self.max_index,self.frequency_index_two + 5  , self.frequency_index_two ))  )

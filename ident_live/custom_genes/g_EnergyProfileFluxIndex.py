@@ -5,10 +5,9 @@ Gene : Frequency bounnds gene. Return 1 if True. True if f domain is in range of
 
 
 """
-from rich import print as rprint
 
 version = 1.0
-print(f"Loading feature structure. [EnergyProfileFluxIndex [v.{version}]]")
+print (f"EnergyProfileFluxIndex [{version}]")
 
 from marlin_brahma.genes.gene_root import *
 import random, json, math
@@ -50,8 +49,6 @@ class EnergyProfileFluxIndex(ConditionalRoot):
     self.last_active_index = 0
     
   def __str__(self):
-    
-  
     description = {}
     overview = super().__str__()
     data = {
@@ -71,14 +68,6 @@ class EnergyProfileFluxIndex(ConditionalRoot):
 
   def run(self, data = {}):
     import math
-    
-    if not hasattr(self, 'last_active_index'):
-      # print ('no att')
-      self.last_active_index = 0
-    else:
-      # print ('att')
-      pass
-    
     avg_energy = 0
     
     # check init state
@@ -87,10 +76,6 @@ class EnergyProfileFluxIndex(ConditionalRoot):
     current_data_delta_time = ((current_data_index-self.last_active_index)/sample_rate) * 1000 # ms
     
     geneInit = False
-    
-    if hasattr(self,'memory') == False:
-      self.memory = 0
-    
     if current_data_delta_time > self.memory:
           geneInit = True
     else:
@@ -137,8 +122,8 @@ class EnergyProfileFluxIndex(ConditionalRoot):
         file_out = False
         if file_out:
           outfile_name = f'{self.frequency_index}__power.txt'
-          with open(f'/home/vixen/html/rs/ident_app/ident/brahma/out/perc.csv', 'a+') as f:
-            f.write(f'{iter_start_time}, {self.memory}, {profile_avg}, {spot_energy} , {delta_flux}\n')
+          with open(f'/home/vixen/html/rs/ident_app/ident/brahma/out/{outfile_name}', 'a+') as f:
+            f.write(f'{iter_start_time} {avg_energy}\n')
           self.Safe()
 
         if delta_flux > self.flux_multiple_pc:

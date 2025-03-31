@@ -5,11 +5,9 @@ Gene : Frequency bounnds gene. Return 1 if True. True if f domain is in range of
 
 
 """
-from rich import print as rprint
 
 version = 1.0
-print(
-    f"Loading feature structure. [EnergyProfileFluxIndexPersistent [v.{version}]]")
+print (f"EnergyProfileFluxIndexPersistent [{version}]")
 
 from marlin_brahma.genes.gene_root import *
 import random, json, math
@@ -19,7 +17,7 @@ import statistics
 #{'min_f' : 130000, 'max_f': 150000}
 
 class EnergyProfileFluxIndexPersistent(ConditionalRoot):
-    
+  
   def __init__(self,env=None,  gene_args = None):
     """[summary]
 
@@ -32,8 +30,6 @@ class EnergyProfileFluxIndexPersistent(ConditionalRoot):
     
     min_index = gene_args['f_index_min']
     max_index = gene_args['f_index_max']
-    
-    
     
     flux_multiple_min_pc = gene_args['flux_multiple_min_pc']
     flux_multiple_max_pc = gene_args['flux_multiple_max_pc']
@@ -48,6 +44,10 @@ class EnergyProfileFluxIndexPersistent(ConditionalRoot):
     
     self.energy_profile = []
     
+  
+  def reset(self):
+    self.energy_profile = []
+  
   def __str__(self):
     description = {}
     overview = super().__str__()
@@ -68,7 +68,6 @@ class EnergyProfileFluxIndexPersistent(ConditionalRoot):
 
   def run(self, data = {}):
     import math
-    
     avg_energy = 0
     
     # check init state

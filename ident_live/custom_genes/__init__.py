@@ -10,7 +10,10 @@ from custom_genes.g_EnergyProfileFluxIndexPersistent import *
 from custom_genes.g_EnergyIndexFrequencyBounds import *
 from custom_genes.g_IndexKurtosis import *
 from custom_genes.g_IndexKurtosisTemporal import *
-
+from custom_genes.g_EnergySpikeTemporal import *
+from custom_genes.g_FrequencyRank import *
+from custom_genes.g_EnergySpikeTemporalPersistent import *
+from custom_genes.g_SEntropyTemporalPersistent import *
 
 
 

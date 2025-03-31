@@ -6,10 +6,8 @@ Gene : Frequency bounnds gene. Return 1 if True. True if f domain is in range of
 
 """
 
-from rich import print as rprint
-
 version = 1.0
-print(f"Loading feature structure. [SubBand_alpha [v.{version}]]")
+print (f"SubBand_alpha [{version}]")
 
 from marlin_brahma.genes.gene_root import *
 import random, json
