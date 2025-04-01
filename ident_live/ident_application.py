@@ -169,54 +169,54 @@ class SpeciesIdent(object):
                 bot_path = f'{bot_dir}/{bot_id}.vixen'
                 error = False
                 
-                # try:
-                bot = self.load_bot(bot_path)
-                
-                add = True
-
-                
-                if hasattr(bot, 'version'):
+                try:
+                    bot = self.load_bot(bot_path)
                     
-                    # print (bot.version)
-                    # print (bot)
-                    if (bot.version) not in versions_list:
-                        # print (f' hit : v: {bot.version} | {versions_list}')
-                        # print ("wrong v")
-                        add = False
-                        continue
+                    add = True
+
+                    
+                    if hasattr(bot, 'version'):
+                        
+                        # print (bot.version)
+                        # print (bot)
+                        if (bot.version) not in versions_list:
+                            # print (f' hit : v: {bot.version} | {versions_list}')
+                            # print ("wrong v")
+                            add = False
+                            continue
+                        else:
+                            
+                            # print (f' hit : v: {bot.version} | {versions_list}')
+                            pass
+
                     else:
-                        
-                        # print (f' hit : v: {bot.version} | {versions_list}')
-                        pass
+                        if "1_0_0" != version:
+                            add = False
+                            # print ("wrong v1")
+                            continue
 
-                else:
-                    if "1_0_0" != version:
-                        add = False
-                        # print ("wrong v1")
-                        continue
-
-                if add:
-                    
-                    
-                    self.selected_bots.append(bot_id)
-                    features_name_list.append(bot_id)
-                    self.loaded_bots[bot_id] = bot
-                    number_loaded += 1
-                    # print(number_loaded)
-                    progress.update(task1, advance=1)
-                    
-                    self.feature_targets[bot_id] = bot.env
-                    if bot.env not in self.loaded_targets:
-                        self.loaded_targets.append(bot.env)
+                    if add:
                         
-                    # if number_loaded > float(number_features):
-                    #     print('Number required loaded.')
-                    #     break
                         
-                # except Exception as e:
-                #     error = True
-                #     print ("ERROR")
-                #     print(f'error loading {bot_id} {type(e).__name__}')
+                        self.selected_bots.append(bot_id)
+                        features_name_list.append(bot_id)
+                        self.loaded_bots[bot_id] = bot
+                        number_loaded += 1
+                        # print(number_loaded)
+                        progress.update(task1, advance=1)
+                        
+                        self.feature_targets[bot_id] = bot.env
+                        if bot.env not in self.loaded_targets:
+                            self.loaded_targets.append(bot.env)
+                            
+                        # if number_loaded > float(number_features):
+                        #     print('Number required loaded.')
+                        #     break
+                            
+                except Exception as e:
+                    error = True
+                    print ("ERROR")
+                    print(f'error loading {bot_id} {type(e).__name__}')
 
                 if error == False:
                     pass
