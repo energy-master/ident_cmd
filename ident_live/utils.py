@@ -220,7 +220,7 @@ def build_spec_upload(sample_rate, game_id,  hits, decisions, peak, avg, times, 
     
     for target in targets:
         
-        search_v = float(int(targets.index(idx['target']))/len(targets))
+        search_v = 0.2
         rgba = cmap(search_v)
         plt.plot(plot_time[0:t_len-2], avg[target][0:t_len-2], color=rgba)
         plt.ylabel('<E>')
@@ -232,7 +232,7 @@ def build_spec_upload(sample_rate, game_id,  hits, decisions, peak, avg, times, 
         
     for target in targets:
         
-        search_v = float(int(targets.index(idx['target']))/len(targets))
+        search_v = 0.2
         rgba = cmap(search_v)
         plt.plot(plot_time[0:t_len-2], pc_above_e[target][0:t_len-2], color=rgba)
         plt.ylabel('R [A/Sum]')
@@ -244,7 +244,7 @@ def build_spec_upload(sample_rate, game_id,  hits, decisions, peak, avg, times, 
         
     for target in targets:
         
-        search_v = float(int(targets.index(idx['target']))/len(targets))
+        search_v = 0.2
         rgba = cmap(search_v)
         plt.plot(plot_time[0:t_len-2], max_energies[target][0:t_len-2], color=rgba)
         plt.ylabel('R [A/Sum]')
