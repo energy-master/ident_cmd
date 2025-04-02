@@ -231,9 +231,11 @@ class SpeciesIdent(object):
                     json.dump(feature_data, f)
 
             # print(feature_data)
-        
-        self.selected_bots = random.choices(self.selected_bots,k=int(number_features))
-        
+        if len(self.selected_bots) > int(number_features):
+            
+            self.selected_bots = random.choices(self.selected_bots,k=int(number_features))
+        else:
+            return 0
         
         
         for k, v in self.loaded_bots.items():

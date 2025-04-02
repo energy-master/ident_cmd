@@ -237,8 +237,7 @@ if __name__ == "__main__":
         raw_data, sample_rate = librosa.load(file_path, sr=sample_rate)
         print (f'Sample rate of input data : {sample_rate}')
         
-        
-        
+        # exit()
         
         # data chunk considerations
         if start_time_chunk != -1:
