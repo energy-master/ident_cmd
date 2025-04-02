@@ -739,17 +739,20 @@ if __name__ == "__main__":
                 with open(f'{out_path}/layers/ratio_active_{target}_{marlin_game.game_id}_{sample_rate}.txt', 'w') as f:
                     idx = 0
                     for line in ratio_active[target]:
-                        f.write(f"{time_seconds[idx]},{line}\n")
+                        revised_time = float(time_seconds[idx]) + float(start_time_chunk)
+                        f.write(f"{revised_time},{line}, {target}\n")
                         idx += 1
                         
                 with open(f'{out_path}/layers/time_s.txt', 'w') as f:
                     for line in time_seconds:
+                        # revised_time = int(time_seconds[idx] + start_time_chunk)
                         f.write(f"{line}\n")
                         
                 with open(f'{out_path}/layers/avg_e_{target}_{marlin_game.game_id}_{sample_rate}.txt', 'w') as f:
                     idx = 0
                     for line in avg_energies[target]:
-                        f.write(f"{time_seconds[idx]},{line}\n")
+                        revised_time = float(time_seconds[idx]) + float(start_time_chunk)
+                        f.write(f"{revised_time},{line}, {target}\n")
                         idx+=1 
                         
                 with open(f'{out_path}/layers/decisions_{target}.txt', 'w') as f:
@@ -757,7 +760,8 @@ if __name__ == "__main__":
                     for decision in decisions:
                         
                         if decision['target'] == target:
-                            f.write(f"{time_seconds[decision['frame']]},1\n")
+                            revised_time = float(time_seconds[decision['frame']]) + float(start_time_chunk)
+                            f.write(f"{revised_time},1, {target}\n")
                             idx+=1
                             
                 with open(f'{out_path}/layers/activity_{target}.txt', 'w') as f:
@@ -765,7 +769,8 @@ if __name__ == "__main__":
                     for activity in interesting:
                         
                         if activity['target'] == target:
-                            f.write(f"{time_seconds[activity['frame']]},1\n")
+                            revised_time = float(time_seconds[activity['frame']]) + float(start_time_chunk)
+                            f.write(f"{revised_time},1, {target}\n")
                             idx+=1
 
                 # with open(f'{out_path}/avg_e_plot.txt', 'w') as f:

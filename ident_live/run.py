@@ -63,7 +63,7 @@ for start_time in start_times[:MAX_RUNS]:
     start_s = int (start_time)
     end_s = int (start_time + int(batch_data['time_increment']))
     print ("Running cmd")
-    cmd = f'nohup python3 ident_live.py {filename} {target} {run_name}_{start_time} {user_id} {activation_threshold} {ratio_threshold} {number_bots} 0.5 1_0_0/2_0_0/3_0_0/noise/1_0_1 2025-02-01 10:15:00 2025-11-22 10:17:0001 -1 1 {start_s} {end_s} &'
+    cmd = f'nohup python3 ident_live.py {filename} {target} {run_name}_{start_time}_ {user_id} {activation_threshold} {ratio_threshold} {number_bots} 0.5 1_0_0/2_0_0/3_0_0/noise/1_0_1 2025-02-01 10:15:00 2025-11-22 10:17:0001 -1 1 {start_s} {end_s} &'
     
     os.system(cmd)
     
