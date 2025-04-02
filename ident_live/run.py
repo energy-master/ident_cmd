@@ -9,8 +9,9 @@ import math
 batch_data = {
     "filename" : "20250101_000000_000.wav",
     "target" : "general_search",
-    "time_increment" : 10,
-    "run_name" : "batch_trial",
+    "time_increment" : 1200,
+    "start_t_s" : 3600,
+    "run_name" : "complete_run",
     "user_id" : "001vixen",
     "activation_threshold" : 0.80,
     "ratio_threshold" : 0.05,
@@ -42,7 +43,9 @@ print (f'File duration : {file_duration} s')
 number_increment_runs = int(math.floor(file_duration/float(batch_data['time_increment'])))
 print (f'Number of incremental runs required : {number_increment_runs}')
 
-start_times = [i for i in range(0,int(file_duration),batch_data['time_increment'])]
+
+start_t_s = int(batch_data['start_t_s'])
+start_times = [i for i in range(start_t_s,int(file_duration),batch_data['time_increment'])]
 # print (start_times)
 number_starts = len(start_times)
 
