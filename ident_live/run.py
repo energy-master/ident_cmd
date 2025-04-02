@@ -11,7 +11,7 @@ batch_data = {
     "target" : "general_search",
     "time_increment" : 1200,
     "start_t_s" : 3600,
-    "run_name" : "complete_run",
+    "run_name" : "general_run",
     "user_id" : "001vixen",
     "activation_threshold" : 0.80,
     "ratio_threshold" : 0.05,
