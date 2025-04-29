@@ -501,6 +501,7 @@ if __name__ == "__main__":
             # print (features_paths)
             
             selected_models = config['SELECT_MODEL_DIR']
+            print (selected_models)
             if selected_models != "*":
                 edited_feature_paths = []
                 for model in features_paths:
@@ -521,6 +522,7 @@ if __name__ == "__main__":
         
         num_loaded = 0
         print (features_paths)
+        
         for f_path in features_paths:
             # print (f_path)
             shell_config['number_working_features'] = application.load_bots(
@@ -708,7 +710,7 @@ if __name__ == "__main__":
             if len(marlin_game.bulk_times) > 2:
                 # build spec with overlaying decisions & energy plots
                 time_seconds = build_spec_upload(sample_rate, marlin_game.game_id, hits=hits, decisions=decisions, peak=ratio_active,
-                                  avg=avg_energies, times=marlin_game.bulk_times, pc_above_e=pc_above_tracker, f=[], full_raw_data=raw_data, save_path=out_path, max_energies = max_energy, targets=soft_max_targets, interesting=interesting)
+                                  avg=avg_energies, times=marlin_game.bulk_times, pc_above_e=ratio_active, f=[], full_raw_data=raw_data, save_path=out_path, max_energies = max_energy, targets=soft_max_targets, interesting=interesting)
 
 
             #! update
@@ -739,7 +741,9 @@ if __name__ == "__main__":
                 with open(f'{out_path}/layers/ratio_active_{target}_{marlin_game.game_id}_{sample_rate}.txt', 'w') as f:
                     idx = 0
                     for line in ratio_active[target]:
-                        revised_time = float(time_seconds[idx]) + float(start_time_chunk)
+                        revised_time = time_seconds[idx]
+                        if start_time_chunk != -1:
+                            revised_time = float(time_seconds[idx]) + float(start_time_chunk)
                         f.write(f"{revised_time},{line}, {target}\n")
                         idx += 1
                         
@@ -751,7 +755,9 @@ if __name__ == "__main__":
                 with open(f'{out_path}/layers/avg_e_{target}_{marlin_game.game_id}_{sample_rate}.txt', 'w') as f:
                     idx = 0
                     for line in avg_energies[target]:
-                        revised_time = float(time_seconds[idx]) + float(start_time_chunk)
+                        revised_time = time_seconds[idx]
+                        if start_time_chunk != -1:
+                            revised_time = float(time_seconds[idx]) + float(start_time_chunk)
                         f.write(f"{revised_time},{line}, {target}\n")
                         idx+=1 
                         
@@ -760,7 +766,9 @@ if __name__ == "__main__":
                     for decision in decisions:
                         
                         if decision['target'] == target:
-                            revised_time = float(time_seconds[decision['frame']]) + float(start_time_chunk)
+                            revised_time = float(time_seconds[decision['frame']])
+                            if start_time_chunk != -1:
+                                revised_time = float(time_seconds[decision['frame']]) + float(start_time_chunk)
                             f.write(f"{revised_time},1, {target}\n")
                             idx+=1
                             
@@ -769,21 +777,13 @@ if __name__ == "__main__":
                     for activity in interesting:
                         
                         if activity['target'] == target:
-                            revised_time = float(time_seconds[activity['frame']]) + float(start_time_chunk)
+                            revised_time = float(time_seconds[activity['frame']])
+                            if start_time_chunk != -1:
+                                revised_time = float(time_seconds[activity['frame']]) + float(start_time_chunk)
                             f.write(f"{revised_time},1, {target}\n")
                             idx+=1
 
-                # with open(f'{out_path}/avg_e_plot.txt', 'w') as f:
-                #     idx = 0
-                #     for line in time_seconds:
-                #         f.write(f"{line},{avg_energies[idx]}\n")
-                #         idx+=1
-                
-                # with open(f'{out_path}/pc_e_plot.txt', 'w') as f:
-                #     idx = 0
-                #     for line in time_seconds:
-                #         f.write(f"{line},{pc_above_tracker[idx]}\n")
-                #         idx+=1
+               
 
             with open(f'{out_path}/active_features_{marlin_game.game_id}.json', 'w') as fp:
                 json.dump(active_features, fp)
@@ -791,14 +791,9 @@ if __name__ == "__main__":
             with open(f'{out_path}/avg_energies_{marlin_game.game_id}.json', 'w') as fp:
                 json.dump(avg_energies, fp)
             
-        
-            # print (marlin_game.game.feature_targets)
-            # print (marlin_game.game.loaded_targets)
-
-            # *** output decision / activity overlays ***
             
             
             
-            # *** output decision overlays ***
-
+            
+           
         break

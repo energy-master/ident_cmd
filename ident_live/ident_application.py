@@ -105,13 +105,11 @@ class SpeciesIdent(object):
                     error = True
                     print(f'error loading {bot_id} {type(e).__name__}')
                     
-                
-        
 
     def load_bots(self, filter_data, version="1_0_0", version_time_from="", version_time_to="", bot_dir="", number_features=1000, update=False, direct=False):
         # print (filter_data)
        
-        print ("======")
+        print ("====== loading bots =======")
         self.selected_bots = []
         
         feature_data = None
@@ -133,7 +131,7 @@ class SpeciesIdent(object):
             
         else:
             if not direct:
-                # print('loading features/bots list...')
+                print('loading features/bots list...')
                 with open('feature_list.json', 'r') as f:
                     feature_data = json.load(f)
                 # print('loaded.')
@@ -147,6 +145,7 @@ class SpeciesIdent(object):
             else:
                 # get bot ids from files in folder
                 l=os.listdir(bot_dir)
+                # print (f'bot dir: {bot_dir}')
                 li=[x.split('.')[0] for x in l]
                 data = {}
                 data['data'] = li
@@ -157,6 +156,7 @@ class SpeciesIdent(object):
                 f"[green] Loading features/bots.", total=int(number_features))
 
             for key in data["data"]:
+                # print (key)
                 number_read += 1
                 bot_id = ""
                 if not direct:
@@ -197,7 +197,7 @@ class SpeciesIdent(object):
 
                     if add:
                         
-                        
+                        print (bot.env)
                         self.selected_bots.append(bot_id)
                         features_name_list.append(bot_id)
                         self.loaded_bots[bot_id] = bot
