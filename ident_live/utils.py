@@ -14,6 +14,8 @@ import json
 import matplotlib
 import matplotlib.patches as mpatches
 from matplotlib import colormaps
+import seaborn as sns
+
 cmap = matplotlib.cm.get_cmap('Spectral')
 
 """
@@ -45,6 +47,188 @@ def get_bin_f(librosa_f_bins, freq_lower, freq_end):
     return index_start, index_end
 
 
+
+
+
+def plot_rain_psd(data = None,time_vector = [], min_f = 100000, max_f = 140000, f_interval = 100, t_interval = 1, min_t = 0, max_t = 500, filepath = ""):
+    
+    
+    #build 2 Data Array
+    
+    
+    filepath = "psd_.png"
+    
+    time_cnt = 0
+    energy_data = [] # f domain
+    time_data = [] # t domain
+    full_energy_data = []
+    discretised_time_cnt = 0
+    t_ref = -1
+    
+    for t_int in data:
+        
+        if t_ref == -1:
+            t_ref = time_vector[time_cnt]
+            
+        
+        f_int = 0
+        energy_data.append([])
+        energy_val = 0
+        f_ref = -1
+        delta_f = 0
+        energy_v = []
+        
+        for f_data in t_int[1]:
+            
+            if t_int[0][f_int]<min_f:
+                f_int +=1 
+                continue
+            
+            if t_int[0][f_int]>max_f:
+                f_int +=1 
+                continue
+            
+            if f_ref == -1:
+                f_ref = t_int[0][f_int]
+            
+            energy_v.append(f_data)
+          
+            
+            if float(t_int[0][f_int] - f_ref) > float(f_interval):
+                
+                energy_data[time_cnt].append(max(energy_v))
+                f_ref = -1
+                energy_v = []
+            
+            f_int +=1 
+        
+        
+        time_data.append(energy_data[time_cnt])
+        
+        if (float(time_vector[time_cnt]) - t_ref) > t_interval:
+            print (float(time_vector[time_cnt]) - t_ref)
+            
+            t_ref = -1
+            full_energy_data.append([])
+            f_data_idx = 0
+            
+            
+            while f_data_idx < len(time_data[0]):
+                e_vals = []
+                for t_data in time_data:
+            
+                    e_vals.append(t_data[f_data_idx])
+                
+                full_energy_data[discretised_time_cnt].append(float(sum(e_vals))/len(e_vals))
+                  
+                f_data_idx += 1
+
+            time_data = []
+            discretised_time_cnt +=1
+            
+        
+        
+        
+        
+        time_cnt +=1 
+        if time_cnt > max_t:
+            break
+    print (full_energy_data)
+    ax = sns.heatmap(full_energy_data)
+    plt.savefig(filepath)
+    return full_energy_data
+   
+
+
+def build_psd(data = None, time_vector = [], min_f = 100000, max_f = 140000, f_interval = 100, t_interval = 1, min_t = 0, max_t = 500, filepath = ""):
+    
+    
+    #build 2 Data Array
+    
+    
+    filepath = "psd_.png"
+    
+    time_cnt = 0
+    energy_data = [] # f domain
+    time_data = [] # t domain
+    full_energy_data = []
+    discretised_time_cnt = 0
+    t_ref = -1
+    
+    for t_int in data:
+        
+        if t_ref == -1:
+            t_ref = time_vector[time_cnt]
+            
+        
+        f_int = 0
+        energy_data.append([])
+        energy_val = 0
+        f_ref = -1
+        delta_f = 0
+        energy_v = []
+        
+        for f_data in t_int[1]:
+            
+            if t_int[0][f_int]<min_f:
+                f_int +=1 
+                continue
+            
+            if t_int[0][f_int]>max_f:
+                f_int +=1 
+                continue
+            
+            if f_ref == -1:
+                f_ref = t_int[0][f_int]
+            
+            energy_v.append(f_data)
+          
+            
+            if float(t_int[0][f_int] - f_ref) > float(f_interval):
+                
+                energy_data[time_cnt].append(max(energy_v))
+                f_ref = -1
+                energy_v = []
+            
+            f_int +=1 
+        
+        
+        time_data.append(energy_data[time_cnt])
+        
+        if (float(time_vector[time_cnt]) - t_ref) > t_interval:
+            print (float(time_vector[time_cnt]) - t_ref)
+            
+            t_ref = -1
+            full_energy_data.append([])
+            f_data_idx = 0
+            
+            
+            while f_data_idx < len(time_data[0]):
+                e_vals = []
+                for t_data in time_data:
+            
+                    e_vals.append(t_data[f_data_idx])
+                
+                full_energy_data[discretised_time_cnt].append(float(sum(e_vals))/len(e_vals))
+                  
+                f_data_idx += 1
+
+            time_data = []
+            discretised_time_cnt +=1
+            
+        
+        
+        
+        
+        time_cnt +=1 
+        if time_cnt > max_t:
+            break
+    print (full_energy_data)
+    ax = sns.heatmap(full_energy_data)
+    plt.savefig(filepath)
+    return full_energy_data
+    
+
 def plot_hist(frequency_activity, filename):
 
     plt.hist(frequency_activity, range=(0, 200000), bins=10)
@@ -52,7 +236,7 @@ def plot_hist(frequency_activity, filename):
     plt.clf()
 
 
-def build_spec_upload(sample_rate, game_id,  hits, decisions, peak, avg, times, pc_above_e, f=[], full_raw_data=[], save_path="", max_energies = [], targets=[], interesting=[]):
+def build_spec_upload(sample_rate, game_id,  hits, decisions, peak, avg, times, pc_above_e, f=[], full_raw_data=[], save_path="", max_energies = [], targets=[], interesting=[], labels = []):
 
     start_time_dt = datetime.strptime(times[0], "%Y-%m-%dT%H:%M:%S.%fZ")
     delta_t_dt = datetime.strptime(

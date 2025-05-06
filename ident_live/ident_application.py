@@ -118,7 +118,7 @@ class SpeciesIdent(object):
         number_loaded = 0
         versions_list = version.split('/')
         data = None
-        print (f'Updating bots  : {update}')
+        # print (f'Updating bots  : {update}')
         
         if update:
             print('Updating features/bots list.')
@@ -196,8 +196,9 @@ class SpeciesIdent(object):
                             continue
 
                     if add:
-                        
-                        print (bot.env)
+                        # print ("adding")
+                        # print (bot.env)
+                        self.loaded_bots
                         self.selected_bots.append(bot_id)
                         features_name_list.append(bot_id)
                         self.loaded_bots[bot_id] = bot
@@ -219,8 +220,9 @@ class SpeciesIdent(object):
                     print(f'error loading {bot_id} {type(e).__name__}')
 
                 if error == False:
+                    
                     pass
-                    # print (f'success loading {bot_id}')
+                    #print (f'success loading {bot_id}')
 
             if update == True:
                 feature_data = {
@@ -230,12 +232,17 @@ class SpeciesIdent(object):
                 with open('feature_list.json', 'w+') as f:
                     json.dump(feature_data, f)
 
-            # print(feature_data)
+            # print(feature_data)f
+        
         if len(self.selected_bots) > int(number_features):
             
             self.selected_bots = random.choices(self.selected_bots,k=int(number_features))
-        else:
-            return 0
+        # else:
+        #     return 0
+        
+        
+        
+        # print (self.loaded_bots)
         
         
         for k, v in self.loaded_bots.items():

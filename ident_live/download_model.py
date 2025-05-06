@@ -16,10 +16,10 @@ import sys
 # === Downlod Features ===
 #! Update for model
 # -- from --
-features_path = 'https://marlin-network.hopto.org/ident/bots_repo/hp_large_res'
+features_path = 'https://marlin-network.hopto.org/ident/bots_repo/ga_bm_1'
 
 # -- to --
-download_path = '/Users/vixen/rs/dev/ident_live/ident_live/bots/hp_large_res'
+download_path = '/Users/vixen/rs/dev/ident_live/ident_live/bots/ga_bm_1'
 
 r_ = requests.get(features_path, allow_redirects=True, stream=True)      
 

@@ -74,6 +74,7 @@ from    datetime import datetime, timedelta, timezone
 import  json
 import  random
 
+from utils import *
 
 from pathlib import Path
 
@@ -466,6 +467,10 @@ if __name__ == "__main__":
                 dd = pickle.load(f)
                 data_adapter.derived_data = dd
 
+        # ---MARLIN DATA BUILT ---
+        
+        # print (data_adapter.derived_data.discretised_psd[0][1])
+        #plot_rain_psd(data_adapter.derived_data.discretised_psd,time_vector= data_adapter.derived_data.discretised_time_index)
 
         
         algo_setup = AlgorithmSetup(config_file_path=f'{app_path}/config.json')
@@ -524,11 +529,12 @@ if __name__ == "__main__":
         print (features_paths)
         
         for f_path in features_paths:
-            # print (f_path)
+            
             shell_config['number_working_features'] = application.load_bots(
                 target, version=feature_version, version_time_from=time_version_from,  version_time_to=time_version_to, bot_dir=f_path, number_features=number_features, update=update_features, direct=True)
             num_loaded += shell_config['number_working_features']
             # print (f'Number loaded live: {num_loaded}')
+        
         
         application.loaded_bots = application.selected_loaded_bots
         
@@ -559,7 +565,7 @@ if __name__ == "__main__":
         Path(f'{out_path}/{marlin_game.game_id}/layers').mkdir(parents=True, exist_ok=True)
         out_path = f'{out_path}/{marlin_game.game_id}'
         from layer_three import *
-        from utils import *
+        
 
         if application.mode == 1:
 
@@ -652,7 +658,7 @@ if __name__ == "__main__":
 
                 bots_run_time = bot_run_time_end - bot_run_time_start
 
-              
+
                 # ------- Softmax API ------------
                 softmax_data = {
                     
@@ -663,6 +669,7 @@ if __name__ == "__main__":
                     "times": marlin_game.bulk_times,
                     "similarity_factor": user_similarity_threshold,
                     "bot_targets" : marlin_game.game.feature_targets
+                    
                 }
                 
                 # print (marlin_game.bulk_energies.keys())
@@ -710,7 +717,7 @@ if __name__ == "__main__":
             if len(marlin_game.bulk_times) > 2:
                 # build spec with overlaying decisions & energy plots
                 time_seconds = build_spec_upload(sample_rate, marlin_game.game_id, hits=hits, decisions=decisions, peak=ratio_active,
-                                  avg=avg_energies, times=marlin_game.bulk_times, pc_above_e=ratio_active, f=[], full_raw_data=raw_data, save_path=out_path, max_energies = max_energy, targets=soft_max_targets, interesting=interesting)
+                                  avg=avg_energies, times=marlin_game.bulk_times, pc_above_e=ratio_active, f=[], full_raw_data=raw_data, save_path=out_path, max_energies = max_energy, targets=soft_max_targets, interesting=interesting, labels = [])
 
 
             #! update
