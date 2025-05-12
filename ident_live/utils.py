@@ -236,7 +236,7 @@ def plot_hist(frequency_activity, filename):
     plt.clf()
 
 
-def build_spec_upload(sample_rate, game_id,  hits, decisions, peak, avg, times, pc_above_e, f=[], full_raw_data=[], save_path="", max_energies = [], targets=[], interesting=[], labels = []):
+def build_spec_upload(sample_rate, game_id,  hits, decisions, peak, avg, times, pc_above_e, f=[], full_raw_data=[], save_path="", max_energies = [], targets=[], interesting=[], training_labels = []):
 
     start_time_dt = datetime.strptime(times[0], "%Y-%m-%dT%H:%M:%S.%fZ")
     delta_t_dt = datetime.strptime(
@@ -271,6 +271,14 @@ def build_spec_upload(sample_rate, game_id,  hits, decisions, peak, avg, times, 
     filepath = f'{save_path}/{game_id}{r_flag}_decisions.png'
     plot_time = []
 
+
+    # training data plot
+    for label_time in training_labels:
+        training_y = 40000
+        training_x = float(label_time)
+        rgba = cmap(0.999)
+        plt.plot(training_x, training_y, 'go', color=rgba)
+        
     for idx in decisions:
 
         _t = datetime.strptime(idx['time'], "%Y-%m-%dT%H:%M:%S.%fZ")
@@ -290,6 +298,8 @@ def build_spec_upload(sample_rate, game_id,  hits, decisions, peak, avg, times, 
         _d_t = _t - start_time_dt
         plot_time.append(float(_d_t.total_seconds()))
 
+    
+
     labels = []
     lcnt = 0
     
@@ -299,6 +309,7 @@ def build_spec_upload(sample_rate, game_id,  hits, decisions, peak, avg, times, 
         # print (search_v, lclr)
         labels.append(mpatches.Patch(color=lclr, label=target))
         lcnt = lcnt + 1
+    
     
   
 

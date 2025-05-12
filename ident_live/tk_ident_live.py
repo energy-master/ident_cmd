@@ -78,13 +78,10 @@ from utils import *
 
 from pathlib import Path
 
+from layer_three import *
 
 
-
-# --- MAIN Entry ---
-if __name__ == "__main__":
-
-
+def main_run():
     # --- APPLICATION CONFIGURATION ---
     # open environment file
     load_dotenv()
@@ -100,8 +97,8 @@ if __name__ == "__main__":
     working_path = config['WORKING_DIR']
     features_path = config['FEATURE_DIR']
     out_path = config['OUT_DIR']
-    
-    
+
+
 
     # required for librosa
     NUMBA_CACHE_DIR = os.path.join(
@@ -110,36 +107,36 @@ if __name__ == "__main__":
 
 
     # --- INPUT PARAMETERS -------------------------------------------------------
-    
+
     batch_file_names = []
     batch_run_ids = []
     # Input data file (Rules apply : YYYYMMDD_HHMMSS_FFF.wav)
     filename = sys.argv[1]
-    
+
     # Search target (e.g. harbour_porpoise)
     target = sys.argv[2]
-    
+
     # Location
     location = sys.argv[3]
-    
+
     # User UID ( provided by MARLIN )
     user_uid = sys.argv[4]
-    
+
     # Activation level of probability distribution function
     user_activation_level = sys.argv[5]
-    
+
     # Ratio of features/bots above activation energy. Used in softmax.
     user_threshold_above_e = sys.argv[6]
-    
+
     # Number of features (>1000)
     number_features = sys.argv[7]
-    
+
     # Similarity of structure built by features (no longer is use)
     user_similarity_threshold = sys.argv[8]
-    
+
     # Feature versions (2_0_0/3_0_0)
     feature_version = sys.argv[9]
-    
+
     # Feature/bot birth times
     time_version_from = ""
     time_version_to = ""
@@ -156,33 +153,33 @@ if __name__ == "__main__":
         update_features = True
 
 
-    
+
     # get feature ids from folder to load or use features.json
     direct = int(sys.argv[15])
     if direct == 1:
         direct = True
     if direct == 0:
         direct = False
-    
-    
+
+
     # time range
     start_time_chunk = -1
     end_time_chunk = -1
     if len(sys.argv) > 16:
         start_time_chunk = sys.argv[16]
         end_time_chunk = sys.argv[17]
-    
-    
-    
-    
+
+
+
+
     # print (f'Direct load of features from folder : {direct}')
 
     print (f'Update feature / bot list: {update_features}.')
     logger_.info("Update feature / bot list: ")
-    
+
     filename_ss_id = ""
     batch_id = ""
-    
+
     # Batch operations
     # if len(sys.argv) >= 16:
     #     batch_run_number = sys.argv[15]
@@ -303,7 +300,7 @@ if __name__ == "__main__":
 
         src_data_id = filename_ss_id
         cnt = 0
-       
+        
         delta_f_idx = (sample_rate * app_config['streaming_delta_t'])
         
         f_start_time = start_t_dt.strftime("%y%m%d_%H%M%S.%f")
@@ -410,7 +407,7 @@ if __name__ == "__main__":
                 data_avail = True
                 # print (f'...{s_id} found.')
                 logger_.info(f'...{s_id} found.')
-               
+                
         # Load saved derived data objects
 
         max_frequency_index = 0
@@ -558,7 +555,7 @@ if __name__ == "__main__":
 
         with open(f'{data_path}/labels.csv', newline='') as csvfile:
             label_data = list(csv.reader(csvfile))
-           
+            
         my_labels = [] 
         # print (data)
         for label in label_data:
@@ -583,14 +580,14 @@ if __name__ == "__main__":
         Path(f'{out_path}/{marlin_game.game_id}').mkdir(parents=True, exist_ok=True)
         Path(f'{out_path}/{marlin_game.game_id}/layers').mkdir(parents=True, exist_ok=True)
         out_path = f'{out_path}/{marlin_game.game_id}'
-        from layer_three import *
+        
         
 
         if application.mode == 1:
 
             feature_f = {}
 
-           
+            
             # Initial conditions
             # frequency_activity = []
             # for feature in list(application.loaded_bots.values()):
@@ -613,7 +610,7 @@ if __name__ == "__main__":
             # plot_hist(frequency_activity,
             #           f'{out_path}/f_d_{marlin_game.game_id}_init_all.png')
 
-           
+            
             # # exit()
             # # Update the loaded bots
             # # marlin_game.game.update_bots(
@@ -654,7 +651,7 @@ if __name__ == "__main__":
             combined_bulk_times = {}
             combined_active_features = {}
 
-           
+            
             bot_run_time_start = t.time()
 
             for run_i in range(0, number_runs):
@@ -671,7 +668,7 @@ if __name__ == "__main__":
                 marlin_game.active_features = {}
 
                 marlin_game.run_bots(sub_filename=sub_filename, start_idx=start_idx, end_idx=end_idx,
-                                     filename=filename_ss_id, out_path=out_path)
+                                        filename=filename_ss_id, out_path=out_path)
 
                 bot_run_time_end = t.time()
 
@@ -706,7 +703,7 @@ if __name__ == "__main__":
                 # ------- Softmax API ------------
 
                 hits = []
-               
+                
 
             # get softmax reply
             softmax_return_data = json.loads(softmax_results['result'][0])
@@ -740,7 +737,7 @@ if __name__ == "__main__":
             if len(marlin_game.bulk_times) > 2:
                 # build spec with overlaying decisions & energy plots
                 time_seconds = build_spec_upload(sample_rate, marlin_game.game_id, hits=hits, decisions=decisions, peak=ratio_active,
-                                  avg=avg_energies, times=marlin_game.bulk_times, pc_above_e=ratio_active, f=[], full_raw_data=raw_data, save_path=out_path, max_energies = max_energy, targets=soft_max_targets, interesting=interesting, training_labels = my_labels)
+                                    avg=avg_energies, times=marlin_game.bulk_times, pc_above_e=ratio_active, f=[], full_raw_data=raw_data, save_path=out_path, max_energies = max_energy, targets=soft_max_targets, interesting=interesting, training_labels = my_labels)
 
 
             #! update
@@ -762,7 +759,7 @@ if __name__ == "__main__":
             
             #! update
             # update_run(filename,13)
-           
+            
             # --- NO EDIT END ---
             
             
@@ -813,7 +810,7 @@ if __name__ == "__main__":
                             f.write(f"{revised_time},1, {target}\n")
                             idx+=1
 
-               
+                
 
             with open(f'{out_path}/active_features_{marlin_game.game_id}.json', 'w') as fp:
                 json.dump(active_features, fp)
@@ -825,5 +822,17 @@ if __name__ == "__main__":
             
             
             
-           
+            
         break
+
+
+# --- GUI ---
+import customtkinter
+from ident_gui import *
+app = customtkinter.CTk()
+
+
+build_main_app(app)
+
+
+run_app(app)

@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 
 
 
-location_id = "67153943"
+location_id = "synthetic_hp"
 label_file_path = "/Users/vixen/rs/dev/ident_live/ident_live"
 user_uid = "0001vixen"
 user_name = "Rahul"
@@ -38,21 +38,26 @@ for filename in filenames:
     print (start_time_ms)
     # if filename != "67149847.140822155029.txt":
     #     continue
-    
+    line_cnt = 0
     with open(f'{path}/{filename}') as file:
         print (f'{path}/{filename}')
         
         for line in file:
-            
+            print ("In file")
+            if line_cnt == 0:
+                
+                line_cnt = 1
+                # print (line_cnt)
+                continue
             line_arr = line.split()
             if len(line_arr) < 3:
                 # print (line_arr)
                 continue
         
             # print (line_arr[2])
-            print (float(line_arr[0]), float(line_arr[1]), line_arr[2])
+            print (float(line_arr[0]), (line_arr[1]), line_arr[2])
             t_start_time_ms = start_time_ms + float(line_arr[0]) * 1000
-            end_time_ms = start_time_ms + float(line_arr[1]) * 1000
+            end_time_ms = (start_time_ms + float(line_arr[0]) * 1000)
             
             t_start_time_dt = datetime.fromtimestamp(t_start_time_ms/1000.0)
             end_time_dt = datetime.fromtimestamp(end_time_ms/1000.0)
@@ -63,8 +68,8 @@ for filename in filenames:
             # print(t_start_time_dt)
             # print(end_time_dt)
             # exit()
-            label = line_arr[2]
-            
+            # label = line_arr[2]
+            label = "synthetic_hp"
             # send label
          
             # print (f't_start_time_ms,  end_time_ms')
@@ -81,7 +86,7 @@ for filename in filenames:
                 'acoustic_filepath': "",
                 'data_filepath' : ""
             }  
-            # print (post_data)
+            print (post_data)
             url = "https://vixen.hopto.org/rs/api/v1/data/signature";
             
             requests.post(url, data = json.dumps(post_data)) 
