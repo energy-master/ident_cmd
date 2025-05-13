@@ -5,6 +5,7 @@ import threading, time
 
 import matplotlib.pyplot as plt
 
+
 hdr_1_font = ("Arial", 15 ) 
 hdr_2_font = ("Courier", 13 ) 
 
@@ -81,11 +82,15 @@ class RT_Data(object):
         
         
     def set_data(self,energies, active_feature_list, target_list, bot_list):
-        
+        # set data
         self.energies = energies
         self.active_feature_list = active_feature_list
         self.target_list = target_list
         self.bot_list = bot_list
+        
+        # derived data
+        self.number_active_features = 0
+        self.active_features_index = {}
         
         
         
@@ -106,16 +111,22 @@ class RT_Data(object):
         
     def run_active_features_stats(self):
         
-        number_active_iters = 0
-        for time_iter in self.active_feature_list:
-            number_active_iters += 1
-            # print (len(self.active_feature_list[time_iter]))
-        # print (f'Number of active times : {number_active_iters}')
-    
+        # if (len(list(self.active_feature_list.keys()))) > 0:
+        #     print (list(self.active_feature_list.keys())[-1])
+        tmp_active_features_index = {}
+        for time_iter, f_vec in self.active_feature_list.items():
+            if time_iter not in tmp_active_features_index:
+                tmp_active_features_index[time_iter] = len(f_vec)
+            else:
+                tmp_active_features_index[time_iter] = len(f_vec)
+        self.active_features_index=tmp_active_features_index
+        
     def run_energy_stats(self):
         pass
         
-        
+
+
+          
         
     
 

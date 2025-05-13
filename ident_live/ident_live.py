@@ -674,7 +674,6 @@ if __name__ == "__main__":
                                      filename=filename_ss_id, out_path=out_path)
 
                 bot_run_time_end = t.time()
-
                 bots_run_time = bot_run_time_end - bot_run_time_start
 
 

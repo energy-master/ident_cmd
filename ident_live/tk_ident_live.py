@@ -13,7 +13,7 @@ and execution can be found at https://vixen.hopto.org/rs/marlin/docs/ident/site.
 Import modules. Python modules required for application.
 
 """
-
+from threading import Thread
 
 # flag for loading multiple models / feature types (env)
 multiple_models = True
@@ -80,7 +80,55 @@ from pathlib import Path
 
 from layer_three import *
 
+# == RT Plots
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+from matplotlib import style
 
+from multiprocessing import Process
+
+
+run_data = None
+xs = []
+ys = []
+ax1 = None
+style.use('fivethirtyeight')
+fig = plt.figure()
+
+ax1 = fig.add_subplot(1,1,1)
+__plotting__ = True
+
+def animate(i):
+    # graph_data = open('example.txt','r').read()
+    # lins = graph_data.split('\n')
+    # print (i) 
+    # x,y = line.split(',')
+    # xs.append(float(random.uniform(0,10)))
+    # ys.append(float(i))
+    # # print (ax1)
+    # # global ax1
+    global __plotting__
+    if __plotting__:
+        xs=[]
+        ys=[]
+        global run_data
+        # print ("checking run data")
+        
+        if run_data is not None:
+            for x,y in run_data.active_features_index.items():
+                xs.append(float(x))
+                ys.append(float(y))
+        if ax1 is not None:
+            ax1.clear()
+        # ax1.plot(xs, ys)
+        ax1.bar(xs, ys,1.0)
+    
+def plotter():
+    ani = animation.FuncAnimation(fig, animate, interval=1000)
+    # plt.ion()
+    plt.show()
+
+    
 def main_run():
     # --- APPLICATION CONFIGURATION ---
     # open environment file
@@ -166,10 +214,16 @@ def main_run():
     start_time_chunk = -1
     end_time_chunk = -1
     if len(sys.argv) > 16:
-        start_time_chunk = sys.argv[16]
-        end_time_chunk = sys.argv[17]
+        start_time_chunk = int (sys.argv[16])
+        end_time_chunk = int (sys.argv[17])
 
+    # print (start_time_chunk,end_time_chunk)
+    
+    bench_mark = False
+    if sys.argv[18] == "bm":
+        bench_mark = True
 
+    
 
 
     # print (f'Direct load of features from folder : {direct}')
@@ -236,17 +290,19 @@ def main_run():
         sample_rate = librosa.get_samplerate(file_path)
         raw_data, sample_rate = librosa.load(file_path, sr=sample_rate)
         print (f'Sample rate of input data : {sample_rate}')
+       
         
-        # exit()
         
         # data chunk considerations
         if start_time_chunk != -1:
+           
             start_time_idx = int(sample_rate * int(start_time_chunk))
             
             end_time_idx = int(sample_rate * int(end_time_chunk))
             
             raw_data = raw_data[start_time_idx:end_time_idx]
 
+        
         # --- META DATA creation ---
 
         # get start time string from filename
@@ -260,6 +316,7 @@ def main_run():
         if start_time_chunk != -1:
             start_t_dt = start_t_dt + timedelta(seconds=int(start_time_chunk))
         duration_s = len(raw_data)/sample_rate
+        
         start_t_ms = int(start_t_dt.timestamp()) * 1000
         end_t_dt = start_t_dt + timedelta(seconds=duration_s)
         end_t_ms = int(end_t_dt.timestamp()) * 1000
@@ -553,22 +610,23 @@ def main_run():
 
         # ==== LABELS
         my_labels = [] 
-        # import csv
+        import csv
+        if bench_mark:
+            f_marker = filename.split('.')[0]
+            with open(f'{data_path}/{f_marker}_labels.csv', newline='') as csvfile:
+                label_data = list(csv.reader(csvfile))
+                
+            my_labels = [] 
+            # print (data)
+            for label in label_data:
+                v = label[0].split('\t')
+                # print (v)
+                my_labels.append(v[0])
 
-        # with open(f'{data_path}/labels.csv', newline='') as csvfile:
-        #     label_data = list(csv.reader(csvfile))
-            
-        # my_labels = [] 
-        # # print (data)
-        # for label in label_data:
-        #     v = label[0].split('\t')
-        #     # print (v)
-        #     my_labels.append(v[0])
-
-        # my_labels.pop(0)
+            my_labels.pop(0)
         #  LABELS ===
         
-        # print (my_labels)
+        
         
 
         # ------------------------------------------------------------------
@@ -671,12 +729,28 @@ def main_run():
 
                 marlin_game.active_features = {}
                 
+                # Real time data
+                global run_data
                 run_data = RT_Data()
-               
                 run_data.set_data(marlin_game.bulk_energies, marlin_game.active_features, application.loaded_targets, application.loaded_bots)
                 run_data.stream()
                 
+                # Real time plotting (poc)
                 
+
+                # style.use('fivethirtyeight')
+                # fig = plt.figure()
+                
+                # ax1 = fig.add_subplot(1,1,1)
+                # print (fig)
+                # print (ax1)
+                
+                # ani = animation.FuncAnimation(fig, animate, interval=1000)
+                # # plt.ion()
+                # plt.show()
+                # plt.pause(0.1)
+                
+                # Run game
                 marlin_game.run_bots(sub_filename=sub_filename, start_idx=start_idx, end_idx=end_idx,
                                         filename=filename_ss_id, out_path=out_path)
 
@@ -697,8 +771,6 @@ def main_run():
                     "bot_targets" : marlin_game.game.feature_targets
                     
                 }
-                
-                # print (marlin_game.bulk_energies.keys())
                 
                 print("Sending to IDent Softmax API")
                 logger_.info("Sending to Softmax API")
@@ -741,7 +813,7 @@ def main_run():
             # update_run(filename,12.2)
 
             
-                
+            
 
 
             if len(marlin_game.bulk_times) > 2:
@@ -832,8 +904,11 @@ def main_run():
             
             
 
-        # quit real time data stream            
+        # quit real time data stream  
+        global __plotting__
+        __plotting__ = False          
         run_data.quit_stream()
+        # plt.show()
         break
 
 
@@ -850,5 +925,11 @@ from ident_gui import *
 
 
 # run_app(app)
-
+# p = Process(target=plotter)
+# p.start()\
+# thread = Thread(target=main_run, daemon=False)
+# thread.start()
+# MainProgram()
 main_run()
+# p.join()
+# plotter()
