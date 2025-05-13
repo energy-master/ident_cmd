@@ -87,6 +87,49 @@ from matplotlib import style
 
 from multiprocessing import Process
 
+bm_delta_t = 1
+
+
+
+def benchmark(target = "", decisions={},time_seconds = [], start_time_chunk=-1, labels=[]):
+    
+    benchmark_results = {}
+    benchmark_results['correct_times'] = []
+    idx=0
+    number_correct = 0
+    number_incorrect = 0
+    number_labels = len(labels)
+    for decision in decisions:
+        correct = False
+        if decision['target'] == target:
+            revised_time = float(time_seconds[decision['frame']])
+            if start_time_chunk != -1:
+                revised_time = float(time_seconds[decision['frame']]) + float(start_time_chunk)
+            
+            
+            for time in labels:
+                delta_t = float(revised_time) - float(time)
+                if (delta_t) > 0 and (delta_t) < bm_delta_t:
+                    benchmark_results['correct_times'].append({'decision_time':revised_time, 'label_time' : time, 'target' : target})
+                    print (f'{revised_time} -> {delta_t}')
+                    correct = True
+            idx+=1
+
+        if correct:
+            number_correct += 1
+        else:
+            number_incorrect += 1
+            
+    benchmark_results['number_labels'] = number_labels
+    benchmark_results['correct'] = number_correct
+    benchmark_results['incorrect'] = number_incorrect
+    benchmark_results['number_decision'] = number_correct + number_incorrect
+    if float(number_correct + number_incorrect) > 0:
+        benchmark_results['winning_pc'] = (float(number_correct) / float(number_correct + number_incorrect)) * 100
+    else:
+        benchmark_results['winning_pc'] = 0.0
+    
+    return benchmark_results
 
 run_data = None
 xs = []
@@ -872,6 +915,9 @@ def main_run():
                         
                 with open(f'{out_path}/layers/decisions_{target}.txt', 'w') as f:
                     idx = 0
+                    
+                    
+                    
                     for decision in decisions:
                         
                         if decision['target'] == target:
@@ -880,6 +926,9 @@ def main_run():
                                 revised_time = float(time_seconds[decision['frame']]) + float(start_time_chunk)
                             f.write(f"{revised_time},1, {target}\n")
                             idx+=1
+                    
+                        
+                        
                             
                 with open(f'{out_path}/layers/activity_{target}.txt', 'w') as f:
                     idx = 0
@@ -901,8 +950,11 @@ def main_run():
                 json.dump(avg_energies, fp)
             
             
-            
-            
+            if bench_mark:
+                for target in soft_max_targets:
+                    bm_results = benchmark(target,decisions,time_seconds, start_time_chunk, my_labels)
+                    print (bm_results)
+
 
         # quit real time data stream  
         global __plotting__
