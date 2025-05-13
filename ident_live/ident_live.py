@@ -554,21 +554,21 @@ if __name__ == "__main__":
         # send_new_run(filename, target, user_uid, location, json.dumps(shell_config))
 
 
-        import csv
+        # import csv
 
-        with open(f'{data_path}/labels.csv', newline='') as csvfile:
-            label_data = list(csv.reader(csvfile))
+        # with open(f'{data_path}/labels.csv', newline='') as csvfile:
+        #     label_data = list(csv.reader(csvfile))
            
-        my_labels = [] 
-        # print (data)
-        for label in label_data:
-            v = label[0].split('\t')
-            # print (v)
-            my_labels.append(v[0])
+        # my_labels = [] 
+        # # print (data)
+        # for label in label_data:
+        #     v = label[0].split('\t')
+        #     # print (v)
+        #     my_labels.append(v[0])
 
-        my_labels.pop(0)
-        # print (my_labels)
-        
+        # my_labels.pop(0)
+        # # print (my_labels)
+        my_labels = [] 
 
         # ------------------------------------------------------------------
         #

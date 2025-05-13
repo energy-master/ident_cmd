@@ -1,7 +1,9 @@
 import tkinter as tk
 import _tkinter
 import customtkinter as ctk
+import threading, time
 
+import matplotlib.pyplot as plt
 
 hdr_1_font = ("Arial", 15 ) 
 hdr_2_font = ("Courier", 13 ) 
@@ -69,5 +71,51 @@ def build_label(app, options={}):
 def run_app(app):
     app.mainloop()
     
+    
+   
+# --- Real time data ---
 
+class RT_Data(object):
+    def __init__(self):
+        pass
+        
+        
+    def set_data(self,energies, active_feature_list, target_list, bot_list):
+        
+        self.energies = energies
+        self.active_feature_list = active_feature_list
+        self.target_list = target_list
+        self.bot_list = bot_list
+        
+        
+        
+    def rt_data_capture(self):
+        time.sleep(0.2)
+        while self.alive:
+            self.run_active_features_stats()
+            self.run_energy_stats()
+            time.sleep(1)
+            
+    def stream(self):
+        self.alive = True
+        self.l_thread = threading.Thread(target=self.rt_data_capture, args=())
+        self.l_thread.start()
+        
+    def quit_stream(self):
+        self.alive=False
+        
+    def run_active_features_stats(self):
+        
+        number_active_iters = 0
+        for time_iter in self.active_feature_list:
+            number_active_iters += 1
+            # print (len(self.active_feature_list[time_iter]))
+        # print (f'Number of active times : {number_active_iters}')
+    
+    def run_energy_stats(self):
+        pass
+        
+        
+        
+    
 

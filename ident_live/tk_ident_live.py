@@ -505,7 +505,7 @@ def main_run():
             # print (features_paths)
             
             selected_models = config['SELECT_MODEL_DIR']
-            print (selected_models)
+            # print (selected_models)
             if selected_models != "*":
                 edited_feature_paths = []
                 for model in features_paths:
@@ -551,19 +551,23 @@ def main_run():
         # send_new_run(filename, target, user_uid, location, json.dumps(shell_config))
 
 
-        import csv
-
-        with open(f'{data_path}/labels.csv', newline='') as csvfile:
-            label_data = list(csv.reader(csvfile))
-            
+        # ==== LABELS
         my_labels = [] 
-        # print (data)
-        for label in label_data:
-            v = label[0].split('\t')
-            # print (v)
-            my_labels.append(v[0])
+        # import csv
 
-        my_labels.pop(0)
+        # with open(f'{data_path}/labels.csv', newline='') as csvfile:
+        #     label_data = list(csv.reader(csvfile))
+            
+        # my_labels = [] 
+        # # print (data)
+        # for label in label_data:
+        #     v = label[0].split('\t')
+        #     # print (v)
+        #     my_labels.append(v[0])
+
+        # my_labels.pop(0)
+        #  LABELS ===
+        
         # print (my_labels)
         
 
@@ -666,7 +670,13 @@ def main_run():
                 end_idx = start_idx+delta_idx
 
                 marlin_game.active_features = {}
-
+                
+                run_data = RT_Data()
+               
+                run_data.set_data(marlin_game.bulk_energies, marlin_game.active_features, application.loaded_targets, application.loaded_bots)
+                run_data.stream()
+                
+                
                 marlin_game.run_bots(sub_filename=sub_filename, start_idx=start_idx, end_idx=end_idx,
                                         filename=filename_ss_id, out_path=out_path)
 
@@ -821,18 +831,24 @@ def main_run():
             
             
             
-            
-            
+
+        # quit real time data stream            
+        run_data.quit_stream()
         break
 
 
+
+
+
 # --- GUI ---
-import customtkinter
+# import customtkinter
 from ident_gui import *
-app = customtkinter.CTk()
+# app = customtkinter.CTk()
 
 
-build_main_app(app)
+# build_main_app(app)
 
 
-run_app(app)
+# run_app(app)
+
+main_run()
