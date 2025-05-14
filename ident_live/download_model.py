@@ -23,9 +23,6 @@ download_path = '/Users/vixen/rs/dev/ident_live/ident_live/bots/hp_trial'
 
 r_ = requests.get(features_path, allow_redirects=True, stream=True)      
 
-
-
-
 html = r_.text
 
 pattern=r'href=[\'"]?([^\'" >]+)'
