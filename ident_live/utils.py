@@ -236,7 +236,7 @@ def plot_hist(frequency_activity, filename):
     plt.clf()
 
 
-def build_spec_upload(sample_rate, game_id,  hits, decisions, peak, avg, times, pc_above_e, f=[], full_raw_data=[], save_path="", max_energies = [], targets=[], interesting=[], training_labels = []):
+def build_spec_upload(sample_rate, game_id,  hits, decisions, peak, avg, times, bulk_energies = None, pc_above_e=[], f=[], full_raw_data=[], save_path="", max_energies = [], targets=[], interesting=[], training_labels = [], memory = {}, activation_level = 0.8):
 
     start_time_dt = datetime.strptime(times[0], "%Y-%m-%dT%H:%M:%S.%fZ")
     delta_t_dt = datetime.strptime(
@@ -252,6 +252,9 @@ def build_spec_upload(sample_rate, game_id,  hits, decisions, peak, avg, times, 
     #     pc_above_e.append(0.0)
 
     # sample_rate = data.meta_data['sample_rate']
+
+
+
 
 
     # decisions
@@ -279,6 +282,10 @@ def build_spec_upload(sample_rate, game_id,  hits, decisions, peak, avg, times, 
         rgba = cmap(0.999)
         plt.plot(training_x, training_y, 'go', color=rgba)
         
+   
+    
+        
+    
     for idx in decisions:
 
         _t = datetime.strptime(idx['time'], "%Y-%m-%dT%H:%M:%S.%fZ")
@@ -373,6 +380,10 @@ def build_spec_upload(sample_rate, game_id,  hits, decisions, peak, avg, times, 
     filepath = f'{save_path}/{game_id}{r_flag}_activity.png'
     plot_time = []
 
+
+
+
+
     for idx in interesting:
 
         _t = datetime.strptime(idx['time'], "%Y-%m-%dT%H:%M:%S.%fZ")
@@ -391,6 +402,7 @@ def build_spec_upload(sample_rate, game_id,  hits, decisions, peak, avg, times, 
         _t = datetime.strptime(times[time], "%Y-%m-%dT%H:%M:%S.%fZ")
         _d_t = _t - start_time_dt
         plot_time.append(float(_d_t.total_seconds()))
+
 
     labels = []
     lcnt = 0
@@ -411,6 +423,47 @@ def build_spec_upload(sample_rate, game_id,  hits, decisions, peak, avg, times, 
     plt.xlabel('Time (s)')
     plt.savefig(filepath)
     plt.clf()
+    
+   
+        
+   
+    
+    # plot individual bot energy profiles for debugging and interest
+    for bot_id, energy_profile in bulk_energies.items():
+        t_vals = [] 
+        e_vals = []
+        active_segments_x = []
+        active_segments_y = []
+        
+        for iter_number, energy_pt in energy_profile.items():
+            t_vals.append(float(plot_time[iter_number]))
+            e_vals.append(float(energy_pt))
+            if energy_pt > activation_level:
+                active_segments_y.append(0.5)
+                active_segments_y.append(0.5)
+                history_time = max(0,(float(plot_time[iter_number]) - float((memory[bot_id] / 1000))))
+                print (float((memory[bot_id] / 1000)))
+                active_segments_x.append(history_time)
+                active_segments_x.append(float(plot_time[iter_number]))
+                plt.plot((active_segments_x),(active_segments_y), color = 'red')
+                active_segments_x = []
+                active_segments_y = []
+                
+        plt.plot((t_vals),(e_vals))
+        
+         # training data plot
+        for label_time in training_labels:
+            training_y = 0.5
+            training_x = float(label_time)
+            rgba = cmap(0.999)
+            plt.plot(training_x, training_y, 'go', color=rgba)
+        plt.ylabel('Energy')
+        plt.xlabel('Time (s)')
+        filepath = f'{save_path}/{bot_id}_activity.png'
+        plt.savefig(filepath)
+        plt.clf()
+            
+    
     
     
     for target in targets:

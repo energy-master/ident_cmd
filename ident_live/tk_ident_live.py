@@ -87,6 +87,8 @@ from matplotlib import style
 
 from multiprocessing import Process
 
+
+# decision tolerance
 bm_delta_t = 1
 
 
@@ -111,7 +113,7 @@ def benchmark(target = "", decisions={},time_seconds = [], start_time_chunk=-1, 
                 delta_t = float(revised_time) - float(time)
                 if (delta_t) > 0 and (delta_t) < bm_delta_t:
                     benchmark_results['correct_times'].append({'decision_time':revised_time, 'label_time' : time, 'target' : target})
-                    print (f'{revised_time} -> {delta_t}')
+                    # print (f'{revised_time} -> {delta_t}')
                     correct = True
             idx+=1
 
@@ -862,7 +864,7 @@ def main_run():
             if len(marlin_game.bulk_times) > 2:
                 # build spec with overlaying decisions & energy plots
                 time_seconds = build_spec_upload(sample_rate, marlin_game.game_id, hits=hits, decisions=decisions, peak=ratio_active,
-                                    avg=avg_energies, times=marlin_game.bulk_times, pc_above_e=ratio_active, f=[], full_raw_data=raw_data, save_path=out_path, max_energies = max_energy, targets=soft_max_targets, interesting=interesting, training_labels = my_labels)
+                                    avg=avg_energies, times=marlin_game.bulk_times, bulk_energies = marlin_game.bulk_energies,pc_above_e=ratio_active, f=[], full_raw_data=raw_data, save_path=out_path, max_energies = max_energy, targets=soft_max_targets, interesting=interesting, training_labels = my_labels, memory = marlin_game.memory_tracker)
 
 
             #! update

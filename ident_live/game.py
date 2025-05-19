@@ -75,14 +75,23 @@ class IdentGame(object):
 
         self.number_run_idx = 0
 
+        # data structures for recording decision analysis and data
+        self.decision_raw_data_recorder = {}
+        self.bot_decision_tracker = {}
+        self.memory_tracker = {}
+
     def world_step(self):
         pass
 
     def bot_step(self, bot=None, generation=0, listen_start_idx=0, step_end_index=0):
         
         if bot is not None:
-           
-            # print(f'{bot.name} Start')
+            max_memory = bot.GetMemory()
+            print (f'bot memory : {max_memory}')
+            if bot.name not in self.memory_tracker:
+                self.memory_tracker[bot.name] = max_memory
+                
+            print(f'{bot.name} Start')
             # reset data feed for new iteration
             # data_feed.reset()
             self.bulk_energies[bot.name] = {}
@@ -261,17 +270,23 @@ class IdentGame(object):
                         # transcribe_result = True # force transcription
                         # ======Decision & Marking=========================
                         # --- make and add decision ---
+                        xr_start_time = iter_start_time - timedelta(milliseconds=max_memory)
                         if transcribe_result:
+                            decision_id = 'd_id_' + str(math.floor(random.uniform(0,999999))) + str(math.floor(random.uniform(0,999999))) + str(math.floor(random.uniform(0,999999)))
+                        
                             # print ("decision made")
                             decision_args = {
                                 'status': 1,
+                                'xr_start' : xr_start_time,
+                                'memory' : max_memory,
                                 'env': self.game.algo_setup.args['env'],
                                 'iter_start_time': iter_start_time,
                                 'iter_end_time': iter_end_time,
                                 'action': 1,
                                 'type': "HP Ident",
                                 'xr': -1,
-                                'epoch': pressure_id
+                                'epoch': pressure_id,
+                                'decision_id' : decision_id
                             }
 
                             record_decision = {
@@ -328,19 +343,35 @@ class IdentGame(object):
 
                             decision_args = {
                                 'status': 0,
+                                'xr_start' : xr_start_time,
+                                'memory' : max_memory,
                                 'env': self.game.algo_setup.args['env'],
                                 'iter_start_time': iter_start_time,
                                 'iter_end_time': iter_end_time,
                                 'action': 0,
                                 'type': "HP Ident",
-                                'xr': xr,
-                                'epoch': pressure_id
+                                'xr': 'live',
+                                'epoch': pressure_id,
+                                'decision_id' : decision_id
                             }
 
-                            close_decision = IdentDecision(
-                                decision_data=decision_args)
-                            self.game.performance.add_decision(
-                                decision=close_decision, epoch=env_pressure.meta_data['snapshot_id'], botID=bot.name)
+                            i_s_i = listen_start_idx - (math.floor(1 * env_pressure.meta_data['sample_rate']))
+                            interesting_slice_idx = max(0,(i_s_i))
+                            decision_show_data = env_pressure.frequency_ts_np[interesting_slice_idx:slice_end]
+                            
+                            self.decision_raw_data_recorder[decision_id] = decision_show_data
+                            if bot.name in self.bot_decision_tracker:
+                                self.bot_decision_tracker[bot.name].append(decision_id)
+                            else:
+                                self.bot_decision_tracker[bot.name] = []
+                                self.bot_decision_tracker[bot.name].append(decision_id)
+                            # record
+                            close_decision = IdentDecision(decision_data=decision_args)                    
+                            self.game.performance.add_decision(decision=close_decision, epoch = env_pressure.meta_data['snapshot_id'], botID = bot.name)
+                            
+
+                            close_decision = IdentDecision(decision_data=decision_args)
+                            self.game.performance.add_decision(decision=close_decision, epoch=env_pressure.meta_data['snapshot_id'], botID=bot.name)
 
                         # =================================================
 
@@ -349,6 +380,23 @@ class IdentGame(object):
                         pbar.update(listen_delta_idx)
                         # time.sleep(0.0001)
                 pbar.close()
+                
+                 # ===== BOT OPTIMISATION DATA FOR ANALYSIS (BOTS BEING SAVED ONLY) =====
+                
+                decision_text = self.game.performance.showBotDecisions(bot_name=bot.name, verbose=False)
+                decision_name = f'{bot.name}_decisions.csv'
+                with open(f'decisions/{decision_name}', 'w') as f:
+                    f.write(decision_text)
+                
+                #save waveform data for decision(s)
+                # for wf_data_id in self.bot_decision_tracker[bot.name]:
+                #     # print (wf_data_id)
+                #     wf_data = self.decision_raw_data_recorder[wf_data_id]
+                #     # print (wf_data)
+                #     with open(f'interesting/{wf_data_id}.dat','wb') as fp:
+                #         wf_data.tofile(fp)
+                        
+                
                 # pressure_end = time.time()
                 # run_time = pressure_end - pressure_start
                 # # print (f'number iters : {idx_iter}')

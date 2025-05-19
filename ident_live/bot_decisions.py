@@ -29,30 +29,9 @@ for decision_file in decision_files[5:]:
     if file_bot_id == bot_id:
         # download csv file
         decision_file_path = f'{decisions_path}/{decision_file}'
-   
+        
   
         r = requests.get(decision_file_path, allow_redirects=True, stream=True)
         print (r.text)
-        # total_length = r.headers.get('content-length')
         
-        # save_filepath = "tmp_.dat"
-    
-        # f = open(save_filepath, 'wb')
-        # dl = 0
-        # total_length = int(total_length)
-        # for data in r.iter_content(chunk_size=2000):
-        #     dl += len(data)
-        #     f.write(data)
-        #     done = int(50* dl / total_length)
-        #     sys.stdout.write("\r[%s%s]" % ('=' * done, ' ' * (50-done)))
-        #     sys.stdout.flush()
-
-        # sys.stdout.flush()
-        
-        
-        
-        
-        # pretty print csv file
-    
-
-
+        # <- decision stats ->
