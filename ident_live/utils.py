@@ -442,7 +442,7 @@ def build_spec_upload(sample_rate, game_id,  hits, decisions, peak, avg, times, 
                 active_segments_y.append(0.5)
                 active_segments_y.append(0.5)
                 history_time = max(0,(float(plot_time[iter_number]) - float((memory[bot_id] / 1000))))
-                print (float((memory[bot_id] / 1000)))
+                # print (float((memory[bot_id] / 1000)))
                 active_segments_x.append(history_time)
                 active_segments_x.append(float(plot_time[iter_number]))
                 plt.plot((active_segments_x),(active_segments_y), color = 'red')

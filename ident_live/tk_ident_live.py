@@ -89,9 +89,22 @@ from multiprocessing import Process
 
 
 # decision tolerance
-bm_delta_t = 0.5
+bm_delta_t = 0.3
 
-
+def print_benchmark(results):
+    out_results = {
+        
+    
+    'number_hits_correct' : results['correct'],
+    'number_hits_incorrect' : results['incorrect'],
+    'pc_hits_correct' : results['winning_pc'],
+    'number_labels' : results['number_labels'],
+    'number_label_hits' : results['number_label_hits'],
+    'pc_label_hits' : results['pc_label_hits']
+    
+    }
+    
+    print (out_results)
 
 def benchmark(target = "", decisions={},time_seconds = [], start_time_chunk=-1, labels=[]):
     
@@ -101,6 +114,7 @@ def benchmark(target = "", decisions={},time_seconds = [], start_time_chunk=-1, 
     number_correct = 0
     number_incorrect = 0
     number_labels = len(labels)
+    label_index_hit = []
     for decision in decisions:
         correct = False
         if decision['target'] == target:
@@ -109,23 +123,34 @@ def benchmark(target = "", decisions={},time_seconds = [], start_time_chunk=-1, 
                 revised_time = float(time_seconds[decision['frame']]) + float(start_time_chunk)
             
             
+            label_idx = 0
             for time in labels:
                 delta_t = float(revised_time) - float(time)
                 if (delta_t) > 0 and (delta_t) < bm_delta_t:
                     benchmark_results['correct_times'].append({'decision_time':revised_time, 'label_time' : time, 'target' : target})
                     # print (f'{revised_time} -> {delta_t}')
                     correct = True
+                    label_index_hit.append(label_idx)
+                label_idx+=1
             idx+=1
 
         if correct:
             number_correct += 1
         else:
             number_incorrect += 1
-            
+    
+    
+    # label idx unique hits
+    l_idx_set = set(label_index_hit)
+    number_label_hits = len(l_idx_set)
+    
+    
     benchmark_results['number_labels'] = number_labels
     benchmark_results['correct'] = number_correct
     benchmark_results['incorrect'] = number_incorrect
     benchmark_results['number_decision'] = number_correct + number_incorrect
+    benchmark_results['number_label_hits'] = number_label_hits
+    benchmark_results['pc_label_hits'] = float(float(number_label_hits)/float(number_labels)) * 100
     if float(number_correct + number_incorrect) > 0:
         benchmark_results['winning_pc'] = (float(number_correct) / float(number_correct + number_incorrect)) * 100
     else:
@@ -955,7 +980,9 @@ def main_run():
             if bench_mark:
                 for target in soft_max_targets:
                     bm_results = benchmark(target,decisions,time_seconds, start_time_chunk, my_labels)
-                    print (bm_results)
+                    print_benchmark(bm_results)
+                    
+                    
 
 
         # quit real time data stream  
