@@ -86,12 +86,13 @@ class IdentGame(object):
     def bot_step(self, bot=None, generation=0, listen_start_idx=0, step_end_index=0):
         
         if bot is not None:
+            print(f'{bot.name} Start')
             max_memory = bot.GetMemory()
             print (f'bot memory : {max_memory}')
             if bot.name not in self.memory_tracker:
                 self.memory_tracker[bot.name] = max_memory
                 
-            print(f'{bot.name} Start')
+            
             # reset data feed for new iteration
             # data_feed.reset()
             self.bulk_energies[bot.name] = {}

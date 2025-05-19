@@ -89,7 +89,7 @@ from multiprocessing import Process
 
 
 # decision tolerance
-bm_delta_t = 1
+bm_delta_t = 0.5
 
 
 
@@ -642,8 +642,8 @@ def main_run():
         num_live_bots = len(application.loaded_bots.keys())
         print (f'Number of live bots : {num_live_bots}')
         print (f'Signatures : {application.loaded_targets}')
-        
-        
+        print (list(application.loaded_bots.keys()))
+
         logger_.info(f'Number loaded : {num_loaded}')
         
         # exit()

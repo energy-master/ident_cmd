@@ -451,7 +451,7 @@ def build_spec_upload(sample_rate, game_id,  hits, decisions, peak, avg, times, 
                 
         plt.plot((t_vals),(e_vals))
         
-         # training data plot
+        # training data plot
         for label_time in training_labels:
             training_y = 0.5
             training_x = float(label_time)
