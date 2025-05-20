@@ -237,7 +237,7 @@ def plot_hist(frequency_activity, filename):
 
 
 def build_spec_upload(sample_rate, game_id,  hits, decisions, peak, avg, times, bulk_energies = None, pc_above_e=[], f=[], full_raw_data=[], save_path="", max_energies = [], targets=[], interesting=[], training_labels = [], memory = {}, activation_level = 0.8):
-
+    activation_level = float(activation_level)
     start_time_dt = datetime.strptime(times[0], "%Y-%m-%dT%H:%M:%S.%fZ")
     delta_t_dt = datetime.strptime(
         times[1], "%Y-%m-%dT%H:%M:%S.%fZ") - start_time_dt
@@ -439,24 +439,25 @@ def build_spec_upload(sample_rate, game_id,  hits, decisions, peak, avg, times, 
             t_vals.append(float(plot_time[iter_number]))
             e_vals.append(float(energy_pt))
             if energy_pt > activation_level:
-                active_segments_y.append(0.5)
-                active_segments_y.append(0.5)
+                # print (f'e {energy_pt}, {activation_level}')
+                active_segments_y.append(1.05)
+                active_segments_y.append(1.05)
                 history_time = max(0,(float(plot_time[iter_number]) - float((memory[bot_id] / 1000))))
                 # print (float((memory[bot_id] / 1000)))
                 active_segments_x.append(history_time)
                 active_segments_x.append(float(plot_time[iter_number]))
-                plt.plot((active_segments_x),(active_segments_y), color = 'red')
+                plt.plot((active_segments_x),(active_segments_y), color = 'blue', lw=2.0)
                 active_segments_x = []
                 active_segments_y = []
                 
-        plt.plot((t_vals),(e_vals))
+        plt.plot((t_vals),(e_vals),lw=0.4)
         
         # training data plot
         for label_time in training_labels:
-            training_y = 0.5
+            training_y = 1.0
             training_x = float(label_time)
             rgba = cmap(0.999)
-            plt.plot(training_x, training_y, 'go', color=rgba)
+            plt.plot(training_x, training_y, 'go', color=rgba, lw=0.2)
         plt.ylabel('Energy')
         plt.xlabel('Time (s)')
         filepath = f'{save_path}/{bot_id}_activity.png'

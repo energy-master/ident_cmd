@@ -145,14 +145,14 @@ def benchmark(target = "", decisions={},time_seconds = [], start_time_chunk=-1, 
         else:
             number_incorrect += 1
     
-    print (f'number decisions : {number_decisions}')
-    # label idx unique hits
-    print (label_index_hit)
-    print (len(label_index_hit))
+    # print (f'number decisions : {number_decisions}')
+    # # label idx unique hits
+    # print (label_index_hit)
+    # print (len(label_index_hit))
     l_idx_set = set(label_index_hit)
-    print (l_idx_set)
+    # print (l_idx_set)
     number_label_hits = len(l_idx_set)
-    print (len((l_idx_set)))
+    # print (len((l_idx_set)))
     
     
     benchmark_results['number_labels'] = number_labels
@@ -252,7 +252,7 @@ def main_run():
 
     # Activation level of probability distribution function
     user_activation_level = sys.argv[5]
-
+    
     # Ratio of features/bots above activation energy. Used in softmax.
     user_threshold_above_e = sys.argv[6]
 
@@ -899,7 +899,7 @@ def main_run():
             if len(marlin_game.bulk_times) > 2:
                 # build spec with overlaying decisions & energy plots
                 time_seconds = build_spec_upload(sample_rate, marlin_game.game_id, hits=hits, decisions=decisions, peak=ratio_active,
-                                    avg=avg_energies, times=marlin_game.bulk_times, bulk_energies = marlin_game.bulk_energies,pc_above_e=ratio_active, f=[], full_raw_data=raw_data, save_path=out_path, max_energies = max_energy, targets=soft_max_targets, interesting=interesting, training_labels = my_labels, memory = marlin_game.memory_tracker)
+                                    avg=avg_energies, times=marlin_game.bulk_times, bulk_energies = marlin_game.bulk_energies,pc_above_e=ratio_active, f=[], full_raw_data=raw_data, save_path=out_path, max_energies = max_energy, targets=soft_max_targets, interesting=interesting, training_labels = my_labels, memory = marlin_game.memory_tracker, activation_level=user_activation_level)
 
 
             #! update

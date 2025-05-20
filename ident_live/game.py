@@ -258,7 +258,7 @@ class IdentGame(object):
 
                         transcribe_result = bot.transcriptionDNA.transcribe(
                             transcription_data, self.activation_level)
-
+                        
                         # print (express_level)
                         # # Build labeled dataset here in order to view in spectrogrma image
                         # -----
