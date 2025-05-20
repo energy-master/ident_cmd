@@ -86,6 +86,7 @@ class IdentGame(object):
     def bot_step(self, bot=None, generation=0, listen_start_idx=0, step_end_index=0):
         
         if bot is not None:
+            
             print(f'{bot.name} Start')
             max_memory = bot.GetMemory()
             print (f'bot memory : {max_memory}')
@@ -99,6 +100,7 @@ class IdentGame(object):
             total_iter_cnt = 0
             pressure_start = time.time()
             for env_pressure in self.game.data_feed:
+                bot.Reset()
                 pressure_id = env_pressure.meta_data['snapshot_id']
                 # print(f'Running {pressure_id} for {bot.name}')
                 

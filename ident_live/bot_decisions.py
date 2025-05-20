@@ -28,6 +28,7 @@ html = r_.text
 pattern=r'href=[\'"]?([^\'" >]+)'
 decision_files = re.findall(pattern, html)
 
+print ("--- OPTIMISATION DATA ---")
 
 for decision_file in decision_files[5:]:
     
@@ -39,9 +40,27 @@ for decision_file in decision_files[5:]:
 
         print (decision_file_path)
         r = requests.get(decision_file_path, allow_redirects=True, stream=True)
-        print (r.text)
+        decisions_list = r.text.split('\n')
+        pretty_decistions = {}
+        for d_ in decisions_list:
+            d_.strip()
+            d_data = d_.split(',')
+            if len(d_data) > 1:
+                # d_id = d_['decision_id']
+                # d_time = d_['Time From']
+                if d_data[4].strip() == "Idle":
+                    print (f'{d_data[16]}, {d_data[8]} -> {d_data[12]}')
+
+                # for data in d_data:
+                #     data.strip()
+                
+                
+                    
+            
+
         
         # <- decision stats ->
+
 
 energy_profile = []
 iter_profile  = [] 
@@ -53,8 +72,9 @@ with requests.get(energies_path, stream=True) as r:
         energy_profile.append(float(row[0]))
         iter_profile.append(float(iter_cnt))
         iter_cnt += 1 
+    
         
-# === plot energy profile ===
+# === plot optimisation energy profile ===
 fig, ax1 = plt.subplots(figsize=(8, 8))
 
 
@@ -67,3 +87,24 @@ plt.ylabel('Energy')
 plt.xlabel('Iter #')
 plt.savefig("profile.png")
 plt.clf()
+
+
+print ("---LOCAL DATA---")
+local_decision_path = f'decisions/{bot_id}_decisions.csv'
+
+#r = requests.get(local_decision_path, allow_redirects=True, stream=True)\
+with open(local_decision_path,'r') as fp:
+    r = fp.read()
+
+decisions_list = r.split('\n')
+pretty_decistions = {}
+for d_ in decisions_list:
+    d_.strip()
+    d_data = d_.split(',')
+    if len(d_data) > 1:
+        # d_id = d_['decision_id']
+        # d_time = d_['Time From']
+        if d_data[4].strip() == "Idle":
+            print (f'{d_data[16]}, {d_data[8]} -> {d_data[12]}')
+
+

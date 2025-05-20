@@ -89,7 +89,7 @@ from multiprocessing import Process
 
 
 # decision tolerance
-bm_delta_t = 0.3
+bm_delta_t = 1.0
 
 def print_benchmark(results):
     out_results = {
@@ -115,7 +115,9 @@ def benchmark(target = "", decisions={},time_seconds = [], start_time_chunk=-1, 
     number_incorrect = 0
     number_labels = len(labels)
     label_index_hit = []
+    number_decisions = 0
     for decision in decisions:
+        number_decisions += 1
         correct = False
         if decision['target'] == target:
             revised_time = float(time_seconds[decision['frame']])
@@ -124,6 +126,7 @@ def benchmark(target = "", decisions={},time_seconds = [], start_time_chunk=-1, 
             
             
             label_idx = 0
+            correct = False
             for time in labels:
                 delta_t = float(revised_time) - float(time)
                 if (delta_t) > 0 and (delta_t) < bm_delta_t:
@@ -131,7 +134,10 @@ def benchmark(target = "", decisions={},time_seconds = [], start_time_chunk=-1, 
                     # print (f'{revised_time} -> {delta_t}')
                     correct = True
                     label_index_hit.append(label_idx)
+            
                 label_idx+=1
+            
+            
             idx+=1
 
         if correct:
@@ -139,10 +145,14 @@ def benchmark(target = "", decisions={},time_seconds = [], start_time_chunk=-1, 
         else:
             number_incorrect += 1
     
-    
+    print (f'number decisions : {number_decisions}')
     # label idx unique hits
+    print (label_index_hit)
+    print (len(label_index_hit))
     l_idx_set = set(label_index_hit)
+    print (l_idx_set)
     number_label_hits = len(l_idx_set)
+    print (len((l_idx_set)))
     
     
     benchmark_results['number_labels'] = number_labels
