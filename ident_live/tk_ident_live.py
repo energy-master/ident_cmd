@@ -89,7 +89,7 @@ from multiprocessing import Process
 
 
 # decision tolerance
-bm_delta_t = 1.0
+bm_delta_t = 0.5
 
 def print_benchmark(results):
     out_results = {

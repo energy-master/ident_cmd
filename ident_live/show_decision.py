@@ -54,6 +54,6 @@ if np_data is not None:
 
     fig, (ax1, ax2) = plt.subplots(nrows=2)
     ax1.plot(np_data)
-    Pxx, freqs, bins, im = ax2.specgram(np_data, NFFT=NFFT, Fs=sr)
+    Pxx, freqs, bins, im = ax2.specgram(np_data, NFFT=NFFT, Fs=Fs, noverlap=900)
     
     plt.show()
