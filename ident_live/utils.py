@@ -19,7 +19,7 @@ import seaborn as sns
 cmap = matplotlib.cm.get_cmap('Spectral')
 
 """
-    Game level utils library.
+    Game level utils library. v1.0
 """
 
 
