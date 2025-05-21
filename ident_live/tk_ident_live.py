@@ -100,8 +100,8 @@ def print_benchmark(results):
     'pc_hits_correct' : results['winning_pc'],
     'number_labels' : results['number_labels'],
     'number_label_hits' : results['number_label_hits'],
-    'pc_label_hits' : results['pc_label_hits']
-    
+    'pc_label_hits' : results['pc_label_hits'],
+    'failed_frames' : results['failed_frames']
     }
     
     print (out_results)
@@ -115,6 +115,7 @@ def benchmark(target = "", decisions={},time_seconds = [], start_time_chunk=-1, 
     number_incorrect = 0
     number_labels = len(labels)
     label_index_hit = []
+    failed_frames = []
     number_decisions = 0
     for decision in decisions:
         number_decisions += 1
@@ -144,6 +145,7 @@ def benchmark(target = "", decisions={},time_seconds = [], start_time_chunk=-1, 
             number_correct += 1
         else:
             number_incorrect += 1
+            failed_frames.append(decision['frame'])
     
     # print (f'number decisions : {number_decisions}')
     # # label idx unique hits
@@ -165,6 +167,7 @@ def benchmark(target = "", decisions={},time_seconds = [], start_time_chunk=-1, 
         benchmark_results['winning_pc'] = (float(number_correct) / float(number_correct + number_incorrect)) * 100
     else:
         benchmark_results['winning_pc'] = 0.0
+    benchmark_results['failed_frames'] = failed_frames
     
     return benchmark_results
 
@@ -851,7 +854,7 @@ def main_run():
                     "bot_targets" : marlin_game.game.feature_targets
                     
                 }
-                
+                print (softmax_data["threshold_above_activation"])
                 print("Sending to IDent Softmax API")
                 logger_.info("Sending to Softmax API")
                 softmax_key = "key1"
@@ -923,8 +926,6 @@ def main_run():
             # update_run(filename,13)
             
             # --- NO EDIT END ---
-            
-            
             for target in soft_max_targets:
             
                 with open(f'{out_path}/layers/ratio_active_{target}_{marlin_game.game_id}_{sample_rate}.txt', 'w') as f:
@@ -964,9 +965,6 @@ def main_run():
                             f.write(f"{revised_time},1, {target}\n")
                             idx+=1
                     
-                        
-                        
-                            
                 with open(f'{out_path}/layers/activity_{target}.txt', 'w') as f:
                     idx = 0
                     for activity in interesting:
@@ -978,32 +976,39 @@ def main_run():
                             f.write(f"{revised_time},1, {target}\n")
                             idx+=1
 
-                
-
             with open(f'{out_path}/active_features_{marlin_game.game_id}.json', 'w') as fp:
                 json.dump(active_features, fp)
                 
             with open(f'{out_path}/avg_energies_{marlin_game.game_id}.json', 'w') as fp:
                 json.dump(avg_energies, fp)
             
-            
+            failed_bots = []
             if bench_mark:
                 for target in soft_max_targets:
                     bm_results = benchmark(target,decisions,time_seconds, start_time_chunk, my_labels)
                     print_benchmark(bm_results)
-                    
-                    
+                    # print (bm_results['failed_frames'])
+                    ff = f'{bm_results['failed_frames'][0]}'
+                    # print (active_features[ff])
+                    for ff_id in bm_results['failed_frames']:
+                        b_data = active_features[f'{ff_id}']
+                        for bots in b_data:
+                            # print (bots)
+                            failed_bots.append(bots['name'])  
+                    for ff, data_ in active_features.items():
+                        number_active_ = len(data_)
+                        _r = float(number_active_/num_live_bots)
+                        # if _r > 0:
+                        #     print (f'{user_threshold_above_e}  [{ff} : {number_active_} {_r}] ')
 
 
+        # print (set(failed_bots))
         # quit real time data stream  
         global __plotting__
         __plotting__ = False          
         run_data.quit_stream()
         # plt.show()
         break
-
-
-
 
 
 # --- GUI ---

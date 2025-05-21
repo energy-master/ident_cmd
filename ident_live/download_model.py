@@ -19,7 +19,7 @@ import sys
 features_path = 'https://marlin-network.hopto.org/ident/bots_repo/longer_syn_lrg'
 
 # -- to --
-download_path = '/Users/vixen/rs/dev/ident_live/ident_live/bots_test/large'
+download_path = '/Users/vixen/rs/dev/ident_live/ident_live/bots_test/active'
 
 r_ = requests.get(features_path, allow_redirects=True, stream=True)      
 

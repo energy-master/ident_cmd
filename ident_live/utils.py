@@ -22,7 +22,6 @@ cmap = matplotlib.cm.get_cmap('Spectral')
     Game level utils library. v1.0
 """
 
-
 def get_bin_f(librosa_f_bins, freq_lower, freq_end):
     cnt = 0
     start_diff = 100000
