@@ -988,21 +988,22 @@ def main_run():
                     bm_results = benchmark(target,decisions,time_seconds, start_time_chunk, my_labels)
                     print_benchmark(bm_results)
                     # print (bm_results['failed_frames'])
-                    ff = f'{bm_results['failed_frames'][0]}'
-                    # print (active_features[ff])
-                    for ff_id in bm_results['failed_frames']:
-                        b_data = active_features[f'{ff_id}']
-                        for bots in b_data:
-                            # print (bots)
-                            failed_bots.append(bots['name'])  
-                    for ff, data_ in active_features.items():
-                        number_active_ = len(data_)
-                        _r = float(number_active_/num_live_bots)
-                        # if _r > 0:
-                        #     print (f'{user_threshold_above_e}  [{ff} : {number_active_} {_r}] ')
+                    if len(bm_results['failed_frames']) > 0:
+                        ff = f'{bm_results['failed_frames'][0]}'
+                        # print (active_features[ff])
+                        for ff_id in bm_results['failed_frames']:
+                            b_data = active_features[f'{ff_id}']
+                            for bots in b_data:
+                                print (f'Failed at frame {ff_id}: \n {bots}')
+                                failed_bots.append(bots['name'])  
+                        for ff, data_ in active_features.items():
+                            number_active_ = len(data_)
+                            _r = float(number_active_/num_live_bots)
+                            # if _r > 0:
+                            #     print (f'{user_threshold_above_e}  [{ff} : {number_active_} {_r}] ')
 
 
-        # print (set(failed_bots))
+        print (set(failed_bots))
         # quit real time data stream  
         global __plotting__
         __plotting__ = False          

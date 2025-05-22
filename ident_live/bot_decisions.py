@@ -51,10 +51,11 @@ for decision_file in decision_files[5:]:
             d_.strip()
             d_data = d_.split(',')
             if len(d_data) > 1:
+                
                 # d_id = d_['decision_id']
                 # d_time = d_['Time From']
                 if d_data[4].strip() == "Idle":
-                    print (f'{d_data[16]}, {d_data[8]} -> {d_data[12]}')
+                    print (f'{d_data[16]}, {d_data[8]} -> {d_data[12]} {d_data[18]}')
 
                 # for data in d_data:
                 #     data.strip()
@@ -159,12 +160,120 @@ try:
     for d_ in decisions_list:
         d_.strip()
         d_data = d_.split(',')
+        
+        
         if len(d_data) > 1:
             # d_id = d_['decision_id']
             # d_time = d_['Time From']
             if d_data[4].strip() == "Idle":
-                print (f'{d_data[16]}, {d_data[8]} -> {d_data[12]}')
-
+                print (f'{d_data[16]}, {d_data[8]} -> {d_data[12]} {d_data[18]} {d_data[20]}')
 except:
     print ("Error with local decision analysis")
+    
+print ("===LOCAL DEBUG===")
+local_debug_path = f'debug/{bot_id}.csv'
+print (local_debug_path)
+# try:
+    
+
+
+with open(local_debug_path,'r') as fp:
+    r = fp.read()
+
+
+
+decisions_list = r.split('\n')
+gene_ids = []
+ae_v = {}
+e_v = {}
+pc_v = {}
+u_v = {}
+l_v = {}
+t_v = {}
+for d_ in decisions_list:
+    d_.strip()
+    d_data = d_.split(',')
+    
+    
+    if len(d_data) > 1:
+        # t_v.append(d_data[1])
+        gene_id = d_data[9].strip()
+        if gene_id in ae_v:
+            ae_v[gene_id].append(float(d_data[2]))
+        else:
+            ae_v[gene_id] = []
+            ae_v[gene_id].append(float(d_data[2]))
+        
+        if gene_id in pc_v:
+            pc_v[gene_id].append(float(d_data[4]))
+        else:
+            pc_v[gene_id] = []
+            pc_v[gene_id].append(float(d_data[4]))
+        if gene_id in e_v:
+            e_v[gene_id].append(float(d_data[3]))
+        else:
+            e_v[gene_id] = []
+            e_v[gene_id].append(float(d_data[3]))
+        
+        if gene_id in l_v:
+            l_v[gene_id].append(float(d_data[7]))
+        else:
+            l_v[gene_id] = []
+            l_v[gene_id].append(float(d_data[7]))
+            
+        
+        if gene_id in u_v:
+            u_v[gene_id].append(float(d_data[8]))
+        else:
+            u_v[gene_id] = []
+            u_v[gene_id].append(float(d_data[8]))
+            
+        if gene_id in t_v:
+            t_v[gene_id].append(float(d_data[1]))
+        else:
+            t_v[gene_id] = []
+            t_v[gene_id].append(float(d_data[1]))
+        
+        
+        
+        
+for gid, data in pc_v.items():
+    # print (len(data))
+    # print (len(t_v[gid]))
+    t_vals = t_v[gid]
+    upper_vals = u_v[gid]
+    lower_vals = l_v[gid]
+    
+    
+    # -- %
+    fig, ax1 = plt.subplots(figsize=(8, 8))
+    rgba = cmap(0.999)
+    plt.plot(t_vals, data,color=rgba,label=f'{gid}')
+    rgba = cmap(0.2)
+    plt.plot(t_vals, upper_vals,color=rgba)
+    rgba = cmap(0.6)
+    plt.plot(t_vals, lower_vals,color=rgba)
+    plt.ylabel('% Spike')
+    plt.xlabel('Iter #')
+    plt.savefig(f'debug_{gid}.png')
+    plt.clf()
+    
+    # -- averge e
+    fig, ax1 = plt.subplots(figsize=(8, 8))
+    rgba = cmap(0.999)
+    plt.plot(t_vals, ae_v[gid],color=rgba,label=f'{gid}')
+    # rgba = cmap(0.2)
+    # plt.plot(t_vals, upper_vals,color=rgba)
+    # rgba = cmap(0.6)
+    # plt.plot(t_vals, lower_vals,color=rgba)
+    # plt.ylabel('[E]')
+    plt.xlabel('Iter #')
+    plt.savefig(f'avg_energy_debug_{gid}.png')
+    plt.clf()
+    
+    
+
+
+# except:
+    # print ("Error with local debug analysis")
     

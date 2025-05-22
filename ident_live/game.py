@@ -157,6 +157,7 @@ class IdentGame(object):
                 with tqdm(total=(env_pressure_length - listen_delta_idx),  position=0, leave=True, colour='green') as pbar:
                     
                     while listen_start_idx < (env_pressure_length - listen_delta_idx):
+                        
                         # while listen_start_idx < (env_pressure_length):
                         self.number_run_idx = max(
                             self.number_run_idx, idx_iter)
@@ -185,18 +186,18 @@ class IdentGame(object):
                         express_start = time.time()
                         # print (self.game.derived_data)
                         if self.game.mode == 1 and self.game.multiple_data != 1:
-                            express_value = bot.ExpressDNA(data={'timings' :self.game.algo_setup.args['timings'],'data_index': listen_start_idx, 'sample_rate': env_pressure.meta_data['sample_rate'], 'current_data':  env_pressure.frequency_ts_np.shape[
+                            express_value = bot.ExpressDNA(data={'bot_id': bot.name,'timings' :self.game.algo_setup.args['timings'],'data_index': listen_start_idx, 'sample_rate': env_pressure.meta_data['sample_rate'], 'current_data':  env_pressure.frequency_ts_np.shape[
                                 slice_start:slice_end], 'derived_model_data': self.game.derived_data, 'iter_start_time': iter_start_time, 'iter_end_time': iter_end_time})
 
                         if self.game.mode == 0:
                             # sys.stdout = TracePrints()
 
-                            express_value = bot.ExpressDNA(data={'timings' :self.game.algo_setup.args['timings'],'data_index': listen_start_idx, 'sample_rate': env_pressure.meta_data['sample_rate'], 'current_data':  env_pressure.frequency_ts_np.shape[
+                            express_value = bot.ExpressDNA(data={'bot_id': bot.name,'timings' :self.game.algo_setup.args['timings'],'data_index': listen_start_idx, 'sample_rate': env_pressure.meta_data['sample_rate'], 'current_data':  env_pressure.frequency_ts_np.shape[
                                 slice_start:slice_end], 'derived_model_data': self.game.multiple_derived_data[pressure_id], 'iter_start_time': iter_start_time, 'iter_end_time': iter_end_time})
 
                         if self.game.mode == 1 and self.game.multiple_data == 1:
 
-                            express_value = bot.ExpressDNA(data={'timings' :self.game.algo_setup.args['timings'],'data_index': listen_start_idx, 'sample_rate': env_pressure.meta_data['sample_rate'], 'current_data':  env_pressure.frequency_ts_np.shape[
+                            express_value = bot.ExpressDNA(data={'bot_id': bot.name,'timings' :self.game.algo_setup.args['timings'],'data_index': listen_start_idx, 'sample_rate': env_pressure.meta_data['sample_rate'], 'current_data':  env_pressure.frequency_ts_np.shape[
                                 slice_start:slice_end], 'derived_model_data': self.game.multiple_derived_data[pressure_id], 'iter_start_time': iter_start_time, 'iter_end_time': iter_end_time})
 
                         express_end = time.time()
@@ -258,7 +259,7 @@ class IdentGame(object):
 
                         transcribe_result = bot.transcriptionDNA.transcribe(
                             transcription_data, self.activation_level)
-                        
+
                         # print (express_level)
                         # # Build labeled dataset here in order to view in spectrogrma image
                         # -----
@@ -289,7 +290,8 @@ class IdentGame(object):
                                 'type': "HP Ident",
                                 'xr': -1,
                                 'epoch': pressure_id,
-                                'decision_id' : decision_id
+                                'decision_id' : decision_id,
+                                'iter_frame' : total_iter_cnt
                             }
 
                             record_decision = {
@@ -355,7 +357,8 @@ class IdentGame(object):
                                 'type': "HP Ident",
                                 'xr': 'live',
                                 'epoch': pressure_id,
-                                'decision_id' : decision_id
+                                'decision_id' : decision_id,
+                                'iter_frame' : total_iter_cnt
                             }
 
                             i_s_i = listen_start_idx - (math.floor(1 * env_pressure.meta_data['sample_rate']))
@@ -392,12 +395,15 @@ class IdentGame(object):
                     f.write(decision_text)
                 
                 #save waveform data for decision(s)
-                # for wf_data_id in self.bot_decision_tracker[bot.name]:
-                #     # print (wf_data_id)
-                #     wf_data = self.decision_raw_data_recorder[wf_data_id]
-                #     # print (wf_data)
-                #     with open(f'interesting/{wf_data_id}.dat','wb') as fp:
-                #         wf_data.tofile(fp)
+                try:
+                    for wf_data_id in self.bot_decision_tracker[bot.name]:
+                        # print (wf_data_id)
+                        wf_data = self.decision_raw_data_recorder[wf_data_id]
+                        # print (wf_data)
+                        with open(f'interesting/{wf_data_id}.dat','wb') as fp:
+                            wf_data.tofile(fp)
+                except:
+                    print ('bot not present')
                         
                 
                 # pressure_end = time.time()
