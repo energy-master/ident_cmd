@@ -186,18 +186,18 @@ class IdentGame(object):
                         express_start = time.time()
                         # print (self.game.derived_data)
                         if self.game.mode == 1 and self.game.multiple_data != 1:
-                            express_value = bot.ExpressDNA(data={'bot_id': bot.name,'timings' :self.game.algo_setup.args['timings'],'data_index': listen_start_idx, 'sample_rate': env_pressure.meta_data['sample_rate'], 'current_data':  env_pressure.frequency_ts_np.shape[
+                            express_value = bot.ExpressDNA(data={'global_iter_count':total_iter_cnt,'bot_id': bot.name,'timings' :self.game.algo_setup.args['timings'],'data_index': listen_start_idx, 'sample_rate': env_pressure.meta_data['sample_rate'], 'current_data':  env_pressure.frequency_ts_np.shape[
                                 slice_start:slice_end], 'derived_model_data': self.game.derived_data, 'iter_start_time': iter_start_time, 'iter_end_time': iter_end_time})
 
                         if self.game.mode == 0:
                             # sys.stdout = TracePrints()
 
-                            express_value = bot.ExpressDNA(data={'bot_id': bot.name,'timings' :self.game.algo_setup.args['timings'],'data_index': listen_start_idx, 'sample_rate': env_pressure.meta_data['sample_rate'], 'current_data':  env_pressure.frequency_ts_np.shape[
+                            express_value = bot.ExpressDNA(data={'global_iter_count':total_iter_cnt,'bot_id': bot.name,'timings' :self.game.algo_setup.args['timings'],'data_index': listen_start_idx, 'sample_rate': env_pressure.meta_data['sample_rate'], 'current_data':  env_pressure.frequency_ts_np.shape[
                                 slice_start:slice_end], 'derived_model_data': self.game.multiple_derived_data[pressure_id], 'iter_start_time': iter_start_time, 'iter_end_time': iter_end_time})
 
                         if self.game.mode == 1 and self.game.multiple_data == 1:
 
-                            express_value = bot.ExpressDNA(data={'bot_id': bot.name,'timings' :self.game.algo_setup.args['timings'],'data_index': listen_start_idx, 'sample_rate': env_pressure.meta_data['sample_rate'], 'current_data':  env_pressure.frequency_ts_np.shape[
+                            express_value = bot.ExpressDNA(data={'global_iter_count':total_iter_cnt,'bot_id': bot.name,'timings' :self.game.algo_setup.args['timings'],'data_index': listen_start_idx, 'sample_rate': env_pressure.meta_data['sample_rate'], 'current_data':  env_pressure.frequency_ts_np.shape[
                                 slice_start:slice_end], 'derived_model_data': self.game.multiple_derived_data[pressure_id], 'iter_start_time': iter_start_time, 'iter_end_time': iter_end_time})
 
                         express_end = time.time()

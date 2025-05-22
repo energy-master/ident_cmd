@@ -151,6 +151,8 @@ print ("---LOCAL DATA---")
 local_decision_path = f'decisions/{bot_id}_decisions.csv'
 
 #r = requests.get(local_decision_path, allow_redirects=True, stream=True)\
+decision_frames = []
+decision_y = []
 try:
     with open(local_decision_path,'r') as fp:
         r = fp.read()
@@ -163,6 +165,8 @@ try:
         
         
         if len(d_data) > 1:
+            decision_frames.append(float(d_data[20]))
+            decision_y.append(50.0)
             # d_id = d_['decision_id']
             # d_time = d_['Time From']
             if d_data[4].strip() == "Idle":
@@ -244,7 +248,6 @@ for gid, data in pc_v.items():
     upper_vals = u_v[gid]
     lower_vals = l_v[gid]
     
-    
     # -- %
     fig, ax1 = plt.subplots(figsize=(8, 8))
     rgba = cmap(0.999)
@@ -253,9 +256,15 @@ for gid, data in pc_v.items():
     plt.plot(t_vals, upper_vals,color=rgba)
     rgba = cmap(0.6)
     plt.plot(t_vals, lower_vals,color=rgba)
+    # print(t_vals)
+    # print (decision_frames)
+    # print (decision_y)
+    rgba = cmap(0.1)
+    plt.plot(decision_frames, decision_y, 'go', color=rgba)
+    
     plt.ylabel('% Spike')
     plt.xlabel('Iter #')
-    plt.savefig(f'debug_{gid}.png')
+    plt.savefig(f'pc_spike_debug_{gid}.png')
     plt.clf()
     
     # -- averge e
@@ -270,6 +279,20 @@ for gid, data in pc_v.items():
     plt.xlabel('Iter #')
     plt.savefig(f'avg_energy_debug_{gid}.png')
     plt.clf()
+    
+    # --  e values
+    fig, ax1 = plt.subplots(figsize=(8, 8))
+    rgba = cmap(0.999)
+    plt.plot(t_vals, e_v[gid],color=rgba,label=f'{gid}')
+    # rgba = cmap(0.2)
+    # plt.plot(t_vals, upper_vals,color=rgba)
+    # rgba = cmap(0.6)
+    # plt.plot(t_vals, lower_vals,color=rgba)
+    plt.ylabel('e')
+    plt.xlabel('Iter #')
+    plt.savefig(f'energy_debug_{gid}.png')
+    plt.clf()
+    
     
     
 
