@@ -79,6 +79,7 @@ class IdentGame(object):
         self.decision_raw_data_recorder = {}
         self.bot_decision_tracker = {}
         self.memory_tracker = {}
+        self.transcription_tracker = {}
 
     def world_step(self):
         pass

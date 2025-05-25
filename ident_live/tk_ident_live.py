@@ -19,6 +19,7 @@ from threading import Thread
 multiple_models = True
 
 duration = {}
+
 import  sys
 import  os
 import  requests
@@ -116,6 +117,7 @@ def benchmark(target = "", decisions={},time_seconds = [], start_time_chunk=-1, 
     number_labels = len(labels)
     label_index_hit = []
     failed_frames = []
+    successful_frames = []
     number_decisions = 0
     for decision in decisions:
         number_decisions += 1
@@ -143,6 +145,7 @@ def benchmark(target = "", decisions={},time_seconds = [], start_time_chunk=-1, 
 
         if correct:
             number_correct += 1
+            successful_frames.append(decision['frame'])
         else:
             number_incorrect += 1
             failed_frames.append(decision['frame'])
@@ -168,6 +171,12 @@ def benchmark(target = "", decisions={},time_seconds = [], start_time_chunk=-1, 
     else:
         benchmark_results['winning_pc'] = 0.0
     benchmark_results['failed_frames'] = failed_frames
+    
+    with open("successful_frames.csv", "w") as f:
+        for line in successful_frames:
+            f.write(f'{line},')
+        
+    
     
     return benchmark_results
 

@@ -107,7 +107,7 @@ plt.legend(loc="upper left")
 plt.ylabel('Bot/Feature Performance')
 plt.xlabel('Iter #')
 plt.savefig(f'bots_profil_e{op_id}.png')
-plt.ylim(-10,100)
+# plt.ylim(-10,100)
 plt.show()
 plt.clf()
 
@@ -116,7 +116,7 @@ plt.clf()
 fitness_profile = []
 iter_profile  = [] 
 # r_e = requests.get(energies_path, allow_redirects=True, stream=True)
-with requests.get(f'{op_data_path}/gen_out_best_brahma_36016.txt', stream=True) as r:
+with requests.get(f'{op_data_path}/gen_out_best_{op_id}.txt', stream=True) as r:
     lines = (line.decode('utf-8') for line in r.iter_lines())
     iter_cnt = 0
     for row in csv.reader(lines):
@@ -133,7 +133,8 @@ with requests.get(f'{op_data_path}/gen_out_best_brahma_36016.txt', stream=True) 
 fig, ax1 = plt.subplots(figsize=(8, 8))
 
 
-    
+print (fitness_profile)
+
 rgba = cmap(0.999)
 plt.plot(iter_profile, fitness_profile,color=rgba)
 plt.title(f'Optimisation Performance {op_id}')
@@ -141,7 +142,7 @@ plt.title(f'Optimisation Performance {op_id}')
 plt.ylabel('Performance')
 plt.xlabel('Iter #')
 plt.savefig(f'p_profil_e{op_id}.png')
-plt.ylim(-10,100)
+# plt.ylim(-10,100)
 plt.show()
 plt.clf()
 

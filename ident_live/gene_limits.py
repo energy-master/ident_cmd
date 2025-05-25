@@ -1,0 +1,41 @@
+gene_limits = {
+        
+
+        "SubBandAlpha" : 0,
+        "EnergyFrequencyBound" : 0,
+        "EnergyFrequencyTemporalBound" : 0,
+        "EnergyIndexBound" : 0,
+        "EnergyIndexBoundPC" : 0,
+        "EnergyIndexTemporalBound" : 0,
+        "EnergyIndexTemporalBoundPC" : 0,
+        "EnergyIndexFrequencyBounds" : 0,
+        "IndexKurtosis" : 0,
+        "IndexKurtosisTemporal" : 0,
+        "EnergyProfileFluxIndex" : 0,
+        "EnergyProfileFluxIndexPersistent" : 0,
+        "EnergySpikeTemporal" : 0,
+        "EnergySpikeTemporalPersistent" : 0,
+        "SEntropyTemporalPersistent" : 0,
+        "EnergySpikeTemporalPersistentTrap" : 5,
+        "FrequencyRank" : 0,
+        "min_memory":1,
+        "max_memory":40,
+        "min_memory_persistent":1,
+        "max_memory_persistent":40, 
+        "delta_energy_min" : 0.001,
+        "delta_energy_max" : 0.51,
+        "kurtosis_max" : 0,
+        "kurtosis_min" : 0,
+        "f_min" : 90000,
+        "f_max" : 145000,
+        "f_index_min" : 1,
+        "f_index_max" : 2,
+        "flux_multiple_min_pc" : 30,
+        "flux_multiple_max_pc" : 1000,
+        "spike_energy_min" : 30,
+        "spike_energy_max": 200,
+        "best_rank" : 0,
+        "worst_rank" : 20
+        
+        
+}       
