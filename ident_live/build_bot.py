@@ -15,12 +15,12 @@ os.environ['GENETIC_DATA_FOLDER_USR'] = GENETIC_DATA_FOLDER_USR
 sys.path.insert(0, os.environ['GENETIC_DATA_FOLDER_USR'])
 
 # bot save path
-bot_path = "bots_test/hc"
+bot_path = "bots_test/hc/"
 
-population_size = 10
+population_size = 1
 
 args = {
-        'population_size' : 10,
+        'population_size' : population_size,
         'env' : 'custom_hp',
         'min_number_dna' : 1,
         'max_number_dna' : 1,
@@ -43,5 +43,5 @@ except Exception as err:
 
 
 for bot_id, bot_str in population.species.items():
-    bot_str.save()
+    bot_str.save(save_folder=bot_path)
 

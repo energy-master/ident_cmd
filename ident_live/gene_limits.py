@@ -26,14 +26,14 @@ gene_limits = {
         "delta_energy_max" : 0.51,
         "kurtosis_max" : 0,
         "kurtosis_min" : 0,
-        "f_min" : 90000,
+        "f_min" : 135000,
         "f_max" : 145000,
         "f_index_min" : 1,
         "f_index_max" : 2,
-        "flux_multiple_min_pc" : 30,
+        "flux_multiple_min_pc" : 300,
         "flux_multiple_max_pc" : 1000,
-        "spike_energy_min" : 30,
-        "spike_energy_max": 200,
+        "spike_energy_min" : 300,
+        "spike_energy_max": 350,
         "best_rank" : 0,
         "worst_rank" : 20
         
