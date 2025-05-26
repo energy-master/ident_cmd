@@ -90,7 +90,7 @@ from multiprocessing import Process
 
 
 # decision tolerance
-bm_delta_t = 0.5
+bm_delta_t = 0.1
 
 def print_benchmark(results):
     out_results = {
@@ -171,6 +171,7 @@ def benchmark(target = "", decisions={},time_seconds = [], start_time_chunk=-1, 
     else:
         benchmark_results['winning_pc'] = 0.0
     benchmark_results['failed_frames'] = failed_frames
+    benchmark_results['successful_frames'] = successful_frames
     
     with open("successful_frames.csv", "w") as f:
         for line in successful_frames:
@@ -993,17 +994,26 @@ def main_run():
             
             failed_bots = []
             if bench_mark:
+                
                 for target in soft_max_targets:
                     bm_results = benchmark(target,decisions,time_seconds, start_time_chunk, my_labels)
                     print_benchmark(bm_results)
+                    
+                    # print (bm_results['correct_times'])
                     # print (bm_results['failed_frames'])
+                    if len(bm_results['successful_frames']) > 0:
+                        for ff_id in bm_results['successful_frames']:
+                            frame_time = ff_id * (algo_setup.args['listen_delta_t'])
+                            print (f'Success at frame {ff_id} time {frame_time} \n')
+                            
                     if len(bm_results['failed_frames']) > 0:
                         ff = f'{bm_results['failed_frames'][0]}'
                         # print (active_features[ff])
                         for ff_id in bm_results['failed_frames']:
                             b_data = active_features[f'{ff_id}']
                             for bots in b_data:
-                                print (f'Failed at frame {ff_id}: \n {bots}')
+                                frame_time = ff_id * (algo_setup.args['listen_delta_t'])
+                                print (f'Failed at frame {ff_id} time {frame_time}: \n {bots}')
                                 failed_bots.append(bots['name'])  
                         for ff, data_ in active_features.items():
                             number_active_ = len(data_)
@@ -1012,7 +1022,7 @@ def main_run():
                             #     print (f'{user_threshold_above_e}  [{ff} : {number_active_} {_r}] ')
 
 
-        print (set(failed_bots))
+        # print (set(failed_bots))
         # quit real time data stream  
         global __plotting__
         __plotting__ = False          
