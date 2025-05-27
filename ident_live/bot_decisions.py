@@ -210,6 +210,7 @@ try:
     t_v = {}
     triggers = {}
     trigger_frames = {}
+    ratio_v = {}
 
     for d_ in decisions_list:
         d_.strip()
@@ -269,6 +270,12 @@ try:
             else:
                 t_v[gene_id] = []
                 t_v[gene_id].append(float(d_data[1]))
+            
+            if gene_id in ratio_v:
+                ratio_v[gene_id].append(float(d_data[11]))
+            else:
+                ratio_v[gene_id] = []
+                ratio_v[gene_id].append(float(d_data[11]))
             
             
             
@@ -333,6 +340,19 @@ try:
         plt.ylabel('e')
         plt.xlabel('Iter #')
         plt.savefig(f'energy_debug_{gid}.png')
+        plt.clf()
+        
+        # --  ratio values
+        fig, ax1 = plt.subplots(figsize=(8, 8))
+        rgba = cmap(0.999)
+        plt.plot(t_vals, ratio_v[gid],color=rgba,label=f'{gid}')
+        # rgba = cmap(0.2)
+        # plt.plot(t_vals, upper_vals,color=rgba)
+        # rgba = cmap(0.6)
+        # plt.plot(t_vals, lower_vals,color=rgba)
+        plt.ylabel('e')
+        plt.xlabel('Iter #')
+        plt.savefig(f'ratio_debug_{gid}.png')
         plt.clf()
         
         

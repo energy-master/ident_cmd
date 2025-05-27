@@ -28,7 +28,7 @@ args = {
         'max_number_genes' : 1,
         'max_dna_data_delay' : 10
         
-        }
+}
 
 
 logging.basicConfig(level=logging.DEBUG)

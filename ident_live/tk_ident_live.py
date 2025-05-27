@@ -90,7 +90,7 @@ from multiprocessing import Process
 
 
 # decision tolerance
-bm_delta_t = 0.1
+bm_delta_t = 2.0
 
 def print_benchmark(results):
     out_results = {
@@ -544,6 +544,7 @@ def main_run():
                 data_adapter.multiple_derived_data[s_id] = data_adapter.derived_data
                 if derived_data_use == None:
                     derived_data_use = data_adapter.derived_data
+                
                 
                 # with open(f'{working_path}/{s_id}.da', 'wb') as f:  # open a text file
                 #     # serialize the list
