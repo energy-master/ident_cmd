@@ -90,7 +90,7 @@ from multiprocessing import Process
 
 
 # decision tolerance
-bm_delta_t = 2.0
+bm_delta_t = 1.0
 
 def print_benchmark(results):
     out_results = {
@@ -131,7 +131,7 @@ def benchmark(target = "", decisions={},time_seconds = [], start_time_chunk=-1, 
             label_idx = 0
             correct = False
             for time in labels:
-                delta_t = float(revised_time) - float(time)
+                delta_t = abs(float(revised_time) - float(time))
                 if (delta_t) > 0 and (delta_t) < bm_delta_t:
                     benchmark_results['correct_times'].append({'decision_time':revised_time, 'label_time' : time, 'target' : target})
                     # print (f'{revised_time} -> {delta_t}')
@@ -315,8 +315,10 @@ def main_run():
     bench_mark = False
     if sys.argv[18] == "bm":
         bench_mark = True
-
-    
+        
+    memory_limit = None
+    if sys.argv[19] is not None:
+        memory_limit = sys.argv[19]
 
 
     # print (f'Direct load of features from folder : {direct}')
@@ -681,7 +683,7 @@ def main_run():
         for f_path in features_paths:
             
             shell_config['number_working_features'] = application.load_bots(
-                target, version=feature_version, version_time_from=time_version_from,  version_time_to=time_version_to, bot_dir=f_path, number_features=number_features, update=update_features, direct=True)
+                target, version=feature_version, version_time_from=time_version_from,  version_time_to=time_version_to, bot_dir=f_path, number_features=number_features, update=update_features, direct=True, memory_limit = memory_limit)
             num_loaded += shell_config['number_working_features']
             # print (f'Number loaded live: {num_loaded}')
         

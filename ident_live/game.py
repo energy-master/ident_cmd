@@ -184,7 +184,7 @@ class IdentGame(object):
                         # --- express bot ---
                         # [nb. data structure is passed to individual genes if dna is initialised.
                         # extra data can be added under 'init_data' field]
-                        express_start = time.time()
+                        express_start = time.time() 
                         # print (self.game.derived_data)
                         if self.game.mode == 1 and self.game.multiple_data != 1:
                             express_value = bot.ExpressDNA(data={'sim_delta_t' : self.game.algo_setup.args['listen_delta_t'], 'global_iter_count':total_iter_cnt,'bot_id': bot.name,'timings' :self.game.algo_setup.args['timings'],'data_index': listen_start_idx, 'sample_rate': env_pressure.meta_data['sample_rate'], 'current_data':  env_pressure.frequency_ts_np.shape[
@@ -362,7 +362,7 @@ class IdentGame(object):
                                 'iter_frame' : total_iter_cnt
                             }
 
-                            i_s_i = listen_start_idx - (math.floor(1 * env_pressure.meta_data['sample_rate']))
+                            i_s_i = listen_start_idx - (math.floor((max_memory/1000) * env_pressure.meta_data['sample_rate']))
                             interesting_slice_idx = max(0,(i_s_i))
                             decision_show_data = env_pressure.frequency_ts_np[interesting_slice_idx:slice_end]
                             
@@ -401,8 +401,8 @@ class IdentGame(object):
                         # print (wf_data_id)
                         wf_data = self.decision_raw_data_recorder[wf_data_id]
                         # print (wf_data)
-                        with open(f'interesting/{wf_data_id}.dat','wb') as fp:
-                            wf_data.tofile(fp)
+                        # with open(f'interesting/{wf_data_id}.dat','wb') as fp:
+                        #     wf_data.tofile(fp)
                 except:
                     print ('bot not present')
                         

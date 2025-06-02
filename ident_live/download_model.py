@@ -16,10 +16,10 @@ import sys
 # === Downlod Features ===
 #! Update for model
 # -- from --
-features_path = 'https://marlin-network.hopto.org/ident/bots_repo/longer_syn_lrg'
+features_path = 'https://marlin-network.hopto.org/ident/bots_repo/longer_real_single'
 
 # -- to --
-download_path = '/Users/vixen/rs/dev/ident_live/ident_live/bots_test/active'
+download_path = '/Users/vixen/rs/dev/ident_live/ident_live/bots_test/vector'
 
 r_ = requests.get(features_path, allow_redirects=True, stream=True)      
 
@@ -55,7 +55,7 @@ for fid in feature_ids[5:]:
     sys.stdout.flush()
 
 
-exit()
+
 # === Downlod Feature Frameworks ===
 #! Update for model
 # --- from ---

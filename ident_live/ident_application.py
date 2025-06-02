@@ -106,7 +106,7 @@ class SpeciesIdent(object):
                     print(f'error loading {bot_id} {type(e).__name__}')
                     
 
-    def load_bots(self, filter_data, version="1_0_0", version_time_from="", version_time_to="", bot_dir="", number_features=1000, update=False, direct=False):
+    def load_bots(self, filter_data, version="1_0_0", version_time_from="", version_time_to="", bot_dir="", number_features=1000, update=False, direct=False, memory_limit = None):
         # print (filter_data)
        
         print ("====== loading bots =======")
@@ -173,7 +173,11 @@ class SpeciesIdent(object):
                     bot = self.load_bot(bot_path)
                     
                     add = True
-
+                    
+                    if memory_limit is not None:
+                        bot_memory = bot.GetMemory()
+                        if float(bot_memory) > float(memory_limit):
+                            continue
                     
                     if hasattr(bot, 'version'):
                         

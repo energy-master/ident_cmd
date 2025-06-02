@@ -63,32 +63,6 @@ for decision_file in decision_files[5:]:
         # <- decision stats ->
 
 
-energy_profile = []
-iter_profile  = [] 
-# r_e = requests.get(energies_path, allow_redirects=True, stream=True)
-with requests.get(energies_path, stream=True) as r:
-    lines = (line.decode('utf-8') for line in r.iter_lines())
-    iter_cnt = 0
-    for row in csv.reader(lines):
-        energy_profile.append(float(row[0]))
-        iter_profile.append(float(iter_cnt))
-        iter_cnt += 1 
-    
-        
-# === plot optimisation energy profile ===
-fig, ax1 = plt.subplots(figsize=(8, 8))
-
-
-    
-rgba = cmap(0.999)
-plt.plot(iter_profile, energy_profile,color=rgba)
-
-
-plt.ylabel('Energy')
-plt.xlabel('Iter #')
-plt.savefig("profile.png")
-plt.clf()
-
 
 
 
@@ -362,3 +336,29 @@ try:
 except:
     print ("Error with local debug analysis")
     
+
+energy_profile = []
+iter_profile  = [] 
+# r_e = requests.get(energies_path, allow_redirects=True, stream=True)
+with requests.get(energies_path, stream=True) as r:
+    lines = (line.decode('utf-8') for line in r.iter_lines())
+    iter_cnt = 0
+    for row in csv.reader(lines):
+        energy_profile.append(float(row[0]))
+        iter_profile.append(float(iter_cnt))
+        iter_cnt += 1 
+    
+        
+# === plot optimisation energy profile ===
+fig, ax1 = plt.subplots(figsize=(8, 8))
+
+
+    
+rgba = cmap(0.999)
+plt.plot(iter_profile, energy_profile,color=rgba)
+
+
+plt.ylabel('Energy')
+plt.xlabel('Iter #')
+plt.savefig("profile.png")
+plt.clf()
