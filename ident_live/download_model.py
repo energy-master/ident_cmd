@@ -54,7 +54,7 @@ for fid in feature_ids[5:]:
 
     sys.stdout.flush()
 
-
+exit()
 
 # === Downlod Feature Frameworks ===
 #! Update for model
