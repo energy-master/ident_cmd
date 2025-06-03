@@ -11,6 +11,9 @@ import marlin_brahma.fitness.performance as performance
 import marlin_brahma.world.population as pop
 import logging
 from datetime import datetime
+
+import networkx as nx
+import matplotlib.pyplot as plt
 # --------------------------------------------------------------
 # --- Setup Class ---                                          |
 # --------------------------------------------------------------
@@ -187,13 +190,13 @@ class SpeciesIdent(object):
                     bot = self.load_bot(bot_path)
                     # except ValueError as ve1:
                     # print('ValueError 2:', ve1)
-                    
-                    # print (f'born: {bot.dob} parent : {bot.parent} {version_time_from}')
+                    bot_memory = bot.GetMemory()
+                    print (f'born: {bot.dob} parent : {bot.parent} {version_time_from} {bot_memory}')
                     
                     add = True
                     
                     if bot.parent == "Eve":
-                        continue
+                        pass
                     
                     if bot.dob < time_from_p:
                         continue
@@ -224,9 +227,10 @@ class SpeciesIdent(object):
                             continue
 
                     if add:
-                        # print ("adding")
+                        print ("adding")
                         # print (bot.env)
-                        self.loaded_bots
+                        # self.loaded_bots
+                        
                         self.selected_bots.append(bot_id)
                         features_name_list.append(bot_id)
                         self.loaded_bots[bot_id] = bot
@@ -300,6 +304,60 @@ class SpeciesIdent(object):
 
     def run(self):
         pass
+
+
+
+    def build_network(self, dump_path = "/"):
+        nxG = nx.Graph()
+        node_tracker = []
+        nodeSizes = []
+        color_map = []
+        core_node = "Eve"
+        nxG.add_node(core_node)
+        nodeSizes.append(50)
+        color_map.append('red')
+        for bot_id, bot in self.loaded_bots.items():
+            bot_id = '_'.join(bot_id.split('_')[:2])
+            # print (bot_id)
+            # nxG.add_node(bot_id)
+            print (bot_id, bot.parent)
+            if bot.parent == "Eve":
+                if bot_id not in node_tracker:
+                    nxG.add_node(bot_id)
+                    nxG.add_edge(bot_id, core_node)
+                    nodeSizes.append(5)
+                    color_map.append('red')
+                    node_tracker.append(bot_id)
+            else:
+                
+                if bot_id not in node_tracker:
+                    nxG.add_node(bot_id)
+                    nodeSizes.append(15)
+                    node_tracker.append(bot_id)
+                    color_map.append('blue')
+                
+                if bot.parent not in node_tracker:
+                    nxG.add_node(bot.parent)
+                    nodeSizes.append(15)
+                    node_tracker.append(bot.parent)
+                    color_map.append('green')
+                
+                
+                # color_map.append('blue')
+                nxG.add_edge(bot_id, bot.parent)
+        
+        #Draw the graph
+        print (len(nodeSizes))
+        print (len(node_tracker))
+        nx.draw(nxG, with_labels=False,node_size=nodeSizes, node_color=color_map)
+
+        #Show the graph
+        plt.plot()
+        
+        plt.savefig(f'{dump_path}/networks/network.png')
+        exit()
+            
+    
 
     def build_world(self):
         """Build the population of bots using brahma_marlin. Genes are present in ../genes

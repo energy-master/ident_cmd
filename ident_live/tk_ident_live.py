@@ -690,6 +690,8 @@ def main_run():
         
         application.loaded_bots = application.selected_loaded_bots
         
+        application.build_network(dump_path = DUMP_PATH)
+        
         num_live_bots = len(application.loaded_bots.keys())
         print (f'Number of live bots : {num_live_bots}')
         print (f'Signatures : {application.loaded_targets}')
