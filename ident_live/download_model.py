@@ -16,10 +16,10 @@ import sys
 # === Downlod Features ===
 #! Update for model
 # -- from --
-features_path = 'https://marlin-network.hopto.org/ident/bots_repo/longer_real_single'
+features_path = 'https://marlin-network.hopto.org/ident/bots_repo/vector_alpha'
 
 # -- to --
-download_path = '/Users/vixen/rs/dev/ident_live/ident_live/bots_test/vector'
+download_path = '/Users/vixen/rs/dev/ident_live/ident_live/bots_test/vector_alpha'
 
 r_ = requests.get(features_path, allow_redirects=True, stream=True)      
 

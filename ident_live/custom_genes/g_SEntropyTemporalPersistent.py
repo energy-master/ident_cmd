@@ -128,7 +128,6 @@ class SEntropyTemporalPersistent(ConditionalRoot):
         self.energy_tracker.append(sentropy)
     
     if geneInit:
-      
         self.Safe()
         
        

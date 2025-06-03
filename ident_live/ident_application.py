@@ -10,6 +10,7 @@ from rich.progress import Progress
 import marlin_brahma.fitness.performance as performance
 import marlin_brahma.world.population as pop
 import logging
+from datetime import datetime
 # --------------------------------------------------------------
 # --- Setup Class ---                                          |
 # --------------------------------------------------------------
@@ -120,6 +121,17 @@ class SpeciesIdent(object):
         data = None
         # print (f'Updating bots  : {update}')
         
+        # 2025-02-01 10:15:00
+        # 2025-06-03 09:04:24.954058
+        time_from_p = None
+        
+        try:
+            time_from_p = datetime.strptime(version_time_from, '%Y-%m-%d %H:%M:%S')
+        except ValueError as ve1:
+            print('ValueError 1:', ve1)
+  
+        print (time_from_p)
+        
         if update:
             print('Updating features/bots list.')
             url = 'https://vixen.hopto.org/rs/api/v1/data/features'
@@ -168,11 +180,23 @@ class SpeciesIdent(object):
 
                 bot_path = f'{bot_dir}/{bot_id}.vixen'
                 error = False
+               
+                # try:
                 
                 try:
                     bot = self.load_bot(bot_path)
+                    # except ValueError as ve1:
+                    # print('ValueError 2:', ve1)
+                    
+                    # print (f'born: {bot.dob} parent : {bot.parent} {version_time_from}')
                     
                     add = True
+                    
+                    if bot.parent == "Eve":
+                        continue
+                    
+                    if bot.dob < time_from_p:
+                        continue
                     
                     if memory_limit is not None:
                         bot_memory = bot.GetMemory()
@@ -222,6 +246,7 @@ class SpeciesIdent(object):
                     error = True
                     print ("ERROR")
                     print(f'error loading {bot_id} {type(e).__name__}')
+                    exit()
 
                 if error == False:
                     

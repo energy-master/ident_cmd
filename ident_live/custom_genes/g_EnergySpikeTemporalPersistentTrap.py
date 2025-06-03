@@ -7,8 +7,8 @@ Peristent version.
 
 """
 
-version = 1.1
-print (f"EnergySpikeTemporalPersistent [{version}]")
+version = 1.0
+print (f"EnergySpikeTemporalPersistentTrap [{version}]")
 from marlin_data import *
 from marlin_brahma.genes.gene_root import *
 import random, json, math
@@ -40,7 +40,7 @@ def query_closest_idx( value : float = None, data_arr = None ):
       
 # --- end optimisation ----
 
-class EnergySpikeTemporalPersistent(ConditionalRoot):
+class EnergySpikeTemporalPersistentTrap(ConditionalRoot):
   def __init__(self,env=None,  gene_args = None):
     """[summary]
 
@@ -49,7 +49,7 @@ class EnergySpikeTemporalPersistent(ConditionalRoot):
     """
     
     #print (gene_args)
-    super().__init__(condition='EnergySpikeTemporalPersistent', env=env)
+    super().__init__(condition='EnergySpikeTemporalPersistentTrap', env=env)
     
     
     max_memory = gene_args['max_memory']
@@ -57,24 +57,32 @@ class EnergySpikeTemporalPersistent(ConditionalRoot):
     max_freq = gene_args['f_max']
     min_threshold = gene_args['spike_energy_min']
     max_threshold = gene_args['spike_energy_max']
+    center_threshold_bound = float(min_threshold + 20)
     
     self.memory = random.uniform(0 , max_memory) # ms
     self.frequency = math.floor(random.uniform(min_freq , max_freq))   
     
-    print (min_freq, max_freq, self.frequency)
+    # print (min_freq, max_freq, self.frequency)
     # self.energy_threshold = random.uniform(0.01, 0.15)  
-    self.energy_threshold = random.uniform(min_threshold,max_threshold)  
-    
-    
+    self.energy_threshold_lower = random.uniform(min_threshold,center_threshold_bound) 
+    self.energy_threshold_upper = random.uniform(center_threshold_bound,max_threshold)
+     
     self.energy_tracker = []
 
+    # --- debug init ---
+    # d = self.__str__()
+    # print (d)
+    # exit()
+    # --- debug init ---
+    
   def __str__(self):
     description = {}
     overview = super().__str__()
     data = {
-        "decision type" : "EnergySpikeTemporalPersistent",
+        "decision type" : "EnergySpikeTemporalPersistentTrap",
         "frequency index" : self.frequency,
-        "energy_threshold" : self.energy_threshold,
+        "energy_threshold_lower" : self.energy_threshold_lower,
+        "energy_threshold_upper" : self.energy_threshold_upper,
         "memory" : self.memory
     }
     
@@ -83,7 +91,12 @@ class EnergySpikeTemporalPersistent(ConditionalRoot):
     
     return ((description))
     
-
+    
+  def GetMemory(self):
+    # print (self.memory)
+    return self.memory
+  def Reset(self):
+    self.energy_tracker = []
 
   def run(self, data = {}):
     import math
@@ -124,8 +137,10 @@ class EnergySpikeTemporalPersistent(ConditionalRoot):
     fourier_t_idx = query_closest_idx(current_data_delta_time_s, derived_data.librosa_time_bins)
     fourier_e_pivot = derived_data.fourier[fourier_f_idx,fourier_t_idx]
     
-    self.energy_tracker.append(fourier_e_pivot)
+  
     
+    self.energy_tracker.append(fourier_e_pivot)
+    # print (self.energy_tracker)
     if geneInit:
         self.Safe()
         
@@ -137,7 +152,7 @@ class EnergySpikeTemporalPersistent(ConditionalRoot):
           
         # get average of energy vector
         avg_energy = statistics.mean(self.energy_tracker)
-       
+        
         if timings_on:
           stopt(desc="mean_attack", out=0)
         
@@ -150,7 +165,7 @@ class EnergySpikeTemporalPersistent(ConditionalRoot):
         delta_f = 0
         delta_f = abs(fourier_e_pivot - avg_energy)
         delta_f_pc = (delta_f / max(fourier_e_pivot,avg_energy))  * 100
-   
+        # print (delta_f_pc)
         
         file_out = False
         if file_out:
@@ -159,7 +174,7 @@ class EnergySpikeTemporalPersistent(ConditionalRoot):
                 f.write(f'{iter_start_time} {avg_energy}\n')
             self.Safe()
         
-        if delta_f_pc > self.energy_threshold:
+        if delta_f_pc > self.energy_threshold_lower and delta_f_pc < self.energy_threshold_upper:
             # print (f'trigger {delta_f_pc} > {self.energy_threshold}')
             return 1
 
@@ -168,17 +183,21 @@ class EnergySpikeTemporalPersistent(ConditionalRoot):
     return 0
   
   def mutate(self, data = {}):
-    
+    print ("mutating")
     
     factor = 1
     creep_rate = data['pc_threshold_creep_rate']
+    dice = random.uniform(0,1)
+    if dice > 0.5:
+      self.energy_threshold_lower = self.energy_threshold_lower + (creep_rate*factor)
+    else:
+      self.energy_threshold_lower = self.energy_threshold_lower - (creep_rate*factor)
     
     dice = random.uniform(0,1)
     if dice > 0.5:
-      self.energy_threshold = self.energy_threshold + (creep_rate*factor)
+      self.energy_threshold_upper = self.energy_threshold_upper + (creep_rate*factor)
     else:
-      self.energy_threshold = self.energy_threshold - (creep_rate*factor)
-      
+      self.energy_threshold_upper = self.energy_threshold_upper - (creep_rate*factor)
     
-      
+    # f mutation
 

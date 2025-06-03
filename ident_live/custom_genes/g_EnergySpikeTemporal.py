@@ -47,7 +47,7 @@ class EnergySpikeTemporal(ConditionalRoot):
     """
     
     #print (gene_args)
-    super().__init__(condition='energy_spike_temporal', env=env)
+    super().__init__(condition='EnergySpikeTemporal', env=env)
     
     
     max_memory = gene_args['max_memory']
@@ -114,7 +114,7 @@ class EnergySpikeTemporal(ConditionalRoot):
         
         # if frequency_index < 0:
         #   return (0.0)
-       
+        
         self.Safe()
         
         if self.frequency > derived_data.librosa_f_bins[-1]:
@@ -126,13 +126,14 @@ class EnergySpikeTemporal(ConditionalRoot):
         fourier_f_idx = query_closest_idx(self.frequency, derived_data.librosa_f_bins)
         fourier_t_idx = query_closest_idx(current_data_delta_time_s, derived_data.librosa_time_bins)
         fourier_e_pivot = derived_data.fourier[fourier_f_idx,fourier_t_idx]
-        
+        # print (fourier_f_idx, fourier_t_idx, current_data_delta_time_s, fourier_e_pivot)
         
         fourier_e_ref = 0.0
         ref_time_s = current_data_delta_time_s-(self.memory/1000)
         fourier_t_idx = query_closest_idx(ref_time_s, derived_data.librosa_time_bins)
         fourier_e_ref = derived_data.fourier[fourier_f_idx,fourier_t_idx]
-        
+        # print (fourier_f_idx, fourier_t_idx, ref_time_s,fourier_e_ref, self.memory)
+        # print ("---")
         if timings_on:
           stopt(desc="fourier_attack", out=0)
         
@@ -213,10 +214,7 @@ class EnergySpikeTemporal(ConditionalRoot):
         delta_f = abs(fourier_e_pivot - fourier_e_ref)
         delta_f_pc = (delta_f / max(fourier_e_pivot,fourier_e_ref))  * 100
         
-        # print (delta_f_pc)
         
-        
-        # print (avg_energy)
         
         file_out = False
         if file_out:

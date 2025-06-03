@@ -238,7 +238,7 @@ def main_run():
     working_path = config['WORKING_DIR']
     features_path = config['FEATURE_DIR']
     out_path = config['OUT_DIR']
-
+    DUMP_PATH = config['DUMP_PATH']
 
 
     # required for librosa
@@ -848,7 +848,7 @@ def main_run():
                 
                 # Run game
                 marlin_game.run_bots(sub_filename=sub_filename, start_idx=start_idx, end_idx=end_idx,
-                                        filename=filename_ss_id, out_path=out_path)
+                                        filename=filename_ss_id, out_path=out_path, dump_path= DUMP_PATH)
 
                 bot_run_time_end = t.time()
 

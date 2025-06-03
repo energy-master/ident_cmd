@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 
 # -- bot id --
 local = False
+DUMP_PATH = "/Volumes/MARLIN_1"
 decision_id = sys.argv[1]
 if len (sys.argv) > 2:
     local = True
@@ -67,7 +68,7 @@ if not local:
 
 if local:
     print ("Searhing local...")
-    save_filepath = f'/Users/vixen/rs/dev/ident_live/ident_live/interesting/{decision_id}.dat'
+    save_filepath = f'{DUMP_PATH}/interesting/{decision_id}.dat'
     np_data = None
     # -- load  --
     with open(save_filepath, 'rb') as fr:

@@ -84,7 +84,7 @@ class IdentGame(object):
     def world_step(self):
         pass
 
-    def bot_step(self, bot=None, generation=0, listen_start_idx=0, step_end_index=0):
+    def bot_step(self, bot=None, generation=0, listen_start_idx=0, step_end_index=0, DUMP_PATH="."):
         
         if bot is not None:
             
@@ -392,7 +392,7 @@ class IdentGame(object):
                 
                 decision_text = self.game.performance.showBotDecisions(bot_name=bot.name, verbose=False)
                 decision_name = f'{bot.name}_decisions.csv'
-                with open(f'decisions/{decision_name}', 'w') as f:
+                with open(f'{DUMP_PATH}/decisions/{decision_name}', 'w') as f:
                     f.write(decision_text)
                 
                 #save waveform data for decision(s)
@@ -401,10 +401,10 @@ class IdentGame(object):
                         # print (wf_data_id)
                         wf_data = self.decision_raw_data_recorder[wf_data_id]
                         # print (wf_data)
-                        # with open(f'interesting/{wf_data_id}.dat','wb') as fp:
-                        #     wf_data.tofile(fp)
+                        with open(f'{DUMP_PATH}/interesting/{wf_data_id}.dat','wb') as fp:
+                            wf_data.tofile(fp)
                 except:
-                    print ('bot not present')
+                    pass
                         
                 
                 # pressure_end = time.time()
@@ -600,7 +600,7 @@ class IdentGame(object):
 
         Q.put(res)
 
-    def run_bots(self, sub_filename="", start_idx=0, end_idx=0, filename="", out_path=""):
+    def run_bots(self, sub_filename="", start_idx=0, end_idx=0, filename="", out_path="", dump_path = "."):
         # print("*** Running Live ***")
         self.game.generation_reset()
 
@@ -616,7 +616,7 @@ class IdentGame(object):
             # try:
             # print (f'running {bot_name}')
             iter_res = self.bot_step(
-                bot, listen_start_idx=0, step_end_index=0)
+                bot, listen_start_idx=0, step_end_index=0, DUMP_PATH=dump_path)
             # except:
             #     print ("erro")
             # progress.update(task1, advance=1)

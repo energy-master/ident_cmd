@@ -14,6 +14,7 @@ from custom_genes.g_EnergySpikeTemporal import *
 from custom_genes.g_FrequencyRank import *
 from custom_genes.g_EnergySpikeTemporalPersistent import *
 from custom_genes.g_SEntropyTemporalPersistent import *
-
-
+from custom_genes.g_EnergySpikeTemporalPersistentTrap import *
+from custom_genes.g_VectorEnergySpike import *
+from custom_genes.g_VectorEnergySpikeReject import *
 
