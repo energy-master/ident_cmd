@@ -193,7 +193,8 @@ class VectorEnergySpikeReject(ConditionalRoot):
         if file_out:
             outfile_name = f'{owner_id}.csv'
             with open(f'/Users/vixen/rs/dev/ident_live/ident_live/debug/{outfile_name}', 'a+') as f:
-                f.write(f'{iter_start_time},{data['global_iter_count']},{avg_energy},{fourier_e_pivot},{delta_f_pc}, {self.frequency}, {self.memory}, {self.energy_threshold_lower},{self.energy_threshold_upper}, {self.i_D}, {condition}, {ratio} \n')
+              gbc = data['global_iter_count']
+              f.write(f'{iter_start_time},{gbc},{avg_energy},{fourier_e_pivot},{delta_f_pc}, {self.frequency}, {self.memory}, {self.energy_threshold_lower},{self.energy_threshold_upper}, {self.i_D}, {condition}, {ratio} \n')
             
         # print (fourier_e_pivot, avg_energy,avg_energy_ref, delta_f_pc, data['global_iter_count'], ratio)
         #--- debg out --
