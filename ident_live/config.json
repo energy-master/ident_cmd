@@ -10,7 +10,7 @@
 	"env" 					: "harmonics_alpha",
 	"data_location" 		: ["67149847"],
 	"number_generations" 	: 200,
-	"listen_delta_t" 		: 0.005,
+	"listen_delta_t" 		: 0.01,
 	"evaluation_class_name" : "IdentEvaluation",
 	"mutation_rate" 		: 0.7,
 	"creep_rate" 			: 0.1,
