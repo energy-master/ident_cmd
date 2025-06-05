@@ -17,12 +17,17 @@ class IdentDecision(RootDecision):
         RootDecision.__init__(self,decision_type="IdentDecision", decision_status=decision_data['status'], type=decision_data['type'])
         self.Market = decision_data['env']
         self.time_bounds = [decision_data['iter_start_time'], decision_data['iter_end_time']]
-        self.DecisionTypes = {1:'Ident', 0:'Idle'}
+        self.DecisionTypes = {1:'IDent', 0:'Idle'}
         self.Decision = self.DecisionTypes[decision_data['action']]
         self.xr = decision_data['xr']
+        self.xr_start = decision_data['xr_start']
+        self.max_memory = decision_data['memory']
+        self.decision_id = decision_data['decision_id']
+        self.iter_frame = decision_data['iter_frame']
+        
         
     def __str__(self):
-        return ("HP Ident 1.0, Market, {0} , Decision Type, {1} ,  Time , {2}, Action, {3} , Result, {4}".format(self.Market, self.Decision, self.time_bounds[0], self.Decision, self.xr ))
+        return ("HP IDent 1.0, Market, {0} , Decision Type, {1} , Memory, {8}, XR_Start, {7}, Time From, {2}, Time To, {6}, Action, {3} , Result, {4}, ID, {5}, Iter_frame, {9}".format(self.Market, self.Decision, self.time_bounds[0], self.Decision, self.xr, self.decision_id, self.time_bounds[1], self.xr_start, self.max_memory, self.iter_frame ))
   
   
   
