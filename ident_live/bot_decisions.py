@@ -124,7 +124,7 @@ if model is not None:
 
 
 print ("---LOCAL DATA---")
-local_decision_path = f'{DUMP_PATH}decisions/{bot_id}_decisions.csv'
+local_decision_path = f'{DUMP_PATH}/decisions/{bot_id}_decisions.csv'
 
 #r = requests.get(local_decision_path, allow_redirects=True, stream=True)\
 decision_frames = []
@@ -132,6 +132,8 @@ decision_y = []
 try:
     with open(local_decision_path,'r') as fp:
         r = fp.read()
+
+
 
     decisions_list = r.split('\n')
     pretty_decistions = {}
@@ -141,6 +143,7 @@ try:
         
         
         if len(d_data) > 1:
+            print (d_data)
             decision_frames.append(float(d_data[20]))
             decision_y.append(50.0)
             # d_id = d_['decision_id']
@@ -162,6 +165,7 @@ print (local_debug_path)
 
 s_frames = []
 s_frames_t = []
+s_frames_y = []
 
 try:
     with open("successful_frames.csv",'r') as fp:
