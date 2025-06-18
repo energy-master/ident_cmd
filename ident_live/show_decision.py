@@ -20,9 +20,9 @@ if not local:
 
 
     # -- from --
-    decisions_path = 'https://marlin-network.hopto.org/mldata/interesting'
+    decisions_path = 'https://marlin-network.hopto.org/mldata/interesting_beta'
     decision_data_path = f'{decisions_path}/{decision_id}.dat'
-
+    print (decision_data_path)
     # -- request --
     r_ = requests.get(decision_data_path, allow_redirects=True, stream=True) 
 

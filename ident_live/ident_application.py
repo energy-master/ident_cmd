@@ -60,7 +60,8 @@ class SpeciesIdent(object):
         self.derived_data = None
         # performance and evaluation
         self.performance = None
-        self.algo_setup.args['run_id'] = self.batch_id
+        
+       
         self.loaded_bots = {}
         self.mode = 0
         self.bulk = 0
@@ -72,6 +73,9 @@ class SpeciesIdent(object):
         self.selected_bots = []
         
         self.selected_loaded_bots = {}
+        
+        if self.algo_setup is not None:
+            self.algo_setup.args['run_id'] = self.batch_id
 
     def generation_reset(self):
         self.performance = performance.Performance()
@@ -110,7 +114,7 @@ class SpeciesIdent(object):
                     print(f'error loading {bot_id} {type(e).__name__}')
                     
 
-    def load_bots(self, filter_data, version="1_0_0", version_time_from="", version_time_to="", bot_dir="", number_features=1000, update=False, direct=False, memory_limit = None):
+    def load_bots(self, filter_data="harbour_porpoise", version="1_0_0/1_0_1", version_time_from="2022-06-03 12:10:00", version_time_to="", bot_dir="", number_features=5000, update=False, direct=False, memory_limit = 1000000):
         # print (filter_data)
        
         print ("====== loading bots =======")
@@ -230,7 +234,9 @@ class SpeciesIdent(object):
                         print ("adding")
                         # print (bot.env)
                         # self.loaded_bots
-                        
+                        # print (bot)
+                        # print(bot.printStr())
+                        # exit()
                         self.selected_bots.append(bot_id)
                         features_name_list.append(bot_id)
                         self.loaded_bots[bot_id] = bot
@@ -325,20 +331,20 @@ class SpeciesIdent(object):
                 if bot_id not in node_tracker:
                     nxG.add_node(bot_id)
                     nxG.add_edge(bot_id, core_node)
-                    nodeSizes.append(5)
-                    color_map.append('red')
+                    nodeSizes.append(20)
+                    color_map.append('blue')
                     node_tracker.append(bot_id)
             else:
                 
                 if bot_id not in node_tracker:
                     nxG.add_node(bot_id)
-                    nodeSizes.append(15)
+                    nodeSizes.append(20)
                     node_tracker.append(bot_id)
                     color_map.append('blue')
                 
                 if bot.parent not in node_tracker:
                     nxG.add_node(bot.parent)
-                    nodeSizes.append(15)
+                    nodeSizes.append(5)
                     node_tracker.append(bot.parent)
                     color_map.append('green')
                 
@@ -349,13 +355,14 @@ class SpeciesIdent(object):
         #Draw the graph
         print (len(nodeSizes))
         print (len(node_tracker))
+        print (nxG)
         nx.draw(nxG, with_labels=False,node_size=nodeSizes, node_color=color_map)
 
         #Show the graph
         plt.plot()
         
         plt.savefig(f'{dump_path}/networks/network.png')
-        exit()
+        
             
     
 

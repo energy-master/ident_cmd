@@ -11,7 +11,7 @@ api_url = f'https://marlin-network.hopto.org/cgi-bin/upload_acoustic.php'
 filename    =   sys.argv[1] #must be full path (e.g. /home/user/data/_YYYYMMDD_HHMMSS_000.wav) Also note format of acoustic file
 location    =   sys.argv[2]
 user_uid    =   '0001vixen'
-api_key     =   '_marlin_ellen_001'
+api_key     =   '_marlin_tandon_0001'
 
 # open the file stream
 file_stream = open(filename,'rb')

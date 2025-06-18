@@ -18,7 +18,12 @@ from threading import Thread
 # flag for loading multiple models / feature types (env)
 multiple_models = True
 
+# timing structure
 duration = {}
+
+# chat output from sim
+global_output = {}
+
 
 import  sys
 import  os
@@ -90,7 +95,7 @@ from multiprocessing import Process
 
 
 # decision tolerance
-bm_delta_t = 1.0
+bm_delta_t = 0.5
 
 def print_benchmark(results):
     out_results = {
@@ -240,6 +245,8 @@ def main_run():
     out_path = config['OUT_DIR']
     DUMP_PATH = config['DUMP_PATH']
 
+    
+    
 
     # required for librosa
     NUMBA_CACHE_DIR = os.path.join(
@@ -376,6 +383,13 @@ def main_run():
         shell_config['time_chunk_from'] = start_time_chunk
         shell_config['time_chunk_to'] = end_time_chunk
         
+        #save to chat output
+        global_output['sim_setup'] = shell_config
+
+        # with open('html/data/global_out.json','a+') as f:
+        #     json.dump(global_output,f)
+
+        # exit()
 
         # !Run DB updates
         # send_new_run(filename, target, user_uid, location, json.dumps(shell_config))
@@ -690,16 +704,17 @@ def main_run():
         
         application.loaded_bots = application.selected_loaded_bots
         
-        # application.build_network(dump_path = DUMP_PATH)
+        logger_.info(f'Building bot network visualisation.')
+        application.build_network(dump_path = DUMP_PATH)
         
         num_live_bots = len(application.loaded_bots.keys())
         print (f'Number of live bots : {num_live_bots}')
         print (f'Signatures : {application.loaded_targets}')
         print (list(application.loaded_bots.keys()))
-
+        
         logger_.info(f'Number loaded : {num_loaded}')
         
-        # exit()
+        
         application.mode = 1
         application.multiple_data = 1
         # create new run in db
@@ -734,7 +749,7 @@ def main_run():
         # ------------------------------------------------------------------
 
         marlin_game = IdentGame(
-            application, None, activation_level=user_activation_level)
+            application, None, activation_level=user_activation_level, global_chat = global_output)
         marlin_game.game_id = filename_ss_id_rnd
 
         Path(f'{out_path}/{marlin_game.game_id}').mkdir(parents=True, exist_ok=True)
@@ -916,9 +931,13 @@ def main_run():
 
             if len(marlin_game.bulk_times) > 2:
                 # build spec with overlaying decisions & energy plots
-                time_seconds = build_spec_upload(sample_rate, marlin_game.game_id, hits=hits, decisions=decisions, peak=ratio_active,
+                time_seconds,active_bots = build_spec_upload(sample_rate, marlin_game.game_id, hits=hits, decisions=decisions, peak=ratio_active,
                                     avg=avg_energies, times=marlin_game.bulk_times, bulk_energies = marlin_game.bulk_energies,pc_above_e=ratio_active, f=[], full_raw_data=raw_data, save_path=out_path, max_energies = max_energy, targets=soft_max_targets, interesting=interesting, training_labels = my_labels, memory = marlin_game.memory_tracker, activation_level=user_activation_level)
 
+
+            print (f'active bots : ')
+            for bot_id_ in active_bots:
+                print (f'{bot_id_} \n')
 
             #! update
             # update_run(filename,12.4)
@@ -1026,7 +1045,9 @@ def main_run():
                             # if _r > 0:
                             #     print (f'{user_threshold_above_e}  [{ff} : {number_active_} {_r}] ')
 
-
+        with open('html/data/global_out.json','a+') as f:
+            json.dump(f, global_output)
+        
         # print (set(failed_bots))
         # quit real time data stream  
         global __plotting__

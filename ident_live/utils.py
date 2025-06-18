@@ -269,6 +269,7 @@ def build_spec_upload(sample_rate, game_id,  hits, decisions, peak, avg, times, 
                  mode="magnitude", cmap="ocean")
 
     r_flag = random.randint(0,99999)
+    print (save_path)
 
     filepath = f'{save_path}/{game_id}{r_flag}_decisions.png'
     plot_time = []
@@ -279,7 +280,7 @@ def build_spec_upload(sample_rate, game_id,  hits, decisions, peak, avg, times, 
         training_y = 40000
         training_x = float(label_time)
         rgba = cmap(0.999)
-        plt.plot(training_x, training_y, 'go', color=rgba)
+        plt.plot(training_x, training_y, marker = 'o', color = rgba )
         
    
     
@@ -296,7 +297,7 @@ def build_spec_upload(sample_rate, game_id,  hits, decisions, peak, avg, times, 
         
         rgba = cmap(search_v)
         y_val = (int(targets.index(idx['target'])) * 2000) + 1000
-        plt.plot(float(_d_t.total_seconds()), y_val, 'go', color=rgba)
+        plt.plot(float(_d_t.total_seconds()), y_val, marker = 'o', color = rgba)
 
 
     for time in times:
@@ -380,7 +381,13 @@ def build_spec_upload(sample_rate, game_id,  hits, decisions, peak, avg, times, 
     plot_time = []
 
 
-
+     # training data plot
+    for label_time in training_labels:
+        training_y = 40000
+        training_x = float(label_time)
+        rgba = cmap(0.999)
+        plt.plot(training_x, training_y, marker = 'o', color = rgba )
+      
 
 
     for idx in interesting:
@@ -394,7 +401,7 @@ def build_spec_upload(sample_rate, game_id,  hits, decisions, peak, avg, times, 
         
         rgba = cmap(search_v)
         y_val = (int(targets.index(idx['target'])) * 2000) + 1000
-        plt.plot(float(_d_t.total_seconds()), y_val, 'go', color=rgba)
+        plt.plot(float(_d_t.total_seconds()), y_val, marker = 'o', color = rgba)
 
 
     for time in times:
@@ -425,7 +432,7 @@ def build_spec_upload(sample_rate, game_id,  hits, decisions, peak, avg, times, 
     
    
         
-   
+    active_bots = []
     
     # plot individual bot energy profiles for debugging and interest
     for bot_id, energy_profile in bulk_energies.items():
@@ -434,11 +441,17 @@ def build_spec_upload(sample_rate, game_id,  hits, decisions, peak, avg, times, 
         active_segments_x = []
         active_segments_y = []
         
+        save_bot = True
+        
         for iter_number, energy_pt in energy_profile.items():
             t_vals.append(float(plot_time[iter_number]))
             e_vals.append(float(energy_pt))
             if energy_pt > activation_level:
                 # print (f'e {energy_pt}, {activation_level}')
+                # save = True
+                if bot_id not in active_bots:
+                    active_bots.append(bot_id)
+                    save_bot = True
                 active_segments_y.append(1.05)
                 active_segments_y.append(1.05)
                 history_time = max(0,(float(plot_time[iter_number]) - float((memory[bot_id] / 1000))))
@@ -448,25 +461,38 @@ def build_spec_upload(sample_rate, game_id,  hits, decisions, peak, avg, times, 
                 plt.plot((active_segments_x),(active_segments_y), color = 'blue', lw=2.0)
                 active_segments_x = []
                 active_segments_y = []
-                
+            
+        plt.plot([5.0],[1.0])
         plt.plot((t_vals),(e_vals),lw=0.4)
-        
+        # if save is True:
         # training data plot
         for label_time in training_labels:
             training_y = 1.0
             training_x = float(label_time)
             rgba = cmap(0.999)
-            plt.plot(training_x, training_y, 'go', color=rgba, lw=0.2)
-        plt.ylabel('Energy')
-        plt.xlabel('Time (s)')
-        filepath = f'{save_path}/{bot_id}_activity.png'
-        plt.savefig(filepath)
-        plt.clf()
+            plt.plot(float(training_x), float(training_y), marker = 'o', color = rgba,  lw=2.0)
+            print (training_x,training_y)
+        
+            plt.ylabel('Energy (N)')
+            plt.xlabel('Time (s)')
             
-    
+        if save_bot is True:
+            plt.ylim(0,1.5)
+            filepath = f'{save_path}/{bot_id}_activity.png'
+            plt.savefig(filepath)
+            plt.clf()
+            
+        
+    # plt.clf()
     
     
     for target in targets:
+        
+        for label_time in training_labels:
+            training_y = 0.8
+            training_x = float(label_time)
+            rgba = cmap(0.999)
+            plt.plot(training_x, training_y,  marker = 'o', color = rgba, )
         
         search_v = 0.2
         rgba = cmap(search_v)
@@ -480,6 +506,12 @@ def build_spec_upload(sample_rate, game_id,  hits, decisions, peak, avg, times, 
         
     for target in targets:
         
+        for label_time in training_labels:
+            training_y = 0.8
+            training_x = float(label_time)
+            rgba = cmap(0.999)
+            plt.plot(training_x, training_y,  marker = 'o', color = rgba, )
+        
         search_v = 0.2
         rgba = cmap(search_v)
         plt.plot(plot_time[0:t_len-2], pc_above_e[target][0:t_len-2], color=rgba)
@@ -491,6 +523,11 @@ def build_spec_upload(sample_rate, game_id,  hits, decisions, peak, avg, times, 
         plt.clf()
         
     for target in targets:
+        for label_time in training_labels:
+            training_y = 0.8
+            training_x = float(label_time)
+            rgba = cmap(0.999)
+            plt.plot(training_x, training_y,  marker = 'o', color = rgba, )
         
         search_v = 0.2
         rgba = cmap(search_v)
@@ -527,7 +564,7 @@ def build_spec_upload(sample_rate, game_id,  hits, decisions, peak, avg, times, 
     
     
     #return time in delta t from start to file
-    return plot_time
+    return plot_time, active_bots
 
 def build_spec(data,  id, bot_id, n_fft=None, f_min=0, f_max=0, custom=0, sr=96000, identifier=0, times=[], energies=[], hits=[], activation_level=0.2):
     print("building spec")

@@ -25,10 +25,11 @@ except:
     print ("No model provided")
 # -- from --
 decisions_path = 'https://marlin-network.hopto.org/mldata/decisions'
-energies_path = f'https://marlin-network.hopto.org/mldata/interesting/energies/{bot_id}.dat'
+energies_path = f'https://marlin-network.hopto.org/mldata/interesting_beta/energies/{bot_id}.dat'
 
 DUMP_PATH = "/Volumes/MARLIN_1"
 GENETIC_DUMP = "/Volumes/MARLIN_1/genetic_dump"
+BOT_PATH = "/Users/vixen/rs/dev/ident_live/ident_live/hp_bots"
 # -- download decisions ---
 r_ = requests.get(decisions_path, allow_redirects=True, stream=True) 
 html = r_.text   
@@ -78,39 +79,11 @@ if model is not None:
     
     
     
-    save_filepath = f'{bot_id}.vixen'
-    if not os.path.isfile(save_filepath):
-        
-        features_file_path = f'https://marlin-network.hopto.org/ident/bots_repo/{model}/{bot_id}.vixen'
-    
-    
-        r_ = requests.get(features_file_path, allow_redirects=True, stream=True)
-        total_length = r_.headers.get('content-length')
-    
-    
-        f = open(save_filepath, 'wb')
-        dl = 0
-        total_length = int(total_length)
-    
-        for data in r_.iter_content(chunk_size=500):
-            dl += len(data)
-            f.write(data)
-            done = int(50* dl / total_length)
-            sys.stdout.write("\r[%s%s]" % ('=' * done, ' ' * (50-done)))
-            sys.stdout.flush()
 
-        sys.stdout.flush()
-    
-    else:
-      # load bot
+    bot_fp = f'{BOT_PATH}/{model}/{bot_id}.vixen'
 
-    # import time as t
-    # t.sleep(2)
-
-
-        bot_fp = f'{bot_id}.vixen'
-
-        print (bot_fp)
+    print (bot_fp)
+    try:
         with open(bot_fp,'rb') as bfp:
             bot = pickle.load(bfp)
 
@@ -120,8 +93,24 @@ if model is not None:
         bot_formatted_str = json.dumps(bot_structure_json,indent=10)
 
         print (bot_formatted_str)
+        print ("==================================================================")
+        print ("==================================================================")
+        print (f'Data acquisition and DM information for {bot_id}')
+        try:
+            print (bot.training_data_desc)
+            print (bot.study_focus)
+        except:
+            print ("Data not provided")
+        print ("==================================================================") 
+        print ("==================================================================")
+        
+    except:
+        pass    
 
+attrs = vars(bot)
+print(', '.join("%s: %s" % item for item in attrs.items()))
 
+exit()
 
 print ("---LOCAL DATA---")
 local_decision_path = f'{DUMP_PATH}/decisions/{bot_id}_decisions.csv'
@@ -288,13 +277,13 @@ for gid, data in pc_v.items():
     # print (decision_y)
     rgba = cmap(0.1)
     if gid in trigger_frames:
-        plt.plot(trigger_frames[gid], triggers[gid], 'go', color=rgba, lw=0.2)
+        plt.plot(trigger_frames[gid], triggers[gid], color=rgba, lw=0.2)
     
     rgba = cmap(0.5)
-    plt.plot(decision_frames, decision_y, 'go', color=rgba, lw=0.2)
+    plt.plot(decision_frames, decision_y, color=rgba, lw=0.2)
     
     rgba = cmap(0.5)
-    plt.plot(s_frames, s_frames_y, 'go', color=rgba, lw=0.1)
+    plt.plot(s_frames, s_frames_y, color=rgba, lw=0.1)
     
     
     
@@ -303,6 +292,7 @@ for gid, data in pc_v.items():
     plt.ylim(0,100)
     plt.savefig(f'{GENETIC_DUMP}/pc_spike_debug_{gid}.png')
     plt.clf()
+    
     
     # -- averge e
     fig, ax1 = plt.subplots(figsize=(8, 8))
@@ -350,30 +340,31 @@ for gid, data in pc_v.items():
 
 
 
-# optimisation energy profile
-energy_profile = []
-iter_profile  = [] 
+# # optimisation energy profile
+# energy_profile = []
+# iter_profile  = [] 
+# # print (energies_path)
+# # r_e = requests.get(energies_path, allow_redirects=True, stream=True)
 # print (energies_path)
-# r_e = requests.get(energies_path, allow_redirects=True, stream=True)
-with requests.get(energies_path, stream=True) as r:
-    lines = (line.decode('utf-8') for line in r.iter_lines())
-    iter_cnt = 0
-    for row in csv.reader(lines):
-        energy_profile.append(float(row[0]))
-        iter_profile.append(float(iter_cnt))
-        iter_cnt += 1 
+# with requests.get(energies_path, stream=True) as r:
+#     lines = (line.decode('utf-8') for line in r.iter_lines())
+#     iter_cnt = 0
+#     for row in csv.reader(lines):
+#         energy_profile.append(float(row[0]))
+#         iter_profile.append(float(iter_cnt))
+#         iter_cnt += 1 
     
         
-# === plot optimisation energy profile ===
-fig, ax1 = plt.subplots(figsize=(8, 8))
+# # === plot optimisation energy profile ===
+# fig, ax1 = plt.subplots(figsize=(8, 8))
 
 
     
-rgba = cmap(0.999)
-plt.plot(iter_profile, energy_profile,color=rgba)
+# rgba = cmap(0.999)
+# plt.plot(iter_profile, energy_profile,color=rgba)
 
 
-plt.ylabel('Energy')
-plt.xlabel('Iter #')
-plt.savefig(f'op_profile_{bot_id}.png')
-plt.clf()
+# plt.ylabel('Energy')
+# plt.xlabel('Iter #')
+# plt.savefig(f'op_profile_{bot_id}.png')
+# plt.clf()

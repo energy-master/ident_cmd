@@ -58,7 +58,7 @@ class TracePrints(object):
 
 class IdentGame(object):
 
-    def __init__(self, application=None, data_manager=None, game_id="", activation_level=0.7):
+    def __init__(self, application=None, data_manager=None, game_id="", activation_level=0.7, global_chat = {}):
         self.game = application
 
         self.energy_tracker = {}
@@ -80,6 +80,9 @@ class IdentGame(object):
         self.bot_decision_tracker = {}
         self.memory_tracker = {}
         self.transcription_tracker = {}
+        
+        self.global_chat = global_chat
+        self.global_chat['simulation_overview'] = []
 
     def world_step(self):
         pass
@@ -239,6 +242,11 @@ class IdentGame(object):
                             # utc_tz = pytz.timezone('UTC')
                             self.bulk_times[total_iter_cnt] = date_string
                             if float(express_level) > float(self.activation_level):
+                                active_data = {
+                                    'time_stamp' : date_string,
+                                    'energy' : express_level
+                                }
+                                self.global_chat['simulation_overview'][bot.name][total_iter_cnt] = active_data
                                 # print (f'adding active feature in time_frame : {idx_iter}')
                                 if total_iter_cnt not in self.active_features:
                                     self.active_features[total_iter_cnt] = []
@@ -392,8 +400,9 @@ class IdentGame(object):
                 
                 decision_text = self.game.performance.showBotDecisions(bot_name=bot.name, verbose=False)
                 decision_name = f'{bot.name}_decisions.csv'
-                with open(f'{DUMP_PATH}/decisions/{decision_name}', 'w') as f:
-                    f.write(decision_text)
+                if decision_text != "":
+                    with open(f'{DUMP_PATH}/decisions/{decision_name}', 'w') as f:
+                        f.write(decision_text)
                 
                 #save waveform data for decision(s)
                 try:
@@ -615,6 +624,10 @@ class IdentGame(object):
         for bot_name, bot in self.game.loaded_bots.items():
             # try:
             # print (f'running {bot_name}')
+            # self.global_chat['simulation_overview'].append({})
+            self.global_chat['simulation_overview'] ={}
+            # print (bot_name)
+            self.global_chat['simulation_overview'][bot_name] = {}
             iter_res = self.bot_step(
                 bot, listen_start_idx=0, step_end_index=0, DUMP_PATH=dump_path)
             # except:
@@ -637,7 +650,8 @@ class IdentGame(object):
     def play(self):
 
         for op_run in range(1, 10):
-
+            
+            
             number_generations = self.game.algo_setup.args['number_generations']
             number_bots = self.game.algo_setup.args['population_size']
             with Progress() as progress:
