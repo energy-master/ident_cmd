@@ -228,6 +228,15 @@ def plotter():
 
     
 def main_run():
+    
+    # --- OUT FILE CLEAR UP ---
+    
+    # clear global out/chat [nb change hardcode path]
+    syscmd = "rm -f /Users/vixen/rs/dev/ident_live/ident_live/html/data/*"
+    r = os.system(syscmd)
+   
+   
+    
     # --- APPLICATION CONFIGURATION ---
     # open environment file
     load_dotenv()
@@ -384,7 +393,7 @@ def main_run():
         shell_config['time_chunk_to'] = end_time_chunk
         
         #save to chat output
-        global_output['sim_setup'] = shell_config
+        # global_output['sim_setup'] = shell_config
 
         # with open('html/data/global_out.json','a+') as f:
         #     json.dump(global_output,f)
@@ -708,6 +717,7 @@ def main_run():
         application.build_network(dump_path = DUMP_PATH)
         
         num_live_bots = len(application.loaded_bots.keys())
+        global_output['number_bots'] = num_live_bots
         print (f'Number of live bots : {num_live_bots}')
         print (f'Signatures : {application.loaded_targets}')
         print (list(application.loaded_bots.keys()))
@@ -749,7 +759,7 @@ def main_run():
         # ------------------------------------------------------------------
 
         marlin_game = IdentGame(
-            application, None, activation_level=user_activation_level, global_chat = global_output)
+            application, None, activation_level=user_activation_level, global_chat = global_output, raw_data = raw_data, raw_sample_rate = sample_rate)
         marlin_game.game_id = filename_ss_id_rnd
 
         Path(f'{out_path}/{marlin_game.game_id}').mkdir(parents=True, exist_ok=True)
@@ -1045,8 +1055,8 @@ def main_run():
                             # if _r > 0:
                             #     print (f'{user_threshold_above_e}  [{ff} : {number_active_} {_r}] ')
 
-        with open('html/data/global_out.json','a+') as f:
-            json.dump(f, global_output)
+        with open('html/data/global_out.json','w') as f:
+            json.dump(global_output,f)
         
         # print (set(failed_bots))
         # quit real time data stream  

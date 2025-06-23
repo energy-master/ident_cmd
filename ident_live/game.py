@@ -36,6 +36,7 @@ from multiprocessing import Process, Queue
 # os.environ['DECISION_FOLDER_USR'] = DECISION_FOLDER_USR
 # sys.path.insert(0, os.environ['DECISION_FOLDER_USR'])
 
+cmap = matplotlib.cm.get_cmap('Spectral')
 
 from custom_decisions import *
 from custom_decisions import IdentEvaluation,  IdentDecision
@@ -58,7 +59,7 @@ class TracePrints(object):
 
 class IdentGame(object):
 
-    def __init__(self, application=None, data_manager=None, game_id="", activation_level=0.7, global_chat = {}):
+    def __init__(self, application=None, data_manager=None, game_id="", activation_level=0.7, global_chat = {}, raw_data = [], raw_sample_rate = 1):
         self.game = application
 
         self.energy_tracker = {}
@@ -73,6 +74,7 @@ class IdentGame(object):
         self.run_stats = {}
         self.collect_stats = True
 
+
         self.number_run_idx = 0
 
         # data structures for recording decision analysis and data
@@ -82,15 +84,86 @@ class IdentGame(object):
         self.transcription_tracker = {}
         
         self.global_chat = global_chat
-        self.global_chat['simulation_overview'] = []
+        
+        self.global_chat['simulation_bot_overview'] ={}
+        self.global_chat['frame_overview'] = {}
+        # self.global_chat['number_bots'] = 0
+        self.global_chat['last_bot_iter'] = 0
+        # raw waveform data (the whole input)
+        self.raw_data = raw_data
+        self.raw_sample_rate = raw_sample_rate
+        self.activity_frames = {}
+        self.active_envionments = []
+        
+        
 
     def world_step(self):
         pass
 
+
+    # show data build up during simulation and before decisions ( activity )
+    def dump_current_data(self):
+        
+        with open('html/data/global_out.json','w') as f:
+            json.dump(self.global_chat,f)
+        
+        start_time_dt = datetime.datetime.strptime(self.bulk_times[0], "%Y-%m-%dT%H:%M:%S.%fZ")
+        delta_t_dt = datetime.datetime.strptime(
+        self.bulk_times[1], "%Y-%m-%dT%H:%M:%S.%fZ") - start_time_dt
+
+        
+        n_fft = 8192
+        y = None
+        
+        y = self.raw_data
+        sample_rate = self.raw_sample_rate
+        fig, ax1 = plt.subplots(figsize=(14, 6))
+        plt.specgram(y, NFFT=n_fft, Fs=sample_rate, scale="dB",
+                    mode="magnitude", cmap="ocean")
+
+
+        # ---- overlaying data ----
+        
+        for env in self.active_envionments:
+            time_v = []
+            value_v =[]
+            for iteration_number,ts in self.bulk_times.items():
+                t_v = datetime.datetime.strptime(ts, "%Y-%m-%dT%H:%M:%S.%fZ") - start_time_dt
+                
+                time_v.append(float(t_v.total_seconds()))
+                
+                e_v = 1000
+                if iteration_number in list(self.activity_frames.keys()):
+                    if env in self.activity_frames[iteration_number]:
+                        e_v = 10000
+                   
+                
+                value_v.append(float(e_v))
+            #plot
+            rgba = cmap(0.999)
+            plt.plot(time_v, value_v, color = rgba )
+                
+        
+        
+        
+        # -------------------------
+
+        r_flag = random.randint(0,99999)
+        save_path = 'html/data'
+        last_iter = self.global_chat['last_bot_iter']
+        filepath = f'{save_path}/active_spectrogram{last_iter}.png'
+        
+        plt.ylabel('Frequency (Hz)')
+        plt.xlabel('Time (s)')
+        plt.savefig(filepath)
+            
+
     def bot_step(self, bot=None, generation=0, listen_start_idx=0, step_end_index=0, DUMP_PATH="."):
         
+        
+        
         if bot is not None:
-            
+            self.global_chat['last_bot_iter'] += 1
             print(f'{bot.name} Start')
             max_memory = bot.GetMemory()
             print (f'bot memory : {max_memory}')
@@ -228,6 +301,10 @@ class IdentGame(object):
                             express_level = random.uniform(0.95, 1.0)
 
                         if self.game.mode == 1 and self.game.bulk == 1:
+                            
+                            if bot.env not in self.active_envionments:
+                                self.active_envionments.append(bot.env)
+                                
                             # print (f'running : {idx_iter} | {bot.name}')
                             self.bulk_energies[bot.name][total_iter_cnt] = express_level
                             # print (iter_start_time)
@@ -242,11 +319,31 @@ class IdentGame(object):
                             # utc_tz = pytz.timezone('UTC')
                             self.bulk_times[total_iter_cnt] = date_string
                             if float(express_level) > float(self.activation_level):
+                                
                                 active_data = {
+                                    
                                     'time_stamp' : date_string,
-                                    'energy' : express_level
+                                    'energy' : express_level,
+                                    'environment' : bot.env,
+                                    'bot_name' : bot.name
+                                    
                                 }
-                                self.global_chat['simulation_overview'][bot.name][total_iter_cnt] = active_data
+                                
+                                if total_iter_cnt in self.activity_frames:
+                                    self.activity_frames[total_iter_cnt].append(active_data['environment'])
+                                else:
+                                    self.activity_frames[total_iter_cnt] = []
+                                    self.activity_frames[total_iter_cnt].append(active_data['environment'])
+                                    
+
+                                
+                                
+                                self.global_chat['simulation_bot_overview'][bot.name][total_iter_cnt] = active_data
+                                if total_iter_cnt in self.global_chat['frame_overview']:
+                                    self.global_chat['frame_overview'][total_iter_cnt].append(active_data)
+                                else:
+                                    self.global_chat['frame_overview'][total_iter_cnt] = []
+                                    self.global_chat['frame_overview'][total_iter_cnt].append(active_data)
                                 # print (f'adding active feature in time_frame : {idx_iter}')
                                 if total_iter_cnt not in self.active_features:
                                     self.active_features[total_iter_cnt] = []
@@ -622,14 +719,18 @@ class IdentGame(object):
         
         
         for bot_name, bot in self.game.loaded_bots.items():
+            
             # try:
             # print (f'running {bot_name}')
             # self.global_chat['simulation_overview'].append({})
-            self.global_chat['simulation_overview'] ={}
+            
             # print (bot_name)
-            self.global_chat['simulation_overview'][bot_name] = {}
+            self.global_chat['simulation_bot_overview'][bot_name] = {}
+            # self.global_chat['number_bots'] += 1
             iter_res = self.bot_step(
                 bot, listen_start_idx=0, step_end_index=0, DUMP_PATH=dump_path)
+            
+            self.dump_current_data()
             # except:
             #     print ("erro")
             # progress.update(task1, advance=1)
