@@ -13,7 +13,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script type="text/javascript" src="js/d3.v5.min.js"></script>
     <script type="text/javascript" src="js/spectrogram.js"></script>
-    
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/0.10.0/lodash.min.js"></script>
 </head>
 <body>
     <br>
@@ -24,13 +24,16 @@
   
     <div class="row">
 
-        <div class="col-6">
+        <div class="col-12">
             <h1>IDent Simulation</h1>
         </div>
-        <div class="col-6">
+       
+
+    </div>
+    <div class="row">
+        <div class="col-12">
             <div id="sim_progress"></div>
         </div>
-
 
     </div>
 
@@ -46,7 +49,16 @@
     </div>
 
 <br>
-    <div id="main_story">
+
+<div class="row">
+    <div class="col-12">
+        <div class="img-fluid"><canvas id="activity_profile_plot"></canvas></div>
+    </div>
+
+</div>
+
+<br>
+    <div id="main_story" style = "display:none">
         <table class="table">
 
             <thead>

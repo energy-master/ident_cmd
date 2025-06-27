@@ -123,6 +123,7 @@ class IdentGame(object):
 
 
         # ---- overlaying data ----
+        env_iter = 0
         
         for env in self.active_envionments:
             time_v = []
@@ -135,14 +136,15 @@ class IdentGame(object):
                 e_v = 1000
                 if iteration_number in list(self.activity_frames.keys()):
                     if env in self.activity_frames[iteration_number]:
-                        e_v = 10000
+                        frequency_env = self.activity_frames[iteration_number].count(env)
+                        e_v = 5000 * frequency_env
                    
                 
                 value_v.append(float(e_v))
             #plot
-            rgba = cmap(0.999)
-            plt.plot(time_v, value_v, color = rgba )
-                
+            rgba = cmap(float(env_iter/len(self.active_envionments)))
+            plt.plot(time_v, value_v, color = rgba, lw=0.2 )
+            env_iter+=1
         
         
         

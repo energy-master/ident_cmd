@@ -1,6 +1,13 @@
 console.log("Build v. 1.0 c. IDent, MARLIN, brahma");
 
-
+function getRandomColor() {
+    var letters = '0123456789ABCDEF';
+    var color = '#';
+    for (var i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+  }
 
 /* Data API */
 let GetRunIDs = new Promise(function (myResolve) {
@@ -10,8 +17,9 @@ let GetRunIDs = new Promise(function (myResolve) {
 });
 
 
-setInterval(run, 1000);
-setInterval(test, 1000);
+// setInterval(run, 1000);
+// setInterval(test, 1000);
+run();
 function test() {
     console.log("testing");
 }
@@ -31,10 +39,11 @@ function run() {
         
 }
 
+// Global frame stats
 frame_stats = {}
-frame_stat_obj = {
-    'number_hits': 1
-}
+all_environments = []
+max_iter = 0;
+
 /* DATA functions */
 function BuildFrameStory(data) {
     
@@ -45,7 +54,7 @@ function BuildFrameStory(data) {
     latest_iter = data['last_bot_iter'];
     
     percentage_complete = (latest_iter / number_bots) * 100;
-    console.log(percentage_complete);
+    // console.log(percentage_complete);
   
 
     //grab frame data from response
@@ -54,29 +63,45 @@ function BuildFrameStory(data) {
     //iterate over and group accordingly
     for (const key in frame_data) {
         if (frame_data.hasOwnProperty(key)) {
-            // console.log(`${key} : ${frame_data[key]}`)
+            max_iter = Math.max(max_iter, key);
 
             for (var i = 0; i < frame_data[key].length; i++){
-                // console.log(frame_data[key][i]);
-                // console.log(frame_data[key].length);
-                // console.log(i);
-
-
+                
+               
+                
+                // frame stats
                 if (frame_stats.hasOwnProperty(key)) {
                     frame_stats[key].number_hits = frame_stats[key].number_hits + 1;
                     frame_stats[key].bots.push(frame_data[key][i].bot_name);
                     frame_stats[key].envs.push(frame_data[key][i].environment);
+                    if (!all_environments.includes(frame_data[key][i].environment)) {
+                        all_environments.push(frame_data[key][i].environment);
+                    }
                     frame_stats[key].probability = frame_stats[key].number_hits / number_bots;
+                    if (frame_stats[key].env_hits.hasOwnProperty(frame_data[key][i].environment)) {
+                        frame_stats[key].env_hits[frame_data[key][i].environment] += 1;
+                        frame_stats[key].env_prob[frame_data[key][i].environment] = frame_stats[key].env_hits[frame_data[key][i].environment] / number_bots;
+                    }
+                    else {
+                        frame_stats[key].env_hits[frame_data[key][i].environment] = 1;
+                        frame_stats[key].env_prob[frame_data[key][i].environment] = 1 / number_bots;
+                    }
+
+
                 }
                 else {
                     frame_stats[key] = {
                         'number_hits': 1,
-                        'bots': [],
-                        'envs': [],
+                        'bots': [frame_data[key][i].bot_name],
+                        'envs': [frame_data[key][i].environment],
                         'probability': 1 / number_bots,
-                        'time': frame_data[key][i].time_stamp
-                        
+                        'time': frame_data[key][i].time_stamp,
+                        'env_hits': {},
+                        'env_prob':{}
                     }
+                    frame_stats[key].env_hits[frame_data[key][i].environment] = 1;
+                    frame_stats[key].env_prob[frame_data[key][i].environment] = 1 / number_bots;
+                    
                 }
 
 
@@ -88,14 +113,17 @@ function BuildFrameStory(data) {
 
 
     // console.log(frame_stats)
+    // console.log(all_environments);
     
-    // update gui
+    // *** UPDATE GUI ***
     ShowFrameStory();
 
     ShowActiveSpecImage(latest_iter);
 
     ShowSimProgress(percentage_complete);
 
+    ShowActivityPlot();
+    // *** RESET STATS ***
     frame_stats = {}
 
 }
@@ -176,8 +204,123 @@ function ShowSimProgress(percentage_complete) {
     html = ` <div class="progress">
     <div class="progress-bar" role="progressbar" style="width: ${percentage_complete}%" aria-valuenow="${percentage_complete}" aria-valuemin="0" aria-valuemax="100"></div>
     </div>`
-    console.log(percentage_complete);
+    // console.log(percentage_complete);
     var el = document.getElementById('sim_progress');
     el.innerHTML = html;
+    
+}
+
+/*
+* Chart plotting
+*/
+
+function ShowActivityPlot() {
+    
+
+    // const config = {
+    //     type: 'line',
+    //     data: data,
+    //     options: {
+    //         responsive: true,
+    //         plugins: {
+    //             title: {
+    //                 display: true,
+    //                 text: 'Chart.js Line Chart - Cubic interpolation mode'
+    //             },
+    //         },
+    //         interaction: {
+    //             intersect: false,
+    //         },
+    //         scales: {
+    //             x: {
+    //                 display: true,
+    //                 title: {
+    //                     display: true
+    //                 }
+    //             },
+    //             y: {
+    //                 display: true,
+    //                 title: {
+    //                     display: true,
+    //                     text: 'Value'
+    //                 },
+    //                 suggestedMin: -10,
+    //                 suggestedMax: 200
+    //             }
+    //         }
+    //     },
+    // };
+   
+    // build data -> dataset for each environment
+    // const t_vals = Array(max_iter+1).fill(0);
+    t_vals = Array.from({ length: max_iter+1 }, (_, index) => index + 1);
+    plot_datasets = []
+    
+    for (const x of all_environments) {
+        console.log(max_iter);
+        e_vals = Array(max_iter + 1).fill(0);
+        _c_ = getRandomColor();
+        barColors = Array(max_iter + 1).fill(_c_);
+        for (const key in frame_stats) {
+            if (frame_stats[key].env_prob.hasOwnProperty(x)) {
+                e_vals[key] = frame_stats[key].env_prob[x];
+               
+            }
+        }
+
+        plot_datasets.push({
+            label : x,
+            data: e_vals,
+            borderColor: getRandomColor(),
+            backgroundColor:barColors,
+            fill: true,
+            tension: 1.0
+
+        })
+
+
+    }
+    console.log(max_iter);
+    console.log(plot_datasets);
+
+
+    const myChart = new Chart("activity_profile_plot", {
+        type: "bar",
+        data: {
+            labels: t_vals,
+            datasets: plot_datasets,
+        },
+        options: {
+            responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Bot Activity by Env Class'
+                        },
+                    },
+                    interaction: {
+                        intersect: false,
+                    },
+                    scales: {
+                        x: {
+                            display: true,
+                            title: {
+                                display: true
+                            }
+                        },
+                        y: {
+                            display: true,
+                            title: {
+                                display: true,
+                                text: 'Value'
+                            },
+                            suggestedMin: 0,
+                            suggestedMax: 1
+                        }
+                    }
+          }
+      });
+
+
     
 }
